@@ -26,11 +26,17 @@ docker run --name sharp_etl_db -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -e MY
 --  loadType=incremental
 --  logDrivenType=timewindow
 
+-- step=define variable
+-- source=temp
+-- target=variables
+
+SELECT 'RESULT' AS `OUTPUT_COL`;
+
 -- step=print SUCCESS to console
 -- source=temp
 -- target=console
 
-SELECT 'SUCCESS' AS `RESULT`;
+SELECT 'SUCCESS' AS `${OUTPUT_COL}`;
 ```
 
 ### run and check the console output
@@ -64,8 +70,8 @@ The compatible versions of [Spark](http://spark.apache.org/) are as follows:
 | ----- | --------
 | 2.3.x | 2.11
 | 2.4.x | 2.11 / 2.12
-| 3.0.x | 2.12 / 2.13
-| 3.1.x | 2.12 / 2.13
+| 3.0.x | 2.12
+| 3.1.x | 2.12
 | 3.2.x | 2.12 / 2.13
 | 3.3.x | 2.12 / 2.13
 
