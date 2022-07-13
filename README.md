@@ -1,5 +1,7 @@
 ## Sharp ETL
 
+[![Build Status](https://dev.azure.com/izhangzhihao/Sharp%20ETL/_apis/build/status/SharpData.SharpETL?branchName=main)](https://dev.azure.com/izhangzhihao/Sharp%20ETL/_build/latest?definitionId=5&branchName=main) [![License](https://img.shields.io/badge/license-Apache%202-brightgreen.svg)](https://github.com/SharpData/SharpETL/blob/main/LICENSE) [![codecov](https://codecov.io/gh/SharpData/SharpETL/branch/main/graph/badge.svg?token=299D3CIJ7Y)](https://codecov.io/gh/SharpData/SharpETL)
+
 Sharp ETL is a ETL framework that simplifies writing and executing ETLs by simply writing SQL workflow files.
 The SQL workflow file format is combined your favourite SQL dialects with just a little bit of configurations.
 
@@ -52,3 +54,18 @@ root
 |SUCCESS|
 +-------+
 ```
+
+
+## Versions and dependencies
+
+The compatible versions of [Spark](http://spark.apache.org/) are as follows:
+
+| Spark | Scala
+| ----- | --------
+| 2.3.x | 2.11
+| 2.4.x | 2.11 / 2.12
+| 3.0.x | 2.12 / 2.13
+| 3.1.x | 2.12 / 2.13
+| 3.2.x | 2.12 / 2.13
+| 3.3.x | 2.12 / 2.13
+
