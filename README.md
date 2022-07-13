@@ -19,7 +19,13 @@ docker run --name sharp_etl_db -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -e MY
 ./gradlew buildJars -PscalaVersion=2.12 -PsparkVersion=3.3.0 -PscalaCompt=2.12.15
 ```
 
-### save the content as file `hello_world.sql`
+### take a look at `hello_world.sql`
+
+```shell
+cat spark/src/main/resources/tasks/hello_world.sql
+```
+
+you will see the following contents:
 
 ```sql
 -- workflow=hello_world
