@@ -1,0 +1,12 @@
+rootProject.name = 'SharpETL'
+include("core")
+include("data-modeling")
+include("spark")
+include("flink")
+include("datasource:hive2")
+include("datasource:hive3")
+include("datasource:kafka")
+include("datasource:elasticsearch")
+include("datasource:kudu")
+include("datasource:bigquery")
+

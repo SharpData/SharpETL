@@ -1,0 +1,28 @@
+plugins {
+    id "java-library"
+    id 'java'
+}
+
+group 'com.github.sharpdata.sharpetl.datasource'
+version '1.0.0-SNAPSHOT'
+
+
+dependencies {
+    implementation(project(":core"))
+    implementation "org.scala-lang:scala-library:$scalaCompt"
+    implementation "org.scala-lang.modules:scala-collection-compat_$scalaVersion:2.6.0"
+    implementation "org.apache.spark:spark-sql_$scalaVersion:$sparkVersion"
+    if (sparkVersion.startsWith("2.3")) {
+        implementation group: "org.elasticsearch", name: "elasticsearch-spark-20_$scalaVersion", version: "7.7.0"
+    } else if (sparkVersion.startsWith("2.4")) {
+        implementation group: "org.elasticsearch", name: "elasticsearch-spark-20_$scalaVersion", version: "7.14.0"
+    } else if (sparkVersion.startsWith("3") & scalaVersion.startsWith("2.12")) {
+        implementation group: "org.elasticsearch", name: "elasticsearch-spark-30_$scalaVersion", version: "7.16.2"
+    } else if (sparkVersion.startsWith("3") & scalaVersion.startsWith("2.13")) {
+        implementation group: "org.elasticsearch", name: "elasticsearch-spark-30_$scalaVersion", version: "8.1.0"
+    }
+}
+
+test {
+    useJUnitPlatform()
+}

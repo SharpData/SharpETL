@@ -1,0 +1,6 @@
+etl.workflow.path=tasks
+
+encrypt.algorithm=PBEWithMD5AndDES
+encrypt.password=cGFzc3dvcmQ=
+
+some.password=ENC(XVfx2J3gunlX5v+/6YEwpU5/cgKsSr3LNFYheL5Eg5aYh13BnWWE6g==)

@@ -1,0 +1,501 @@
+plugins {
+    id "java"
+    id "application"
+    id "scala"
+    id "com.github.alisiikh.scalastyle"
+    id "com.github.johnrengelman.shadow" version "6.1.0"
+    id "com.github.maiflai.scalatest"
+    id "maven-publish"
+}
+
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+group = 'com.github.sharpdata.sharpetl'
+sourceCompatibility = 1.8
+version = '1.0.0-SNAPSHOT'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            afterEvaluate {
+                artifact(tasks.findByName("shadowJar"))
+                artifact(tasks.findByName("sourceJar"))
+            }
+        }
+    }
+    repositories {
+//        maven {
+//            name 'maven-snapshots'
+//            url "http://repo.maven.com/repository/maven-snapshots"
+//            credentials {
+//                username project.repoUser
+//                password project.repoPassword
+//            }
+//        }
+
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/SharpData/SharpETL")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
+        }
+    }
+}
+
+
+dependencies {
+    implementation(project(":core"))
+    implementation(project(":data-modeling"))
+    compileOnly(project(":datasource:hive3"))
+    testImplementation(project(":datasource:hive2"))
+    implementation(project(":datasource:kafka"))
+    implementation(project(":datasource:elasticsearch"))
+    implementation(project(":datasource:bigquery"))
+
+    scoverage project(':core').sourceSets.scoverage.output
+    scoverage project(':data-modeling').sourceSets.scoverage.output
+    scoverage project(':datasource:hive3').sourceSets.scoverage.output
+    scoverage project(':datasource:hive2').sourceSets.scoverage.output
+    scoverage project(':datasource:kafka').sourceSets.scoverage.output
+    scoverage project(':datasource:elasticsearch').sourceSets.scoverage.output
+    scoverage project(':datasource:bigquery').sourceSets.scoverage.output
+
+    implementation "net.liftweb:lift-json_$scalaVersion:3.4.3"
+    implementation "org.scala-lang:scala-compiler:$scalaCompt"
+    implementation "org.scala-lang:scala-library:$scalaCompt"
+    implementation "org.scala-lang:scala-reflect:$scalaCompt"
+    implementation "org.scala-lang.modules:scala-collection-compat_$scalaVersion:2.6.0"
+    implementation "com.google.guava:failureaccess:1.0.1"
+    implementation "com.jayway.jsonpath:json-path:2.6.0"
+    implementation "com.google.guava:guava:29.0-jre"
+    implementation "org.apache.spark:spark-sql_$scalaVersion:$sparkVersion"
+    implementation "org.apache.spark:spark-core_$scalaVersion:$sparkVersion"
+    implementation "org.apache.spark:spark-streaming_$scalaVersion:$sparkVersion"
+    implementation "org.apache.spark:spark-streaming-kafka-0-10_$scalaVersion:$sparkVersion"
+    implementation "org.apache.kafka:kafka-clients:2.0.0"
+    if (sparkVersion.startsWith("3.2") | sparkVersion.startsWith("3.3")) {
+        implementation "io.delta:delta-core_$scalaVersion:1.2.1"
+    } else if (sparkVersion.startsWith("3")) {
+        implementation "io.delta:delta-core_$scalaVersion:1.0.1"
+    } else if (sparkVersion.startsWith("2")) {
+        implementation "io.delta:delta-core_$scalaVersion:0.6.1"
+    }
+    compileOnly 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
+    implementation "com.jcraft:jsch:0.1.55"
+    implementation "org.jpmml:pmml-agent:1.5.3"
+    implementation "org.jpmml:pmml-model:1.5.3"
+    implementation "org.jpmml:pmml-evaluator:1.5.3"
+    implementation "org.jpmml:pmml-evaluator-extension:1.5.3"
+    if (scalaVersion.startsWith("2.13")) {
+        implementation "com.crealytics:spark-excel_$scalaVersion:3.2.0_0.16.1-pre1"
+    } else {
+        implementation "com.crealytics:spark-excel_$scalaVersion:0.13.1"
+    }
+    implementation("commons-net:commons-net") {
+        version {
+            strictly '3.1'
+        }
+    }
+    implementation("org.apache.logging.log4j:log4j-core") {
+        version {
+            require '2.17.1'
+        }
+    }
+    implementation 'io.github.classgraph:classgraph:4.8.149'
+    implementation group: 'com.jolbox', name: 'bonecp', version: '0.8.0.RELEASE'
+    implementation group: "org.apache.hadoop", name: "hadoop-client", version: "2.7.2"
+    implementation "org.apache.httpcomponents:httpclient:4.5.12"
+    if (sparkVersion.startsWith("3.1")) {
+        implementation("com.fasterxml.jackson.core:jackson-databind") {
+            version {
+                strictly '2.10.0'
+            }
+        }
+    } else if (sparkVersion.startsWith("3.2")) {
+        implementation("com.fasterxml.jackson.core:jackson-databind") {
+            version {
+                strictly '2.12.3'
+            }
+        }
+    } else if (sparkVersion.startsWith("3.3")) {
+        implementation("com.fasterxml.jackson.core:jackson-databind") {
+            version {
+                strictly '2.13.3'
+            }
+        }
+    } else {
+        implementation("com.fasterxml.jackson.core:jackson-databind") {
+            version {
+                strictly '2.6.7.3'
+            }
+        }
+    }
+    implementation group: "org.apache.commons", name: "commons-lang3", version: "3.10"
+    implementation group: "mysql", name: "mysql-connector-java", version: "8.0.19"
+    implementation group: "com.oracle.ojdbc", name: "ojdbc8", version: "19.3.0.0"
+    implementation group: "com.microsoft.sqlserver", name: "mssql-jdbc", version: "9.4.0.jre8"
+    implementation "net.sourceforge.jtds:jtds:1.3.1"
+    implementation group: "com.ibm.informix", name: "jdbc", version: "4.10.14"
+    implementation group: "org.apache.spark", name: "spark-sql-kafka-0-10_$scalaVersion", version: "$sparkVersion"
+    implementation group: "org.postgresql", name: "postgresql", version: "42.2.14"
+    implementation group: "org.mybatis", name: "mybatis", version: "3.5.4"
+    implementation 'info.picocli:picocli:4.6.3'
+
+    implementation("org.fusesource.jansi:jansi") {
+        // old version here otherwise there will crash the JVM,
+        // taken from https://github.com/fusesource/jansi/issues/66#issuecomment-1018386584
+        version {
+            strictly '1.18'
+        }
+    }
+
+    testImplementation group: 'org.mockito', name: "mockito-scala_$scalaVersion", version: '1.16.29'
+    testImplementation group: "org.scalatest", name: "scalatest_$scalaVersion", version: "3.2.11"
+    testImplementation group: "org.scalatest", name: "scalatest-funspec_$scalaVersion", version: "3.2.11"
+    testImplementation group: "org.scalactic", name: "scalactic_$scalaVersion", version: "3.2.11"
+    testImplementation group: "org.pegdown", name: "pegdown", version: "1.4.2"
+    testImplementation("com.github.tomakehurst:wiremock-jre8:2.27.0") {
+        exclude group: "com.fasterxml.jackson.core"
+    }
+    testImplementation group: "org.junit.jupiter", name: "junit-jupiter-api", version: "5.6.2"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.6.2"
+    testRuntimeOnly "com.vladsch.flexmark:flexmark-all:0.62.2"
+//    if (sparkVersion.startsWith('2')) {
+//        testImplementation("com.github.mrpowers:spark-fast-tests_$scalaVersion:0.23.0")
+//    } else if (sparkVersion.startsWith("3")) {
+//        testImplementation("com.github.mrpowers:spark-fast-tests_$scalaVersion:1.0.0")
+//    }
+    testImplementation "org.testcontainers:testcontainers:1.16.2"
+    testImplementation "org.testcontainers:mysql:1.16.2"
+    testImplementation "org.testcontainers:postgresql:1.17.2"
+    testImplementation "org.testcontainers:mockserver:1.16.2"
+    testImplementation "org.mock-server:mockserver-client-java:5.11.2"
+}
+
+configurations.all {
+    exclude group: "org.apache.hadoop", module: "hadoop-annotations"
+}
+
+application {
+    mainClassName = "com.github.sharpdata.sharpetl.spark.Entrypoint"
+}
+
+task slimJar(type: ShadowJar) {
+    classifier 'slim'
+    from(
+            sourceSets.main.output,
+            sourceSets.main.resources
+    )
+    configurations = [project.configurations.compileClasspath]
+    dependencies {
+        include(project(":core"))
+        include(project(":data-modeling"))
+        include(project(":datasource:hive3"))
+        include(project(":datasource:kafka"))
+        include(project(":datasource:elasticsearch"))
+        include(project(":datasource:bigquery"))
+
+        include dependency("com.google.guava:guava:29.0-jre")
+        include dependency("commons-net:commons-net:3.1")
+    }
+    relocate("com.google", "com.github.sharpdata.sharpetl.google") {
+        include 'com/google/guava/**'
+    }
+    relocate "org.apache.commons.net", "com.github.sharpdata.sharpetl.commons.net"
+    archiveFileName = "sharp-etl-spark-slim-${version}.jar"
+}
+
+shadowJar {
+    zip64 true
+    classifier null
+    dependencies {
+        include(project(":core"))
+        include(project(":data-modeling"))
+        include(project(":datasource:hive3"))
+        include(project(":datasource:kafka"))
+        include(project(":datasource:elasticsearch"))
+        include(project(":datasource:bigquery"))
+
+        include dependency("org.scala-lang.modules:scala-collection-compat_$scalaVersion:2.6.0")
+        include dependency("org.mvel:mvel2:2.4.13.Final")
+        include dependency('org.jasypt:jasypt:1.9.3')
+        include dependency("com.lihaoyi:fastparse_$scalaVersion:2.3.3")
+        include dependency("io.github.classgraph:classgraph:4.8.149")
+
+        include dependency("org.elasticsearch:elasticsearch-spark-20_$scalaVersion:7.7.0")
+        include dependency("org.apache.httpcomponents:httpclient:4.5.12")
+        include dependency("org.mybatis:mybatis:3.5.9")
+        include dependency('com.zaxxer:HikariCP:2.6.1')
+        include dependency('org.flywaydb:flyway-core:7.14.0')
+        include dependency("mysql:mysql-connector-java:8.0.19")
+        include dependency("com.oracle.ojdbc:ojdbc8:19.3.0.0")
+        include dependency("org.apache.spark:spark-sql-kafka-0-10_$scalaVersion:$sparkVersion")
+        if (scalaVersion.startsWith('2.11')) {
+            include dependency("org.apache.kudu:kudu-spark2_$scalaVersion:1.9.0")
+        } else if (sparkVersion.startsWith("3")) {
+            include dependency("org.apache.kudu:kudu-spark3_$scalaVersion:1.15.0")
+        }
+        include dependency("io.circe:circe-yaml_$scalaVersion:0.11.0-M1")
+        include dependency("io.circe:circe-core_$scalaVersion:0.12.0-M3")
+        include dependency("io.circe:circe-generic_$scalaVersion:0.12.0-M3")
+        include dependency("io.circe:circe-generic-extras_$scalaVersion:0.12.0-M3")
+        include dependency("org.typelevel:cats-core_$scalaVersion:2.0.0-M4")
+        include dependency("org.typelevel:cats-kernel_$scalaVersion:2.0.0-M4")
+        include dependency("org.postgresql:postgresql:42.2.14")
+        include dependency("com.jcraft:jsch:0.1.55")
+        include dependency("com.cloudera:ImpalaJDBC41:2.6.3")
+        include dependency("com.microsoft.sqlserver:mssql-jdbc:9.4.0.jre8")
+        include dependency('net.sourceforge.jtds:jtds:1.3.1')
+        include dependency("com.ibm.informix:jdbc:4.10.14")
+        include dependency("org.jpmml:pmml-evaluator-extension:1.5.3")
+        include dependency("org.jpmml:pmml-evaluator:1.5.3")
+        include dependency("org.jpmml:pmml-model:1.5.3")
+        include dependency("org.jpmml:pmml-agentn:1.5.3")
+        include dependency("com.google.guava:guava:29.0-jre")
+        include dependency("com.jayway.jsonpath:json-path:2.6.0")
+        include dependency("com.google.guava:failureaccess:1.0.1")
+        include dependency("javax.mail:mail:1.4.7")
+
+        // spark-excel start
+        include dependency("xml-resolver:xml-resolver:1.2")
+        include dependency("xml-apis:xml-apis:1.4.01")
+        include dependency("org.slf4j:slf4j-api:1.7.25")
+        include dependency("org.joda:joda-convert:2.0.1")
+        include dependency("org.apache.xmlbeans:xmlbeans:3.1.0")
+        include dependency("org.apache.poi:poi:4.1.0")
+        include dependency("org.apache.poi:poi-ooxml:4.1.0")
+        include dependency("org.apache.poi:poi-ooxml-schemas:4.1.0")
+        include dependency("org.apache.commons:commons-math3:3.6.1")
+        include dependency("org.apache.commons:commons-collections4:4.3")
+        include dependency("org.apache.commons:commons-compress:1.19")
+        include dependency("joda-time:joda-time:2.9.9")
+        include dependency("edu.princeton.cup:java-cup:10k")
+        include dependency("commons-net:commons-net:3.1")
+        include dependency("commons-codec:commons-codec:1.12")
+        include dependency("com.rackspace.eclipse.webtools.sourceediting:org.eclipse.wst.xml.xpath2.processor:2.1.100")
+        include dependency("com.rackspace.apache:xerces2-xsd11:2.11.1")
+        include dependency("com.monitorjbl:xlsx-streamer:2.1.0")
+        include dependency("com.ibm.icu:icu4j:4.6")
+        include dependency("com.github.virtuald:curvesapi:1.06")
+        include dependency("com.crealytics:spark-excel_$scalaVersion:0.13.1")
+        include dependency('info.picocli:picocli:4.6.3')
+        include dependency("net.liftweb:lift-json_$scalaVersion:3.4.3")
+
+        if (!(scalaVersion.startsWith('2.13') && (sparkVersion.startsWith("3.2") || sparkVersion.startsWith("3.3")))) {
+            include dependency("com.google.cloud.spark:spark-bigquery-with-dependencies_$scalaVersion:0.23.2")
+        }
+    }
+    relocate("com.google", "com.github.sharpdata.sharpetl.google") {
+        include 'com/google/guava/**'
+    }
+    relocate "org.apache.commons.net", "com.github.sharpdata.sharpetl.commons.net"
+    relocate "com.zaxxer.hikari", "com.github.sharpdata.sharpetl.hikari"
+    //from '../hadoop'
+    archiveFileName = "sharp-etl-spark-${version}.jar"
+}
+
+task clearJar(type: Delete) {
+    delete 'build/libs/lib'
+}
+
+tasks.named('processTestResources') {
+    duplicatesStrategy = 'EXCLUDE'
+}
+
+task copyDependencies(type: Copy) {
+    from(project.parent.allprojects.configurations.compileClasspath)
+    into('build/libs/lib')
+    include("scala-collection-compat_$scalaVersion-2.6.0.jar")
+    include("mvel2-2.4.13.Final.jar")
+    include("fastparse_$scalaVersion-2.3.3.jar")
+    include("classgraph-4.8.149.jar")
+    if (sparkVersion.startsWith("2.3")) {
+        include("elasticsearch-spark-20_$scalaVersion-7.7.0.jar")
+    } else if (sparkVersion.startsWith("2.4")) {
+        include("elasticsearch-spark-20_$scalaVersion-7.14.0.jar")
+    } else if (sparkVersion.startsWith("3") & scalaVersion.startsWith("2.12")) {
+        include("elasticsearch-spark-30_$scalaVersion-7.16.2.jar")
+    } else if (sparkVersion.startsWith("3") & scalaVersion.startsWith("2.13")) {
+        include("elasticsearch-spark-30_$scalaVersion-8.1.0.jar")
+    }
+    include("jasypt-1.9.3.jar")
+    include("httpclient-4.5.12.jar")
+    include("mybatis-3.5.9.jar")
+    include("HikariCP-2.6.1.jar")
+    include("flyway-core-7.14.0.jar")
+    include("mysql-connector-java-8.0.19.jar")
+    include("ojdbc8-19.3.0.0.jar")
+    include("spark-sql-kafka-0-10_$scalaVersion-${sparkVersion}.jar")
+    if (scalaVersion.startsWith('2.11')) {
+        include("kudu-spark2_$scalaVersion-1.9.0.jar")
+    } else if (sparkVersion.startsWith("3")) {
+        include("kudu-spark3_$scalaVersion-1.15.0.jar")
+    }
+    include("circe-yaml_$scalaVersion-0.11.0-M1.jar")
+    include("circe-core_$scalaVersion-0.12.0-M3.jar")
+    include("circe-generic_$scalaVersion-0.12.0-M3.jar")
+    include("circe-generic-extras_$scalaVersion-0.12.0-M3.jar")
+    include("cats-core_$scalaVersion-2.0.0-M4.jar")
+    include("cats-kernel_$scalaVersion-2.0.0-M4.jar")
+    include("postgresql-42.2.14.jar")
+    include("jsch-0.1.55.jar")
+    include("ImpalaJDBC41-2.6.3.jar")
+    include("mssql-jdbc-9.4.0.jre8.jar")
+    include("jtds-1.3.1.jar")
+    include("jdbc-4.10.14.jar") // informix
+    include("pmml-evaluator-extension-1.5.3.jar")
+    include("pmml-evaluator-1.5.3.jar")
+    include("pmml-model-1.5.3.jar")
+    include("pmml-agent-1.5.3.jar")
+    include("picocli-4.6.3.jar")
+    include("json-path-2.6.0.jar")
+    include("mail-1.4.7.jar")
+
+    // spark-excel start
+    include("xml-resolver-1.2.jar")
+    include("xml-apis-1.4.01.jar")
+    include("slf4j-api-1.7.25.jar")
+    include("joda-convert-2.0.1.jar")
+    include("xmlbeans-3.1.0.jar")
+    include("poi-4.1.0.jar")
+    include("poi-ooxml-4.1.0.jar")
+    include("poi-ooxml-schemas-4.1.0.jar")
+    include("commons-math3-3.6.1.jar")
+    include("commons-collections4-4.3.jar")
+    include("commons-compress-1.19.jar")
+    include("joda-time-2.9.9.jar")
+    include("java-cup-10k.jar")
+    include("commons-net-3.1.jar")
+    include("commons-codec-1.12.jar")
+    include("org.eclipse.wst.xml.xpath2.processor-2.1.100.jar")
+    include("xerces2-xsd11-2.11.1.jar")
+    include("xlsx-streamer-2.1.0.jar")
+    include("icu4j-4.6.jar")
+    include("curvesapi-1.06.jar")
+    include("spark-excel_$scalaVersion-0.13.1.jar")
+    include("picocli-4.6.3.jar")
+    // spark-excel end
+    include("lift-json_$scalaVersion-3.4.3")
+
+    if (!(scalaVersion.startsWith('2.13') && (sparkVersion.startsWith("3.2") || sparkVersion.startsWith("3.3")))) {
+        include("spark-bigquery-with-dependencies_$scalaVersion-0.23.2.jar")
+    }
+}
+
+task buildJars(type: Copy, dependsOn: [":spark:clearJar", ":spark:shadowJar", ":spark:slimJar", ":spark:copyDependencies"])
+
+task sourceJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+scalastyle {
+    config = file("${rootDir}/scalastyle_config.xml") // path to scalastyle config xml file
+    failOnWarning = true
+    sourceSets {
+        test {
+            skip = true
+        }
+    }
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDirs += [
+                    project(':core').sourceSets.main.resources
+            ]
+        }
+    }
+
+    test {
+        resources {
+            srcDirs += [
+                    project(':data-modeling').sourceSets.test.resources
+            ]
+        }
+        //runtimeClasspath -= files(sourceSets.main.output.resourcesDir)
+    }
+}
+
+task hiveSuit(type: Test) {
+    suite 'com.github.sharpdata.sharpetl.spark.end2end.hive.HiveSuitExecutor'
+}
+
+tasks.named('test') {
+    dependsOn(hiveSuit)
+}
+
+if (scalaVersion.startsWith('2.11')) {
+    if (sparkVersion.startsWith("2.3")) {
+        sourceSets {
+            main {
+                scala {
+                    srcDirs = ['src/main/scala', 'src/main/spark_2.3_scala_211']
+                }
+            }
+            test {
+                scala {
+                    srcDirs = ['src/test/scala']
+                }
+            }
+        }
+    } else if (sparkVersion.startsWith("2.4")) {
+        sourceSets {
+            main {
+                scala {
+                    srcDirs = ['src/main/scala', 'src/main/spark_2.4_scala_211']
+                }
+            }
+            test {
+                scala {
+                    srcDirs = ['src/test/scala']
+                }
+            }
+        }
+    }
+} else {
+    if (sparkVersion.startsWith("2.4")) {
+        sourceSets {
+            main {
+                scala {
+                    srcDirs = ['src/main/scala', 'src/main/spark_2.4_scala_212']
+                }
+            }
+            test {
+                scala {
+                    srcDirs = ['src/test/scala']
+                }
+            }
+        }
+    } else if (sparkVersion.startsWith("3.1")) {
+        sourceSets {
+            main {
+                scala {
+                    srcDirs = ['src/main/scala', 'src/main/spark_3.1_scala_212']
+                }
+            }
+            test {
+                scala {
+                    srcDirs = ['src/test/scala']
+                }
+            }
+        }
+    } else if (sparkVersion.startsWith("3.2") || sparkVersion.startsWith("3.3")) {
+        sourceSets {
+            main {
+                scala {
+                    srcDirs = ['src/main/scala', 'src/main/spark_3.2_scala_212']
+                }
+            }
+            test {
+                scala {
+                    srcDirs = ['src/test/scala']
+                }
+            }
+        }
+    }
+}

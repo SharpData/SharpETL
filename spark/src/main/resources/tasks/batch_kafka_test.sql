@@ -1,0 +1,6 @@
+-- step=1
+-- source=batch_kafka
+--  topics=test
+--  groupId=0
+--  schemaDDL=`id` STRING,`name` STRING
+-- target=console

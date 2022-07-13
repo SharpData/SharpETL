@@ -1,0 +1,2 @@
+CREATE DATABASE sharp_etl;
+CREATE DATABASE hive;

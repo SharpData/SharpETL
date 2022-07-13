@@ -1,0 +1,55 @@
+name: Sharp ETL
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  workflow:
+    runs-on: [ubuntu-latest]
+    strategy:
+#      fail-fast: false
+      matrix:
+        env: [
+            '-PscalaVersion=2.12 -PsparkVersion=3.1.2 -PscalaCompt=2.12.15',
+            '-PscalaVersion=2.12 -PsparkVersion=3.2.0 -PscalaCompt=2.12.15',
+            '-PscalaVersion=2.12 -PsparkVersion=2.4.8 -PscalaCompt=2.12.15',
+            '-PscalaVersion=2.11 -PsparkVersion=2.4.8 -PscalaCompt=2.11.12',
+            '-PscalaVersion=2.11 -PsparkVersion=2.3.2 -PscalaCompt=2.11.12',
+        ]
+
+    steps:
+      - name: setup env variable
+        run: |
+          echo "ENV=${{ matrix.env }}" >> $GITHUB_ENV
+      - uses: actions/checkout@v2
+      - name: Set up JDK 8
+        uses: actions/setup-java@v2
+        with:
+          java-version: '8'
+          distribution: 'adopt'
+
+      - name: Setup Gradle Dependencies Cache
+        uses: actions/cache@v2.1.6
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-caches-${{ matrix.env }}-${{ hashFiles('**/*.gradle', '**/*.gradle.kts') }}
+
+      - name: Setup Gradle Wrapper Cache
+        uses: actions/cache@v2.1.6
+        with:
+          path: ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
+
+      - name: Style Check
+        run: ./gradlew scalastyleMainCheck ${{ matrix.env }}
+
+      - name: Test
+        run: ./gradlew clean test aggregateScoverage ${{ matrix.env }}
+
+      - uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }} # not required for public repos
+          directory: ./build/reports/scoverage/
+          verbose: true

@@ -1,0 +1,25 @@
+-- workflow=compressTar
+--  period=1440
+--  loadType=incremental
+--  logDrivenType=timewindow
+
+-- step=1
+-- source=compresstar
+--  encoding=utf-8
+--  targetPath=/out/
+--  tarPath=/out/((\w*.tar.gz))
+--  tmpPath=/out/tmp/
+--  bakPath=/out/bak/
+--  fileNamePattern=\d{1}.txt
+-- target=do_nothing
+
+-- step=2
+-- source=csv
+--  encoding=utf-8
+--  inferSchema=true
+--  sep=\t
+--  header=false
+--  fileNamePattern=\w*_1.txt
+--  selectExpr=_c0 as num
+--  fileDir=/out/
+-- target=do_nothing

@@ -1,0 +1,28 @@
+plugins {
+    id "java-library"
+    id "com.github.maiflai.scalatest"
+    id "de.undercouch.download" version "4.1.1"
+}
+
+group 'com.github.sharpdata.sharpetl.datasource'
+version '1.0.0-SNAPSHOT'
+
+
+dependencies {
+    implementation(project(":core"))
+    implementation "org.scala-lang:scala-library:$scalaCompt"
+    implementation "org.scala-lang.modules:scala-collection-compat_$scalaVersion:2.6.0"
+    implementation "org.apache.spark:spark-sql_$scalaVersion:$sparkVersion"
+    implementation "org.apache.spark:spark-streaming-kafka-0-10_$scalaVersion:$sparkVersion"
+    implementation 'com.google.code.gson:gson:2.8.9'
+
+    testRuntimeOnly "com.vladsch.flexmark:flexmark-all:0.62.2"
+    testImplementation group: "org.scalatest", name: "scalatest_$scalaVersion", version: "3.2.11"
+    testImplementation group: "org.scalatest", name: "scalatest-flatspec_$scalaVersion", version: "3.2.11"
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+}
+
+test {
+    useJUnitPlatform()
+}

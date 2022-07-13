@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+  PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+  <settings>
+    <setting name="logImpl" value="LOG4J"/>
+    <setting name="mapUnderscoreToCamelCase" value="true"/>
+  </settings>
+  <environments default="development">
+    <environment id="development">
+      <transactionManager type="JDBC"/>
+      <dataSource type="com.github.sharpdata.sharpetl.core.repository.EncryptedDataSourceFactory"/>
+    </environment>
+  </environments>
+  <mappers>
+    <mapper class="com.github.sharpdata.sharpetl.core.repository.mapper.mysql.JobLogMapper"/>
+    <mapper class="com.github.sharpdata.sharpetl.core.repository.mapper.mssql.JobLogMapper"/>
+    <mapper class="com.github.sharpdata.sharpetl.core.repository.mapper.mysql.StepLogMapper"/>
+    <mapper class="com.github.sharpdata.sharpetl.core.repository.mapper.mssql.StepLogMapper"/>
+    <mapper class="com.github.sharpdata.sharpetl.core.repository.mapper.mysql.QualityCheckLogMapper"/>
+    <mapper class="com.github.sharpdata.sharpetl.core.repository.mapper.mssql.QualityCheckLogMapper"/>
+  </mappers>
+</configuration>

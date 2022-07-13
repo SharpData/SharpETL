@@ -1,0 +1,10 @@
+codecov:
+  bot: "codecov-io"
+  require_ci_to_pass: yes
+comment: true
+github_checks: true
+ignore:
+  - "**/datasource/**"
+  - "*Config"
+  - "*Exception"
+  - "*Accessor"

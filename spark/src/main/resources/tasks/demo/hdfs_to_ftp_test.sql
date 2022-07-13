@@ -1,0 +1,8 @@
+-- step=1
+-- source=hdfs
+--  configPrefix=dw
+--  fileNamePattern=()(dw_card_3m_event_.+\.gz)()
+-- target=ftp
+--  configPrefix=dw
+--  fileDir=/hairui/output/dw
+-- writeMode=overwrite

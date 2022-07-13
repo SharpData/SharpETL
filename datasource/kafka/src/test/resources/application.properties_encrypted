@@ -1,0 +1,12 @@
+etl.workflow.path=tasks
+
+encrypt.algorithm=PBEWithMD5AndDES
+encrypt.password=cGFzc3dvcmQ=
+
+some.password=ENC(XVfx2J3gunlX5v+/6YEwpU5/cgKsSr3LNFYheL5Eg5aYh13BnWWE6g==)
+
+kafka.producer.kafka.bootstrap.servers=localhost:9093
+kafka.producer.kafka.security.protocol=SASL_SSL
+kafka.producer.kafka.sasl.kerberos.service.name=kafka
+kafka.producer.kafka.ssl.truststore.location=/var/lib/cloudera-scm-agent/agent-cert/cm-auto-global_truststore.jks
+kafka.producer.kafka.ssl.truststore.password=ENC(XVfx2J3gunlX5v+/6YEwpU5/cgKsSr3LNFYheL5Eg5aYh13BnWWE6g==)

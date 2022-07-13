@@ -1,0 +1,59 @@
+variables:
+  GRADLE_USER_HOME: $(Pipeline.Workspace)/.gradle
+
+trigger:
+  - main
+
+pool:
+  vmImage: ubuntu-latest
+
+pr:
+  autoCancel: true
+  # PRs into ...
+  branches:
+    include:
+      - main
+
+jobs:
+  - job: "Build"
+    steps:
+      - task: Cache@2
+        inputs:
+          key: 'gradle | "$(Agent.OS)" | **/build.gradle'
+          restoreKeys: |
+            gradle | "$(Agent.OS)"
+            gradle
+          path: $(GRADLE_USER_HOME)
+        displayName: Configure gradle caching
+
+      - task: JavaToolInstaller@0
+        inputs:
+          versionSpec: '8'
+          jdkArchitectureOption: 'x64'
+          jdkSourceOption: 'PreInstalled'
+
+      - task: Bash@3
+        inputs:
+          targetType: 'inline'
+          script: |
+            ./gradlew scalastyleMainCheck test aggregateScoverage -PscalaVersion=2.11 -PsparkVersion=2.3.2 -PscalaCompt=2.11.12
+        displayName: test
+
+      - script: |
+          curl -Os https://uploader.codecov.io/latest/linux/codecov
+          chmod +x codecov
+          ./codecov -t ${CODECOV_TOKEN} --file /home/vsts/work/1/s/build/reports/scoverage/cobertura.xml
+        displayName: 'codecov'
+
+      - task: Bash@3
+        inputs:
+          targetType: 'inline'
+          script: |
+            # stop the Gradle daemon to ensure no files are left open (impacting the save cache operation later)
+            ./gradlew --stop
+        displayName: end
+
+#      - task: PublishBuildArtifacts@1
+#        inputs:
+#          pathToPublish: /home/vsts/work/1/s/spark/build/libs/sharp-etl-spark-1.0.0-SNAPSHOT.jar
+#          artifactName: sharp-etl-spark

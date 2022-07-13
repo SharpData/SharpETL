@@ -1,0 +1,10 @@
+etl.workflow.path=tasks
+
+psi.postgres.driver=org.postgresql.Driver
+psi.postgres.fetchsize=10
+psi.postgres.url=jdbc:postgresql://localhost:5432/default?currentSchema="test"
+psi.postgres.user=root
+psi.postgres.password=root
+
+kudu.table.prefix=impala::
+from_file_path=true

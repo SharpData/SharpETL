@@ -1,0 +1,44 @@
+plugins {
+    id "java-library"
+    id 'java'
+    id "com.github.maiflai.scalatest"
+}
+
+group 'com.github.sharpdata.sharpetl.datasource'
+version '1.0.0-SNAPSHOT'
+
+
+dependencies {
+    implementation(project(":core"))
+    implementation "org.scala-lang:scala-library:$scalaCompt"
+    implementation "org.scala-lang.modules:scala-collection-compat_$scalaVersion:2.6.0"
+    implementation "org.apache.spark:spark-sql_$scalaVersion:$sparkVersion"
+    if (scalaVersion.startsWith('2.11')) {
+        implementation group: "org.apache.kudu", name: "kudu-spark2_$scalaVersion", version: "1.9.0"
+    } else if (sparkVersion.startsWith("3") && scalaVersion.startsWith("2.12")) {
+        implementation group: "org.apache.kudu", name: "kudu-spark3_$scalaVersion", version: "1.15.0"
+    }
+    testRuntimeOnly "com.vladsch.flexmark:flexmark-all:0.62.2"
+    testImplementation group: "org.scalatest", name: "scalatest_$scalaVersion", version: "3.2.11"
+    testImplementation group: "org.scalatest", name: "scalatest-funspec_$scalaVersion", version: "3.2.11"
+}
+
+if ((scalaVersion.startsWith('2.12') && sparkVersion.startsWith("2.4")) ||
+        sparkVersion.startsWith("3") && scalaVersion.startsWith("2.13")) {
+    sourceSets {
+        main {
+            scala {
+                srcDirs = ['src/main/spark_2.4_scala_212']
+            }
+        }
+        test {
+            scala {
+                srcDirs = ['test/main/spark_2.4_scala_212']
+            }
+        }
+    }
+}
+
+test {
+    useJUnitPlatform()
+}

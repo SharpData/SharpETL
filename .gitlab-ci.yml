@@ -1,0 +1,48 @@
+image: gradle:jdk8
+
+# DinD service is required for Testcontainers
+services:
+  - name: docker:dind
+    # explicitly disable tls to avoid docker startup interruption
+    command: [ "--tls=false" ]
+
+variables:
+  # Instruct Testcontainers to use the daemon of DinD.
+  DOCKER_HOST: "tcp://docker:2375"
+  # Instruct Docker not to start over TLS.
+  DOCKER_TLS_CERTDIR: ""
+  # Improve performance with overlayfs.
+  DOCKER_DRIVER: overlay2
+
+before_script:
+  - export GRADLE_USER_HOME=`pwd`/.gradle
+
+cache:
+  key: "$CI_JOB_NAME"
+  paths:
+    - .gradle/wrapper
+    - .gradle/caches
+
+style-check:
+  stage: .pre
+  script:
+    - ./gradlew scalastyleMainCheck
+
+build:
+  stage: build
+  script:
+    - echo 'testcontainers.reuse.enable=true' >> ~/.testcontainers.properties && ./gradlew clean test build $ENV
+  parallel:
+    matrix:
+      - ENV: [
+          '-PscalaVersion=2.12 -PsparkVersion=3.1.2 -PscalaCompt=2.12.15',
+          '-PscalaVersion=2.12 -PsparkVersion=3.2.0 -PscalaCompt=2.12.15',
+          '-PscalaVersion=2.12 -PsparkVersion=2.4.8 -PscalaCompt=2.12.15',
+          '-PscalaVersion=2.11 -PsparkVersion=2.4.8 -PscalaCompt=2.11.12',
+          '-PscalaVersion=2.11 -PsparkVersion=2.3.2 -PscalaCompt=2.11.12',
+          '-PscalaVersion=2.13 -PsparkVersion=3.2.0 -PscalaCompt=2.13.7',
+      ]
+  artifacts:
+    paths:
+      - spark/build/libs/sharp-etl-spark-1.0.0-SNAPSHOT.jar
+    expire_in: 1 week

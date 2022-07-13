@@ -1,0 +1,38 @@
+plugins {
+    id "java-library"
+    id "scala"
+    id "com.github.alisiikh.scalastyle"
+    id "com.github.maiflai.scalatest"
+}
+
+group = 'com.github.sharpdata.sharpetl'
+sourceCompatibility = 1.8
+version = '1.0.0-SNAPSHOT'
+
+dependencies {
+    implementation(project(":core"))
+    implementation "org.scala-lang:scala-library:$scalaCompt"
+    implementation "org.scala-lang.modules:scala-collection-compat_$scalaVersion:2.6.0"
+    implementation "com.google.code.gson:gson:2.9.0"
+    implementation group: 'org.apache.poi', name: 'poi', version: '4.1.0'
+    implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '4.1.0'
+    implementation "com.google.guava:guava:30.0-jre"
+    implementation 'info.picocli:picocli:4.6.3'
+
+    testImplementation group: "org.scalatest", name: "scalatest_$scalaVersion", version: "3.2.11"
+    testImplementation group: "org.scalatest", name: "scalatest-flatspec_$scalaVersion", version: "3.2.11"
+    testImplementation group: "org.scalactic", name: "scalactic_$scalaVersion", version: "3.2.11"
+    testImplementation group: "org.junit.jupiter", name: "junit-jupiter-api", version: "5.6.2"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.6.2"
+    testRuntimeOnly "com.vladsch.flexmark:flexmark-all:0.62.2"
+}
+
+scalastyle {
+    config = file("${rootDir}/scalastyle_config.xml") // path to scalastyle config xml file
+    failOnWarning = true
+    sourceSets {
+        test {
+            skip = true
+        }
+    }
+}

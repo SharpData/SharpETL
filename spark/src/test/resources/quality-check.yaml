@@ -1,0 +1,15 @@
+- dataCheckType: power null check(error)
+  rule: powerNullCheck(`$column`)
+  errorType: error
+- dataCheckType: power null check(warn)
+  rule: powerNullCheck(`$column`)
+  errorType: warn
+- dataCheckType: empty check(warn)
+  rule: $column = ''
+  errorType: warn
+- dataCheckType: null check
+  rule: $column IS NULL
+  errorType: error
+- dataCheckType: duplicated check
+  rule: UDR.com.github.sharpdata.sharpetl.spark.quality.udr.DuplicatedCheck
+  errorType: error

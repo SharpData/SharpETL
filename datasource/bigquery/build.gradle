@@ -1,0 +1,24 @@
+plugins {
+    id "java-library"
+}
+
+group 'com.github.sharpdata.sharpetl.datasource'
+version '1.0.0-SNAPSHOT'
+
+
+dependencies {
+    implementation(project(":core"))
+    implementation "org.apache.spark:spark-sql_$scalaVersion:$sparkVersion"
+    if (!(scalaVersion.startsWith('2.13') && (sparkVersion.startsWith("3.2") || sparkVersion.startsWith("3.3")))) {
+        implementation "com.google.cloud.spark:spark-bigquery-with-dependencies_$scalaVersion:0.23.2"
+    }
+    implementation "org.scala-lang:scala-library:$scalaCompt"
+    implementation "org.scala-lang.modules:scala-collection-compat_$scalaVersion:2.6.0"
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.7.0'
+}
+
+test {
+    useJUnitPlatform()
+}
