@@ -2,7 +2,7 @@ name: release
 
 on:
   release:
-    types: [prereleased, released]
+    types: [ prereleased, released ]
 
 jobs:
   deploy:
@@ -10,23 +10,36 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        env: [
-          '-PscalaVersion=2.11 -PsparkVersion=2.3.2 -PscalaCompt=2.11.12',
-          '-PscalaVersion=2.11 -PsparkVersion=2.4.8 -PscalaCompt=2.11.12',
-          '-PscalaVersion=2.12 -PsparkVersion=2.4.8 -PscalaCompt=2.12.15',
-          '-PscalaVersion=2.12 -PsparkVersion=3.0.3 -PscalaCompt=2.12.15',
-          '-PscalaVersion=2.12 -PsparkVersion=3.1.2 -PscalaCompt=2.12.15',
-          '-PscalaVersion=2.12 -PsparkVersion=3.2.0 -PscalaCompt=2.12.15',
-          '-PscalaVersion=2.13 -PsparkVersion=3.2.0 -PscalaCompt=2.13.7',
-          '-PscalaVersion=2.12 -PsparkVersion=3.3.0 -PscalaCompt=2.12.15',
-          '-PscalaVersion=2.13 -PsparkVersion=3.3.0 -PscalaCompt=2.13.7',
-        ]
+        include:
+          - scalaVersion: 2.11
+            sparkVersion: 2.3.2
+            scalaCompt: 2.11.12
+          - scalaVersion: 2.11
+            sparkVersion: 2.4.8
+            scalaCompt: 2.11.12
+          - scalaVersion: 2.12
+            sparkVersion: 2.4.8
+            scalaCompt: 2.12.15
+          - scalaVersion: 2.12
+            sparkVersion: 3.0.3
+            scalaCompt: 2.12.15
+          - scalaVersion: 2.12
+            sparkVersion: 3.1.2
+            scalaCompt: 2.12.15
+          - scalaVersion: 2.12
+            sparkVersion: 3.2.0
+            scalaCompt: 2.12.15
+          - scalaVersion: 2.13
+            sparkVersion: 3.2.0
+            scalaCompt: 2.13.7
+          - scalaVersion: 2.12
+            sparkVersion: 3.3.0
+            scalaCompt: 2.12.15
+          - scalaVersion: 2.13
+            sparkVersion: 3.3.0
+            scalaCompt: 2.13.7
     steps:
       - uses: actions/checkout@v2
-
-      - name: setup env variable
-        run: |
-          echo "ENV=${{ matrix.env }}" >> $GITHUB_ENV
 
       - name: setup test container reuse
         run: |
@@ -39,10 +52,10 @@ jobs:
           distribution: 'adopt'
 
       - name: Style Check
-        run: ./gradlew scalastyleMainCheck ${{ matrix.env }}
+        run: ./gradlew scalastyleMainCheck -PscalaVersion=${{ matrix.scalaVersion }} -PsparkVersion=${{ matrix.sparkVersion }} -PscalaCompt=${{ matrix.scalaCompt }}
 
       - name: Test
-        run: ./gradlew test aggregateScoverage ${{ matrix.env }}
+        run: ./gradlew test aggregateScoverage -PscalaVersion=${{ matrix.scalaVersion }} -PsparkVersion=${{ matrix.sparkVersion }} -PscalaCompt=${{ matrix.scalaCompt }}
 
       - uses: codecov/codecov-action@v2
         with:
@@ -53,4 +66,4 @@ jobs:
       - name: Upload Release Asset
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh release upload ${{ github.event.release.tag_name }} ./spark/build/libs/sharp-etl-*.jar
+        run: gh release upload ${{ github.event.release.tag_name }} ./spark/build/libs/sharp-etl-spark-standalone-${{ matrix.sparkVersion }}_${{ matrix.scalaVersion }}-${{ github.event.release.tag_name }}.jar

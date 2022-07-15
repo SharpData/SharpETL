@@ -12,15 +12,34 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        env: [
-          '-PscalaVersion=2.11 -PsparkVersion=2.3.2 -PscalaCompt=2.11.12',
-          '-PscalaVersion=2.11 -PsparkVersion=2.4.8 -PscalaCompt=2.11.12',
-          #'-PscalaVersion=2.12 -PsparkVersion=2.4.8 -PscalaCompt=2.12.15',
-          '-PscalaVersion=2.12 -PsparkVersion=3.1.2 -PscalaCompt=2.12.15',
-          #'-PscalaVersion=2.12 -PsparkVersion=3.2.0 -PscalaCompt=2.12.15',
-          '-PscalaVersion=2.13 -PsparkVersion=3.2.0 -PscalaCompt=2.13.7',
-          '-PscalaVersion=2.13 -PsparkVersion=3.3.0 -PscalaCompt=2.13.7',
-        ]
+        include:
+          - scalaVersion: 2.11
+            sparkVersion: 2.3.2
+            scalaCompt: 2.11.12
+          - scalaVersion: 2.11
+            sparkVersion: 2.4.8
+            scalaCompt: 2.11.12
+#          - scalaVersion: 2.12
+#            sparkVersion: 2.4.8
+#            scalaCompt: 2.12.15
+#          - scalaVersion: 2.12
+#            sparkVersion: 3.0.3
+#            scalaCompt: 2.12.15
+          - scalaVersion: 2.12
+            sparkVersion: 3.1.2
+            scalaCompt: 2.12.15
+#          - scalaVersion: 2.12
+#            sparkVersion: 3.2.0
+#            scalaCompt: 2.12.15
+          - scalaVersion: 2.13
+            sparkVersion: 3.2.0
+            scalaCompt: 2.13.7
+#          - scalaVersion: 2.12
+#            sparkVersion: 3.3.0
+#            scalaCompt: 2.12.15
+          - scalaVersion: 2.13
+            sparkVersion: 3.3.0
+            scalaCompt: 2.13.7
     steps:
       - name: Get PR SHA
         id: sha
@@ -51,9 +70,6 @@ jobs:
               comment_id: context.payload.comment.id,
               content: "rocket",
             });
-      - name: setup env variable
-        run: |
-          echo "ENV=${{ matrix.env }}" >> $GITHUB_ENV
 
       - name: setup test container reuse
         run: |
@@ -69,7 +85,7 @@ jobs:
         uses: actions/cache@v2.1.6
         with:
           path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-caches-${{ matrix.env }}-${{ hashFiles('**/*.gradle', '**/*.gradle.kts') }}
+          key: ${{ runner.os }}-gradle-caches--PscalaVersion=${{ matrix.scalaVersion }} -PsparkVersion=${{ matrix.sparkVersion }} -PscalaCompt=${{ matrix.scalaCompt }}-${{ hashFiles('**/*.gradle', '**/*.gradle.kts') }}
 
       - name: Setup Gradle Wrapper Cache
         uses: actions/cache@v2.1.6
@@ -78,10 +94,10 @@ jobs:
           key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
 
       - name: Style Check
-        run: ./gradlew scalastyleMainCheck ${{ matrix.env }}
+        run: ./gradlew scalastyleMainCheck -PscalaVersion=${{ matrix.scalaVersion }} -PsparkVersion=${{ matrix.sparkVersion }} -PscalaCompt=${{ matrix.scalaCompt }}
 
       - name: Test
-        run: ./gradlew test aggregateScoverage ${{ matrix.env }}
+        run: ./gradlew test aggregateScoverage -PscalaVersion=${{ matrix.scalaVersion }} -PsparkVersion=${{ matrix.sparkVersion }} -PscalaCompt=${{ matrix.scalaCompt }}
 
       - uses: codecov/codecov-action@v2
         with:
@@ -98,7 +114,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '${{ matrix.env }} build succeeded! ✅',
+              body: '-PscalaVersion=${{ matrix.scalaVersion }} -PsparkVersion=${{ matrix.sparkVersion }} -PscalaCompt=${{ matrix.scalaCompt }} build succeeded! ✅',
             });
       - name: Message failure
         if: ${{ failure() }}
@@ -109,5 +125,5 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: '${{ matrix.env }} build failed! ❌',
+              body: '-PscalaVersion=${{ matrix.scalaVersion }} -PsparkVersion=${{ matrix.sparkVersion }} -PscalaCompt=${{ matrix.scalaCompt }} build failed! ❌',
             });
