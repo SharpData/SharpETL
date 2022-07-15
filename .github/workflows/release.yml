@@ -1,11 +1,8 @@
 name: release
 
 on:
-  push:
-    branches:
-      - "!*"
-    tags:
-      - "v*"
+  release:
+    types: [prereleased, released]
 
 jobs:
   deploy:
