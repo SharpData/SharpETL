@@ -1,5 +1,5 @@
 plugins {
-    id "java"
+    id "java-library"
     id "application"
     id "scala"
     id "com.github.alisiikh.scalastyle"
@@ -17,9 +17,11 @@ version = '0.1.0'
 publishing {
     publications {
         maven(MavenPublication) {
+            artifactId = "sharp-etl-spark-${sparkVersion}_${scalaVersion}"
             afterEvaluate {
-                artifact(tasks.findByName("shadowJar"))
+                //artifact(tasks.findByName("shadowJar"))
                 artifact(tasks.findByName("sourceJar"))
+                artifact(tasks.findByName("slimJar"))
             }
         }
     }
@@ -186,7 +188,6 @@ application {
 }
 
 task slimJar(type: ShadowJar) {
-    classifier 'slim'
     from(
             sourceSets.main.output,
             sourceSets.main.resources
@@ -207,7 +208,7 @@ task slimJar(type: ShadowJar) {
         include 'com/google/guava/**'
     }
     relocate "org.apache.commons.net", "com.github.sharpdata.sharpetl.commons.net"
-    archiveFileName = "sharp-etl-spark-slim-${sparkVersion}-${version}_${scalaVersion}.jar"
+    archiveFileName = "sharp-etl-spark-${sparkVersion}_${scalaVersion}-${version}.jar"
 }
 
 shadowJar {
@@ -296,7 +297,7 @@ shadowJar {
     relocate "org.apache.commons.net", "com.github.sharpdata.sharpetl.commons.net"
     relocate "com.zaxxer.hikari", "com.github.sharpdata.sharpetl.hikari"
     //from '../hadoop'
-    archiveFileName = "sharp-etl-spark-standalone-${sparkVersion}-${version}_${scalaVersion}.jar"
+    archiveFileName = "sharp-etl-spark-standalone-${sparkVersion}_${scalaVersion}-${version}.jar"
 }
 
 task clearJar(type: Delete) {
