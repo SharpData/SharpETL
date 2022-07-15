@@ -50,7 +50,7 @@ jobs:
           directory: ./build/reports/scoverage/
           verbose: true
 
-      - name: Release
-        uses: softprops/action-gh-release@v1
-        with:
-          files: spark/build/libs/*.jar
+      - name: Upload Release Asset
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh release upload ${{ github.event.release.tag_name }} ./spark/build/libs/sharp-etl-*.jar
