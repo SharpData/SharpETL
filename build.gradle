@@ -10,7 +10,7 @@ plugins {
 
 group = 'com.github.sharpdata.sharpetl'
 sourceCompatibility = 1.8
-version = '1.0.0-SNAPSHOT'
+version = '0.1.0'
 
 ext {
     scalaVersion = scalaVersion
@@ -19,7 +19,7 @@ ext {
 }
 
 subprojects {
-    version "1.0.0-SNAPSHOT"
+    version "0.1.0"
 }
 
 allprojects {

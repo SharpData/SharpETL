@@ -48,7 +48,7 @@ SELECT 'SUCCESS' AS `${OUTPUT_COL}`;
 ### run and check the console output
 
 ```shell
-spark-submit --master local --class com.github.sharpdata.sharpetl.spark.Entrypoint spark/build/libs/sharp-etl-spark-1.0.0-SNAPSHOT.jar single-job --name=hello_world --period=1440 --default-start-time="2022-07-01 00:00:00" --once --local
+spark-submit --master local --class com.github.sharpdata.sharpetl.spark.Entrypoint spark/build/libs/sharp-etl-spark-standalone-${sparkVersion}-${projectVersion}_${scalaVersion}.jar single-job --name=hello_world --period=1440 --default-start-time="2022-07-01 00:00:00" --once --local
 ```
 
 And you will see the output like:

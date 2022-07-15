@@ -55,5 +55,5 @@ jobs:
 
 #      - task: PublishBuildArtifacts@1
 #        inputs:
-#          pathToPublish: /home/vsts/work/1/s/spark/build/libs/sharp-etl-spark-1.0.0-SNAPSHOT.jar
+#          pathToPublish: /home/vsts/work/1/s/spark/build/libs/*.jar
 #          artifactName: sharp-etl-spark

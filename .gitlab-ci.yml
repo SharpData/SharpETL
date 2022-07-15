@@ -44,5 +44,5 @@ build:
       ]
   artifacts:
     paths:
-      - spark/build/libs/sharp-etl-spark-1.0.0-SNAPSHOT.jar
+      - spark/build/libs/*.jar
     expire_in: 1 week

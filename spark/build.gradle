@@ -12,7 +12,7 @@ import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
 group = 'com.github.sharpdata.sharpetl'
 sourceCompatibility = 1.8
-version = '1.0.0-SNAPSHOT'
+version = '0.1.0'
 
 publishing {
     publications {
@@ -77,8 +77,10 @@ dependencies {
     implementation "org.apache.kafka:kafka-clients:2.0.0"
     if (sparkVersion.startsWith("3.2") | sparkVersion.startsWith("3.3")) {
         implementation "io.delta:delta-core_$scalaVersion:1.2.1"
-    } else if (sparkVersion.startsWith("3")) {
+    } else if (sparkVersion.startsWith("3.1")) {
         implementation "io.delta:delta-core_$scalaVersion:1.0.1"
+    } else if (sparkVersion.startsWith("3.0")) {
+        implementation "io.delta:delta-core_$scalaVersion:0.8.0"
     } else if (sparkVersion.startsWith("2")) {
         implementation "io.delta:delta-core_$scalaVersion:0.6.1"
     }
@@ -108,7 +110,7 @@ dependencies {
     implementation group: 'com.jolbox', name: 'bonecp', version: '0.8.0.RELEASE'
     implementation group: "org.apache.hadoop", name: "hadoop-client", version: "2.7.2"
     implementation "org.apache.httpcomponents:httpclient:4.5.12"
-    if (sparkVersion.startsWith("3.1")) {
+    if (sparkVersion.startsWith("3.1") || sparkVersion.startsWith("3.0")) {
         implementation("com.fasterxml.jackson.core:jackson-databind") {
             version {
                 strictly '2.10.0'
@@ -205,7 +207,7 @@ task slimJar(type: ShadowJar) {
         include 'com/google/guava/**'
     }
     relocate "org.apache.commons.net", "com.github.sharpdata.sharpetl.commons.net"
-    archiveFileName = "sharp-etl-spark-slim-${version}.jar"
+    archiveFileName = "sharp-etl-spark-slim-${sparkVersion}-${version}_${scalaVersion}.jar"
 }
 
 shadowJar {
@@ -294,7 +296,7 @@ shadowJar {
     relocate "org.apache.commons.net", "com.github.sharpdata.sharpetl.commons.net"
     relocate "com.zaxxer.hikari", "com.github.sharpdata.sharpetl.hikari"
     //from '../hadoop'
-    archiveFileName = "sharp-etl-spark-${version}.jar"
+    archiveFileName = "sharp-etl-spark-standalone-${sparkVersion}-${version}_${scalaVersion}.jar"
 }
 
 task clearJar(type: Delete) {
@@ -471,7 +473,7 @@ if (scalaVersion.startsWith('2.11')) {
                 }
             }
         }
-    } else if (sparkVersion.startsWith("3.1")) {
+    } else if (sparkVersion.startsWith("3.1") || sparkVersion.startsWith("3.0")) {
         sourceSets {
             main {
                 scala {
