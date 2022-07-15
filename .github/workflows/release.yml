@@ -2,8 +2,10 @@ name: release
 
 on:
   push:
+    branches:
+      - "!*"
     tags:
-      - "v*.*.*"
+      - "v*"
 
 jobs:
   deploy:
