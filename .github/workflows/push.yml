@@ -9,13 +9,8 @@ jobs:
   workflow:
     runs-on: [ubuntu-latest]
     strategy:
-#      fail-fast: false
       matrix:
         env: [
-            '-PscalaVersion=2.12 -PsparkVersion=3.1.2 -PscalaCompt=2.12.15',
-            '-PscalaVersion=2.12 -PsparkVersion=3.2.0 -PscalaCompt=2.12.15',
-            '-PscalaVersion=2.12 -PsparkVersion=2.4.8 -PscalaCompt=2.12.15',
-            '-PscalaVersion=2.11 -PsparkVersion=2.4.8 -PscalaCompt=2.11.12',
             '-PscalaVersion=2.11 -PsparkVersion=2.3.2 -PscalaCompt=2.11.12',
         ]
 
