@@ -13,7 +13,7 @@ The SQL workflow file format is combined your favourite SQL dialects with just a
 docker run --name sharp_etl_db -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=sharp_etl mysql:5.7
 ```
 
-### build or download jar
+### build from source or download jar from [releases](https://github.com/SharpData/SharpETL/releases)
 
 ```shell
 ./gradlew buildJars -PscalaVersion=2.12 -PsparkVersion=3.3.0 -PscalaCompt=2.12.15
