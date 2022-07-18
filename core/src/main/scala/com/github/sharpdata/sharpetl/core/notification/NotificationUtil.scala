@@ -1,58 +1,61 @@
 package com.github.sharpdata.sharpetl.core.notification
 
+import com.github.sharpdata.sharpetl.core.api.WFInterpretingResult
 import com.github.sharpdata.sharpetl.core.notification.sender.{NotificationFactory, NotificationType}
 import com.github.sharpdata.sharpetl.core.repository.JobLogAccessor
 import com.github.sharpdata.sharpetl.core.repository.model.{JobLog, JobStatus}
 import com.github.sharpdata.sharpetl.core.util.Constants.Environment
 import com.github.sharpdata.sharpetl.core.util.{ETLConfig, ETLLogger}
 import com.github.sharpdata.sharpetl.core.notification.sender.email.{Email, Sender}
-import com.github.sharpdata.sharpetl.core.notification.sender.{NotificationFactory, NotificationType}
-import com.github.sharpdata.sharpetl.core.repository.JobLogAccessor
-import com.github.sharpdata.sharpetl.core.repository.model.{JobLog, JobStatus}
-import com.github.sharpdata.sharpetl.core.util.Constants.Environment
 import com.github.sharpdata.sharpetl.core.util.DateUtil.{L_YYYY_MM_DD_HH_MM_SS, YYYYMMDDHHMMSS}
 import com.github.sharpdata.sharpetl.core.util.JobLogUtil.JogLogExternal
-import com.github.sharpdata.sharpetl.core.util._
+import com.google.common.base.Strings.isNullOrEmpty
 
 import java.time.LocalDateTime
 
-class NotificationService(val jobLogAccessor: JobLogAccessor) {
+class NotificationUtil(val jobLogAccessor: JobLogAccessor) {
 
-  lazy val notificationConfigFilePath: String = ETLConfig.getProperty("notification.config.path")
   lazy val emailSender: String = ETLConfig.getProperty("notification.email.sender")
   lazy val emailSenderPersonalName: String = ETLConfig.getProperty("notification.email.senderPersonalName")
   lazy val summaryJobReceivers: String = ETLConfig.getProperty("notification.email.summaryReceivers")
 
-  def sendNotification(jobResult: Seq[Seq[Try[JobLog]]]): Unit = {
-    val jobNames = jobResult.flatten.map(_.get.jobName).toSet
+  def notify(jobResults: Seq[WFInterpretingResult]): Unit = {
+    val configToLogs: Seq[(NotifyConfig, Seq[JobLog])] =
+      jobResults
+        .filterNot(it => it.workflow.notifys == null || it.workflow.notifys.isEmpty)
+        .flatMap(it =>
+          it.workflow.notifys
+            .flatMap(_.toConfigs())
+            .map(n => (n, it.jobLogs.map(_.get)))
+            .map { case (config, logs) =>
+              (config,
+                logs.filter(shouldNotify(config, _)))
+            }
+        )
 
-    val notifyTypeWithRecipientToNotifies =
-      getJobNotifyConfigs()
-        .filter(notify => jobNames.contains(notify.jobName))
-        .groupBy(notify => (notify.notifyType, notify.recipient))
+    configToLogs
+      .map(it => (it._1, it._2.map(buildJobMessage)))
+      .groupBy(_._1)
+      .foreach(it => {
+        val messages = it._2
+          .flatMap(_._2)
+          .map(_.toString)
+          .mkString("\n\n")
+        ETLLogger.info(s"Notification message:\n $messages")
 
-    val jobNameToJobLog: Map[String, Seq[JobLog]] = jobResult.flatten.map(_.get).groupBy(_.jobName)
-
-    notifyTypeWithRecipientToNotifies
-      .foreach { case ((notifyType, recipient), notifyConfigs) =>
-        val jobNotifications = gropingNotification(notifyConfigs, jobNameToJobLog)
-        if (jobNotifications.nonEmpty) {
-          val messages = jobNotifications
-            .map(_.toString())
-            .mkString("\n\n")
-          ETLLogger.info(s"Notification message:\n $messages")
-          val notification = notifyType match {
+        if (!isNullOrEmpty(messages)) {
+          val notification = it._1.notifyType match {
             case NotificationType.EMAIL =>
               new Email(Sender(emailSender, emailSenderPersonalName),
-                recipient, s"[${Environment.current.toUpperCase}] ETL job summary report", messages, Option.empty)
+                it._1.recipient, s"[${Environment.current.toUpperCase}] ETL job summary report", messages)
             case _ => ???
           }
           NotificationFactory.sendNotification(notification)
         }
-      }
+      })
   }
 
-  def shouldSendEmail(notifyConfig: JobNotifyConfig, jobLog: JobLog): Boolean = {
+  def shouldNotify(notifyConfig: NotifyConfig, jobLog: JobLog): Boolean = {
     if (notifyConfig.triggerCondition != NotifyTriggerCondition.FAILURE) {
       notifyConfig.accept(jobLog)
     } else if (!notifyConfig.accept(jobLog)) {
@@ -61,21 +64,6 @@ class NotificationService(val jobLogAccessor: JobLogAccessor) {
       val previousJobLog = jobLogAccessor.getPreviousJobLog(jobLog)
       previousJobLog == null || previousJobLog.status != JobStatus.FAILURE
     }
-  }
-
-  private def gropingNotification(jobNotifyConfigs: List[JobNotifyConfig], jobNamesToJobLog: Map[String, Seq[JobLog]]) = {
-
-    jobNotifyConfigs.flatMap(notifyConfig => {
-      val jobName = notifyConfig.jobName
-      val jobLogs = jobNamesToJobLog.getOrElse(jobName, Seq.empty)
-      jobLogs.filter(shouldSendEmail(notifyConfig, _))
-    })
-      .groupBy(jobLog => (jobLog.jobName, jobLog.jobId))
-      .map(_._2.head)
-      .map(jobLog => {
-        buildJobMessage(jobLog)
-      }
-      ).toList
   }
 
   def buildJobMessage(jobLog: JobLog): JobMessage = {
@@ -100,27 +88,6 @@ class NotificationService(val jobLogAccessor: JobLogAccessor) {
       duration = jobLog.duration().toString,
       jobStartTime = jobLog.jobStartTime.format(L_YYYY_MM_DD_HH_MM_SS)
     )
-  }
-
-  private def getJobNotifyConfigs(): List[JobNotifyConfig] = {
-    val notifyConfigs = NotificationConfigurationUtil.getNotificationConfigs()
-    if (notifyConfigs == null) {
-      ETLLogger.warn("No notification config file is set!")
-      List.empty
-    } else {
-      notifyConfigs
-        .flatMap(notification => {
-          val jobNames = if (notification.jobNames.isEmpty) {
-            ProjectJobNameUtil.getJobNames(notification.projectName)
-          } else {
-            notification.jobNames.split(",")
-          }
-          jobNames.flatMap(
-            name => notification.notifies.flatMap(notify => notify.recipients
-              .map(recipient => JobNotifyConfig(notify.notifyType, name.trim, notification.triggerCondition, recipient))
-            ))
-        })
-    }
   }
 }
 
@@ -166,15 +133,11 @@ object NotifyTriggerCondition {
   val SUCCESS: String = "SUCCESS"
 }
 
-
-final case class JobNotifyConfig(notifyType: String,
-                                 jobName: String,
-                                 triggerCondition: String,
-                                 recipient: String) {
+final case class NotifyConfig(notifyType: String,
+                              recipient: String,
+                              triggerCondition: String) {
 
   def accept(jobLog: JobLog): Boolean = {
-    jobLog.jobName == jobName && (
-      triggerCondition == NotifyTriggerCondition.ALWAYS || triggerCondition == jobLog.status
-      )
+    triggerCondition == NotifyTriggerCondition.ALWAYS || triggerCondition == jobLog.status
   }
 }

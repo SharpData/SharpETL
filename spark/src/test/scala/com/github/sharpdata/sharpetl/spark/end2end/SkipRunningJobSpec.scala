@@ -26,7 +26,7 @@ class SkipRunningJobSpec extends ETLSuit {
 
   it("should throw exception when skipRunning = true") {
     withObjectMocked[WorkflowReader.type] {
-      when(WorkflowReader.readSteps(anyString())).thenReturn(Nil)
+      when(WorkflowReader.readWorkflow(anyString())).thenReturn(wf)
       // 1. run migration if needed
       runJob(jobParameters("task-0"))
       // 2. create a running log in `job_log` table

@@ -3,23 +3,18 @@ package com.github.sharpdata.sharpetl.core.api
 import com.github.sharpdata.sharpetl.core.repository.model.JobLog
 import com.github.sharpdata.sharpetl.core.syntax.WorkflowStep
 import com.github.sharpdata.sharpetl.core.util.Constants.{BooleanString, IncrementalType, DataSourceType}
-import com.github.sharpdata.sharpetl.core.util.ETLLogger
 import com.github.sharpdata.sharpetl.core.annotation.Annotations.{Private, Stable}
 import com.github.sharpdata.sharpetl.core.api.WorkflowInterpreter._
 import com.github.sharpdata.sharpetl.core.datasource.config.{DataSourceConfig, FileDataSourceConfig, TransformationDataSourceConfig}
 import com.github.sharpdata.sharpetl.core.exception.Exception._
 import com.github.sharpdata.sharpetl.core.quality.QualityCheck
 import com.github.sharpdata.sharpetl.core.repository.StepLogAccessor.stepLogAccessor
-import com.github.sharpdata.sharpetl.core.repository.model.JobLog
-import com.github.sharpdata.sharpetl.core.syntax.WorkflowStep
-import com.github.sharpdata.sharpetl.core.util.Constants.{BooleanString, IncrementalType, DataSourceType}
 import com.github.sharpdata.sharpetl.core.util.HDFSUtil.downloadFileToHDFS
 import com.github.sharpdata.sharpetl.core.util.IncIdUtil.NumberStringPadding
 import com.github.sharpdata.sharpetl.core.util.{ETLLogger, StringUtil}
 import org.apache.commons.lang3.reflect.FieldUtils
 
 import java.lang.reflect.Field
-import scala.collection.mutable
 
 // scalastyle:off
 @Stable(since = "1.0.0")

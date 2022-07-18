@@ -59,7 +59,7 @@ class Email(val sender: Sender,
             val receiver: String,
             val subject: String,
             val body: String,
-            val attachment: Option[EmailAttachment]) extends Notification(body, NotificationType.EMAIL)
+            val attachment: Option[EmailAttachment] = Option.empty) extends Notification(body, NotificationType.EMAIL)
 
 
 final case class Sender(address: String, personalName: String)

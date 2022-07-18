@@ -1,5 +1,6 @@
 package com.github.sharpdata.sharpetl.spark.end2end
 
+import com.github.sharpdata.sharpetl.core.syntax.Workflow
 import com.github.sharpdata.sharpetl.spark.cli.Command
 import com.github.sharpdata.sharpetl.spark.job.SparkSessionTestWrapper
 import com.github.sharpdata.sharpetl.spark.test.DataFrameComparer
@@ -24,6 +25,8 @@ trait ETLSuit extends AnyFunSpec
   val targetDbName: String = "int_test"
   var migrationPort: Int = 2333
   var dataPort: Int = 2334
+
+  val wf = Workflow("jobName", "1440", "incremental", "timewindow", null, null, null, -1, null, false, null, Map(), Nil) // scalastyle:off
 
   def writeDataToSource(sampleDataDf: DataFrame, tableName: String): Unit = {
     sampleDataDf.write

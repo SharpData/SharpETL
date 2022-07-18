@@ -1,13 +1,20 @@
 package com.github.sharpdata.sharpetl.core.syntax
 
-import com.google.common.base.Strings.isNullOrEmpty
-import com.github.sharpdata.sharpetl.core.annotation.Annotations.{Evolving, Stable}
+import com.github.sharpdata.sharpetl.core.annotation.Annotations._
+import com.github.sharpdata.sharpetl.core.notification.NotifyConfig
 import com.github.sharpdata.sharpetl.core.util.Constants.Separator.ENTER
 import com.github.sharpdata.sharpetl.core.util.StringUtil
+import com.google.common.base.Strings.isNullOrEmpty
 
 @Evolving(since = "1.0.0")
-final case class Notify(notifyType: String, recipients: String, notifyCondition: String)
-
+final case class Notify(notifyType: String, recipients: String, notifyCondition: String) {
+  def toConfigs(): Seq[NotifyConfig] = {
+    recipients
+      .split(",")
+      .map(_.trim)
+      .map(recipient => NotifyConfig(notifyType, recipient, notifyCondition))
+  }
+}
 
 @Evolving(since = "1.0.0")
 final case class Workflow(
@@ -25,6 +32,11 @@ final case class Workflow(
                            options: Map[String, String],
                            var steps: List[WorkflowStep]
                          ) extends Formatable {
+  def getProjectName(): String = Option(options).map(_.getOrElse("projectName", "default")).getOrElse("default")
+
+  @deprecated
+  def notifys(): Seq[Notify] = if (notification == null) Seq() else Seq(notification)
+
   // scalastyle:off
   override def toString: String = {
     val builder = new StringBuilder()
@@ -45,6 +57,7 @@ final case class Workflow(
     if (!StringUtil.isNullOrEmpty(defaultStart)) builder.append(s"--  defaultStart=$defaultStart$ENTER")
     if (timeout > 1) builder.append(s"--  timeout=$timeout$ENTER")
     if (stopScheduleWhenFail) builder.append(s"--  stopScheduleWhenFail=$stopScheduleWhenFail$ENTER")
+    //TODO: fix this later
     if (notification != null && !isNullOrEmpty(notification.notifyType)) {
       builder.append(s"--  notification$ENTER")
       builder.append(s"--   notifyType=${notification.notifyType}$ENTER")

@@ -1,19 +1,15 @@
 package com.github.sharpdata.sharpetl.core
 
-import com.github.sharpdata.sharpetl.core.api.LogDrivenJob
-import com.github.sharpdata.sharpetl.core.repository.JobLogAccessor
-import com.github.sharpdata.sharpetl.core.util.Constants.IncrementalType
-import com.github.sharpdata.sharpetl.core.api.LogDrivenJob
-import com.github.sharpdata.sharpetl.core.repository.model.JobStatus._
+import com.github.sharpdata.sharpetl.core.api.LogDrivenInterpreter
 import com.github.sharpdata.sharpetl.core.cli.SingleJobCommand
 import com.github.sharpdata.sharpetl.core.repository.JobLogAccessor
 import com.github.sharpdata.sharpetl.core.repository.model.JobLog
+import com.github.sharpdata.sharpetl.core.repository.model.JobStatus._
 import com.github.sharpdata.sharpetl.core.syntax.Workflow
 import com.github.sharpdata.sharpetl.core.test.FakeWorkflowInterpreter
 import com.github.sharpdata.sharpetl.core.util.Constants.IncrementalType
 import com.github.sharpdata.sharpetl.core.util.Constants.Job.nullDataTime
 import com.github.sharpdata.sharpetl.core.util.DateUtil.LocalDateTimeToBigInt
-import com.github.sharpdata.sharpetl.core.util.Notify
 import com.github.sharpdata.sharpetl.core.util.StringUtil.BigIntConverter
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.MockitoSugar.{mock, when}
@@ -28,7 +24,7 @@ class TestJobCommand() extends SingleJobCommand() {
   override def run(): Unit = ()
 }
 
-class LogDrivenJobSpec extends AnyFlatSpec with should.Matchers {
+class LogDrivenInterpreterSpec extends AnyFlatSpec with should.Matchers {
   private val now: LocalDateTime = LocalDateTime.now()
 
   private val execPeriod =
@@ -44,14 +40,14 @@ class LogDrivenJobSpec extends AnyFlatSpec with should.Matchers {
 
     it should s"not schedule when last run 1 sec ago: $period" in {
       val prevDataEndTime = now.minus(1L * period, ChronoUnit.SECONDS)
-      val logDrivenJob: LogDrivenJob = setup(prevDataEndTime, period)
+      val logDrivenJob: LogDrivenInterpreter = setup(prevDataEndTime, period)
       val unexecutedQueue = logDrivenJob.unexecutedQueue()
       unexecutedQueue.isEmpty should be(true)
     }
 
     it should s"schedule 1 job: $period" in {
       val prevDataEndTime = now.minus(1L * period, ChronoUnit.MINUTES)
-      val logDrivenJob: LogDrivenJob = setup(prevDataEndTime, period)
+      val logDrivenJob: LogDrivenInterpreter = setup(prevDataEndTime, period)
       val unexecutedQueue = logDrivenJob.unexecutedQueue()
       unexecutedQueue.size should be(1)
       unexecutedQueue.head.dataRangeStart.asBigInt should be(prevDataEndTime.asBigInt())
@@ -64,7 +60,7 @@ class LogDrivenJobSpec extends AnyFlatSpec with should.Matchers {
     it should s"schedule 1 job when last job run 1 time unit and 1 secs ago: $period" in {
 
       val prevDataEndTime = now.minus(1 * period, ChronoUnit.MINUTES).minus(1, ChronoUnit.SECONDS)
-      val logDrivenJob: LogDrivenJob = setup(prevDataEndTime, period)
+      val logDrivenJob: LogDrivenInterpreter = setup(prevDataEndTime, period)
       val unexecutedQueue = logDrivenJob.unexecutedQueue()
       unexecutedQueue.size should be(1)
       unexecutedQueue.head.dataRangeStart.asBigInt should be(prevDataEndTime.asBigInt())
@@ -76,7 +72,7 @@ class LogDrivenJobSpec extends AnyFlatSpec with should.Matchers {
 
     it should s"schedule 2 job when last job run 2 time unit ago: $period" in {
       val prevDataEndTime = now.minus(2 * period, ChronoUnit.MINUTES)
-      val logDrivenJob: LogDrivenJob = setup(prevDataEndTime, period)
+      val logDrivenJob: LogDrivenInterpreter = setup(prevDataEndTime, period)
       val unexecutedQueue = logDrivenJob.unexecutedQueue()
       unexecutedQueue.size should be(2)
       unexecutedQueue.head.dataRangeStart.asBigInt should be(prevDataEndTime.asBigInt())
@@ -106,7 +102,7 @@ class LogDrivenJobSpec extends AnyFlatSpec with should.Matchers {
     mockJobLogAccessor(jobLogAccessor, prevDataEndTime, 24 * 60)
     val command = new TestJobCommand()
     command.once = true
-    val logDrivenJob = api.LogDrivenJob(
+    val logDrivenJob = LogDrivenInterpreter(
       "jobName",
       Workflow("jobName", execPeriod.toString, "incremental", "timewindow", null, null, null, -1, null, false, null, Map(), Nil), // scalastyle:off
       new FakeWorkflowInterpreter(),

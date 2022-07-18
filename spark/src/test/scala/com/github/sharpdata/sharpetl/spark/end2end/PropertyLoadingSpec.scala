@@ -77,7 +77,7 @@ class PropertyLoadingSpec extends ETLSuit with BeforeAndAfterAll {
     writeDataToSource(sampleDataDf, sourceTableName)
     val jobParametersWithExtra = jobParameters ++ Array("--once", "--env=test", "--override=mysql.password=XXXX,foo=bar,balabala=a=b=c=d")
     withObjectMocked[WorkflowReader.type]{
-      when(WorkflowReader.readSteps(anyString())).thenReturn(Nil)
+      when(WorkflowReader.readWorkflow(anyString())).thenReturn(wf)
       runJob(jobParametersWithExtra)
     }
     assert(ETLConfig.getProperty("mysql.password") == "XXXX")
@@ -90,7 +90,7 @@ class PropertyLoadingSpec extends ETLSuit with BeforeAndAfterAll {
     val filePath = getClass.getResource("/application-test.properties").toString
     val jobParametersWithExtra = jobParameters ++ Array("--once", "--env=test", s"--property=$filePath")
     withObjectMocked[WorkflowReader.type]{
-      when(WorkflowReader.readSteps(anyString())).thenReturn(Nil)
+      when(WorkflowReader.readWorkflow(anyString())).thenReturn(wf)
       runJob(jobParametersWithExtra)
     }
     assert(ETLConfig.getProperty("from_file_path") == "true")

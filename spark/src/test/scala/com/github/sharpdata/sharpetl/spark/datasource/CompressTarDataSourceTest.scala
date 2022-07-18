@@ -12,7 +12,6 @@ import java.nio.file.Files
 
 class CompressTarDataSourceTest extends AnyFunSpec with SparkSessionTestWrapper {
   it("should load data from tar and can be read by follow step ") {
-    val conf = new SparkConf().setAppName("CompressTarDataSource").setMaster("local[*]");
     val line = 100
 
     val files = IOUtil.listFiles("data.tar.gz") ++ IOUtil.listFilesJar("data.tar.gz")

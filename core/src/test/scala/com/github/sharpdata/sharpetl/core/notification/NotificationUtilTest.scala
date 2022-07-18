@@ -1,11 +1,10 @@
 package com.github.sharpdata.sharpetl.core.notification
 
-import com.github.sharpdata.sharpetl.core.repository.JobLogAccessor
-import com.github.sharpdata.sharpetl.core.repository.model.{JobLog, JobStatus, StepLog}
-import com.github.sharpdata.sharpetl.core.util.ETLConfig
+import com.github.sharpdata.sharpetl.core.api.WFInterpretingResult
 import com.github.sharpdata.sharpetl.core.notification.sender.NotificationFactory
 import com.github.sharpdata.sharpetl.core.repository.JobLogAccessor
 import com.github.sharpdata.sharpetl.core.repository.model.{JobLog, JobStatus, StepLog}
+import com.github.sharpdata.sharpetl.core.syntax.{Notify, Workflow}
 import com.github.sharpdata.sharpetl.core.util.{ETLConfig, Failure, Success}
 import org.mockito.ArgumentMatchers.any
 import org.mockito.Mockito.{mock, times, verify, when}
@@ -15,7 +14,7 @@ import org.scalatest.matchers.should
 
 import java.time.LocalDateTime
 
-class NotificationServiceTest extends AnyFlatSpec with should.Matchers {
+class NotificationUtilTest extends AnyFlatSpec with should.Matchers {
 
   it should "send notification correctly when config notification setting" in {
 
@@ -23,7 +22,7 @@ class NotificationServiceTest extends AnyFlatSpec with should.Matchers {
       val path = getClass.getResource("/application.properties").toString
       ETLConfig.setPropertyPath(path)
       val jobLogAccessor = mock(classOf[JobLogAccessor])
-      val service = new NotificationService(jobLogAccessor)
+      val service = new NotificationUtil(jobLogAccessor)
 
       val job1 = mockJobLog("job1", 1, JobStatus.FAILURE)
       job1.setStepLogs(Array(mockStepLog(1, "1", JobStatus.FAILURE)))
@@ -31,10 +30,47 @@ class NotificationServiceTest extends AnyFlatSpec with should.Matchers {
       val job2 = mockJobLog("job2", 2, JobStatus.FAILURE)
       job2.setStepLogs(Array(mockStepLog(2, "1", JobStatus.SUCCESS), mockStepLog(2, "2", JobStatus.FAILURE)))
 
-      service.sendNotification(Seq(Seq(Failure(job1, new RuntimeException("???"))), Seq(Failure(job2, new RuntimeException("???")))))
+      val wf1 = Workflow("job1", "1440", "full", "timewindow", null, null, null, -1, null, false,
+        Notify("email", "zhangsan@gmail.com", NotifyTriggerCondition.ALWAYS), Map(), List())
+
+      val wf2 = Workflow("job2", "1440", "full", "timewindow", null, null, null, -1, null, false,
+        Notify("email", "lisi@gmail.com", NotifyTriggerCondition.ALWAYS), Map(), List())
+
+      service.notify(Seq(
+        WFInterpretingResult(wf1, Seq(Failure(job1, new RuntimeException("???")))),
+        WFInterpretingResult(wf2, Seq(Failure(job2, new RuntimeException("???"))))
+      ))
       verify(NotificationFactory, times(2)).sendNotification(any())
     }
+  }
 
+
+  it should "merge notification correctly when recipient is the same" in {
+
+    withObjectMocked[NotificationFactory.type] {
+      val path = getClass.getResource("/application.properties").toString
+      ETLConfig.setPropertyPath(path)
+      val jobLogAccessor = mock(classOf[JobLogAccessor])
+      val service = new NotificationUtil(jobLogAccessor)
+
+      val job1 = mockJobLog("job1", 1, JobStatus.FAILURE)
+      job1.setStepLogs(Array(mockStepLog(1, "1", JobStatus.FAILURE)))
+
+      val job2 = mockJobLog("job2", 2, JobStatus.FAILURE)
+      job2.setStepLogs(Array(mockStepLog(2, "1", JobStatus.SUCCESS), mockStepLog(2, "2", JobStatus.FAILURE)))
+
+      val wf1 = Workflow("job1", "1440", "full", "timewindow", null, null, null, -1, null, false,
+        Notify("email", "zhangsan@gmail.com", NotifyTriggerCondition.ALWAYS), Map(), List())
+
+      val wf2 = Workflow("job2", "1440", "full", "timewindow", null, null, null, -1, null, false,
+        Notify("email", "zhangsan@gmail.com", NotifyTriggerCondition.ALWAYS), Map(), List())
+
+      service.notify(Seq(
+        WFInterpretingResult(wf1, Seq(Failure(job1, new RuntimeException("???")))),
+        WFInterpretingResult(wf2, Seq(Failure(job2, new RuntimeException("???"))))
+      ))
+      verify(NotificationFactory, times(1)).sendNotification(any())
+    }
   }
 
   it should "send notification correctly when no previous executed jobLog" in {
@@ -43,12 +79,15 @@ class NotificationServiceTest extends AnyFlatSpec with should.Matchers {
       val path = getClass.getResource("/application.properties").toString
       ETLConfig.setPropertyPath(path)
       val jobLogAccessor = mock(classOf[JobLogAccessor])
-      val service = new NotificationService(jobLogAccessor)
+      val service = new NotificationUtil(jobLogAccessor)
 
       val jobLog = mockJobLog("job2", 2, JobStatus.FAILURE)
       jobLog.setStepLogs(Array(mockStepLog(2, "1", JobStatus.FAILURE)))
 
-      service.sendNotification(Seq(Seq(Success(jobLog))))
+      val tempWf = Workflow("test", "1440", "full", "timewindow", null, null, null, -1, null, false,
+        Notify("email", "zhangsan@gmail.com", NotifyTriggerCondition.ALWAYS), Map(), List())
+
+      service.notify(Seq(WFInterpretingResult(tempWf, Seq(Success(jobLog)))))
       verify(NotificationFactory, times(1)).sendNotification(any())
     }
 
@@ -60,7 +99,7 @@ class NotificationServiceTest extends AnyFlatSpec with should.Matchers {
       val path = getClass.getResource("/application.properties").toString
       ETLConfig.setPropertyPath(path)
       val jobLogAccessor = mock(classOf[JobLogAccessor])
-      val service = new NotificationService(jobLogAccessor)
+      val service = new NotificationUtil(jobLogAccessor)
 
       val jobLog = mockJobLog("job2", 2, JobStatus.FAILURE)
       jobLog.setStepLogs(Array(mockStepLog(2, "1", JobStatus.FAILURE)))
@@ -69,7 +108,10 @@ class NotificationServiceTest extends AnyFlatSpec with should.Matchers {
       when(jobLogAccessor.getPreviousJobLog(jobLog))
         .thenReturn(previousJobLog)
 
-      service.sendNotification(Seq(Seq(Success(jobLog))))
+      val wf = Workflow("test", "1440", "full", "timewindow", null, null, null, -1, null, false,
+        Notify("email", "zhangsan@gmail.com", NotifyTriggerCondition.FAILURE), Map(), List())
+
+      service.notify(Seq(WFInterpretingResult(wf, Seq(Success(jobLog)))))
       verify(NotificationFactory, times(1)).sendNotification(any())
     }
 
@@ -81,7 +123,7 @@ class NotificationServiceTest extends AnyFlatSpec with should.Matchers {
       val path = getClass.getResource("/application.properties").toString
       ETLConfig.setPropertyPath(path)
       val jobLogAccessor = mock(classOf[JobLogAccessor])
-      val service = new NotificationService(jobLogAccessor)
+      val service = new NotificationUtil(jobLogAccessor)
 
       val jobLog = mockJobLog("job2", 2, JobStatus.FAILURE)
       jobLog.setStepLogs(Array(mockStepLog(2, "1", JobStatus.FAILURE)))
@@ -90,7 +132,10 @@ class NotificationServiceTest extends AnyFlatSpec with should.Matchers {
       when(jobLogAccessor.getPreviousJobLog(jobLog))
         .thenReturn(previousJobLog)
 
-      service.sendNotification(Seq(Seq(Success(jobLog))))
+      val wf = Workflow("test", "1440", "full", "timewindow", null, null, null, -1, null, false,
+        Notify("email", "zhangsan@gmail.com", NotifyTriggerCondition.FAILURE), Map(), List())
+
+      service.notify(Seq(WFInterpretingResult(wf, Seq(Success(jobLog)))))
       verify(NotificationFactory, times(0)).sendNotification(any())
     }
 

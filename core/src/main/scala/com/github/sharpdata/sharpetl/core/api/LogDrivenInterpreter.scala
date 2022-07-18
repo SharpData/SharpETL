@@ -2,11 +2,6 @@ package com.github.sharpdata.sharpetl.core.api
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import com.github.sharpdata.sharpetl.core.repository.JobLogAccessor
-import com.github.sharpdata.sharpetl.core.repository.model.{JobLog, JobStatus}
-import com.github.sharpdata.sharpetl.core.syntax.{Workflow, WorkflowStep}
-import com.github.sharpdata.sharpetl.core.util.Constants.IncrementalType
-import com.github.sharpdata.sharpetl.core.util.ETLLogger
 import com.github.sharpdata.sharpetl.core.annotation.Annotations.Stable
 import com.github.sharpdata.sharpetl.core.cli.{CommonCommand, SingleJobCommand}
 import com.github.sharpdata.sharpetl.core.exception.Exception._
@@ -31,14 +26,14 @@ import scala.annotation.tailrec
 import scala.collection.mutable.ListBuffer
 
 @Stable(since = "1.0.0")
-final case class LogDrivenJob(
-                               jobName: String,
-                               workflow: Workflow,
-                               jobInterpreter: WorkflowInterpreter[_],
-                               additionalProperties: Map[String, String] = Map(),
-                               jobLogAccessor: JobLogAccessor = jobLogAccessor,
-                               command: CommonCommand
-                             ) {
+final case class LogDrivenInterpreter(
+                                       workflowName: String,
+                                       workflow: Workflow,
+                                       workflowInterpreter: WorkflowInterpreter[_],
+                                       additionalProperties: Map[String, String] = Map(),
+                                       jobLogAccessor: JobLogAccessor = jobLogAccessor,
+                                       command: CommonCommand
+                                     ) {
 
   private lazy val period = {
     if (command.period > 0) {
@@ -51,19 +46,20 @@ final case class LogDrivenJob(
   /**
    * 任务执行主入口
    */
-  def exec(): Seq[Try[JobLog]] = {
-    command match {
+  def interpreting(): WFInterpretingResult = {
+    val logs = command match {
       case cmd: CommonCommand if cmd.refresh =>
-        execute(unexecutedQueue(Some(cmd.refreshRangeStart), Some(cmd.refreshRangeEnd)), { jobLog: JobLog => process(jobLog) })
+        executeAndGetResult(unexecutedQueue(Some(cmd.refreshRangeStart), Some(cmd.refreshRangeEnd)), checkRunningAndExecute)
       case _ =>
         if (command.once) {
-          execute(unexecutedQueue().headOption.toSeq, { jobLog: JobLog => process(jobLog) })
+          executeAndGetResult(unexecutedQueue().headOption.toSeq, checkRunningAndExecute)
         } else if (command.latestOnly) {
-          execute(unexecutedQueue().reverse.headOption.toSeq, { jobLog: JobLog => process(jobLog) })
+          executeAndGetResult(unexecutedQueue().reverse.headOption.toSeq, checkRunningAndExecute)
         } else {
-          execute(unexecutedQueue(), { jobLog: JobLog => process(jobLog) })
+          executeAndGetResult(unexecutedQueue(), checkRunningAndExecute)
         }
     }
+    WFInterpretingResult(workflow, logs)
   }
 
   /**
@@ -74,7 +70,7 @@ final case class LogDrivenJob(
     val lastJob = if (startTimeStr.isDefined && endTimeStr.isDefined) {
       None
     } else {
-      Option(jobLogAccessor.lastSuccessExecuted(jobName))
+      Option(jobLogAccessor.lastSuccessExecuted(workflowName))
     }
     val logDrivenType = {
       if (isNullOrEmpty(command.logDrivenType)) {
@@ -100,20 +96,20 @@ final case class LogDrivenJob(
     type OffsetRange = Map[String, Map[String, Int]]
     val mapper = new ObjectMapper()
     mapper.registerModule(DefaultScalaModule)
-    val jobLogs = jobLogAccessor.executionsLastYear(jobName)
+    val jobLogs = jobLogAccessor.executionsLastYear(workflowName)
 
     val (dataRangeStart, jobScheduleId) =
       if (startTimeStr.isDefined) {
         //refresh or custom offset
-        (startTimeStr.get, s"$jobName-${startTimeStr.get}")
+        (startTimeStr.get, s"$workflowName-${startTimeStr.get}")
       } else if (jobLogs.isEmpty) {
         // not exist => from offset 0
-        ("earliest", s"$jobName-earliest")
+        ("earliest", s"$workflowName-earliest")
       } else {
         // exist => OffsetRange => ordered => latest => options
         val dataRangeEnds = jobLogs.toList.map(_.dataRangeEnd).filter(it => it != "earliest")
         if (dataRangeEnds.isEmpty) {
-          ("earliest", s"$jobName-earliest")
+          ("earliest", s"$workflowName-earliest")
         } else {
           val offsetStart = dataRangeEnds
             .map(str => {
@@ -122,7 +118,7 @@ final case class LogDrivenJob(
             .map(it => (it.values.map(_.values.sum).sum, it))
             .maxBy(_._1)
             ._2
-          val jobScheduleId = s"$jobName-${
+          val jobScheduleId = s"$workflowName-${
             offsetStart.map {
               case (topic: String, partitionToOffset: Map[String, Int]) =>
                 partitionToOffset.map { case (partition, offset) => s"$topic-$partition-$offset" }
@@ -135,15 +131,15 @@ final case class LogDrivenJob(
 
     Seq(
       new JobLog(
-        jobId = 0, jobName = jobName,
+        jobId = 0, jobName = workflowName,
         jobPeriod = period, jobScheduleId = jobScheduleId,
         dataRangeStart = dataRangeStart, dataRangeEnd = endTimeStr.getOrElse("latest"), // update `dataRangeEnd` in [[BatchKafkaDataSource.read()]]
         jobStartTime = nullDataTime, jobEndTime = nullDataTime,
         status = RUNNING, createTime = nullDataTime,
         lastUpdateTime = nullDataTime,
         incrementalType = IncrementalType.KAFKA_OFFSET,
-        currentFile = "", applicationId = jobInterpreter.applicationId(),
-        projectName = ProjectJobNameUtil.getProjectName(jobName)
+        currentFile = "", applicationId = workflowInterpreter.applicationId(),
+        projectName = workflow.getProjectName()
       )
     )
   }
@@ -158,18 +154,18 @@ final case class LogDrivenJob(
           .padding()
         )
     }
-    val jobScheduleId = s"$jobName-$startFrom"
+    val jobScheduleId = s"$workflowName-$startFrom"
     Seq(
       new JobLog(
-        jobId = 0, jobName = jobName,
+        jobId = 0, jobName = workflowName,
         jobPeriod = period, jobScheduleId = jobScheduleId,
         dataRangeStart = startFrom.padding(), dataRangeEnd = endTimeStr.getOrElse("0").padding(),
         jobStartTime = nullDataTime, jobEndTime = nullDataTime,
         status = RUNNING, createTime = nullDataTime,
         lastUpdateTime = nullDataTime,
         incrementalType = incrementalType,
-        currentFile = "", applicationId = jobInterpreter.applicationId(),
-        projectName = ProjectJobNameUtil.getProjectName(jobName)
+        currentFile = "", applicationId = workflowInterpreter.applicationId(),
+        projectName = workflow.getProjectName()
       )
     )
   }
@@ -195,11 +191,11 @@ final case class LogDrivenJob(
     val startTime = startTimeStr.map(str => str.asBigInt.asLocalDateTime()).getOrElse(getStartTime(lastJob))
     val shouldScheduleTimes = ceilingScheduleTimes(startTime, period, endTimeStr)
     if (shouldScheduleTimes == 0) {
-      ETLLogger.warn(s"Last job($jobName)'s data range end is $startTime," +
-        s" now is ${LocalDateTime.now()}, there is no plan to schedule next run for job($jobName)")
+      ETLLogger.warn(s"Last job($workflowName)'s data range end is $startTime," +
+        s" now is ${LocalDateTime.now()}, there is no plan to schedule next run for job($workflowName)")
     } else if (shouldScheduleTimes > 50) {
-      ETLLogger.warn(s"Last job($jobName)'s data range end is $startTime," +
-        s" now is ${LocalDateTime.now()}, there is $shouldScheduleTimes job($jobName) will to be scheduled.")
+      ETLLogger.warn(s"Last job($workflowName)'s data range end is $startTime," +
+        s" now is ${LocalDateTime.now()}, there is $shouldScheduleTimes job($workflowName) will to be scheduled.")
     }
     val realLogDrivenType = if (isNullOrEmpty(logDrivenType) ||
       (logDrivenType == UPSTREAM && isNullOrEmpty(workflow.upstream))) {
@@ -214,23 +210,23 @@ final case class LogDrivenJob(
     }.toList
   }
 
-  def process(jobLog: JobLog): JobLog = {
+  def checkRunningAndExecute(jobLog: JobLog): JobLog = {
     val runningJob = jobLogAccessor.isAnotherJobRunning(jobLog.jobScheduleId)
     if (runningJob == null) {
-      executeJob(jobLog)
+      executeWorkflow(jobLog)
     } else {
       if (!command.skipRunning) {
         runningJob.failed()
         jobLogAccessor.update(runningJob)
-        executeJob(jobLog)
+        executeWorkflow(jobLog)
       } else {
         throw AnotherJobIsRunningException(s"Exception thrown when another job(${runningJob.jobId}) jobScheduleId: ${runningJob.jobScheduleId} is running")
       }
     }
   }
 
-  private def executeJob(jobLog: JobLog): JobLog = {
-    ETLLogger.info(s"Executing job ${jobLog.jobName}")
+  private def executeWorkflow(jobLog: JobLog): JobLog = {
+    ETLLogger.info(s"Executing workflow : ${jobLog.jobName}")
     try {
       jobLogAccessor.create(jobLog)
       val start = jobLog.formatDataRangeStart()
@@ -240,13 +236,14 @@ final case class LogDrivenJob(
           ("${DATA_RANGE_END}", end),
           ("${DATA_RANGE_START}", start),
           ("${JOB_ID}", jobLog.jobId.toString),
-          ("${JOB_NAME}", jobLog.jobName)
+          ("${JOB_NAME}", jobLog.jobName),
+          ("${WORKFLOW_NAME}", jobLog.jobName)
         ) ++ jobLog.defaultTimePartition()
       )
       Option(workflow).foreach(wf =>
         ETLLogger.info(s"[Workflow]: \n${wf.headerStr}")
       )
-      jobInterpreter
+      workflowInterpreter
         .executeSteps(
           dropStep(Option(workflow).map(_.steps).getOrElse(Nil)),
           jobLog,
@@ -257,7 +254,7 @@ final case class LogDrivenJob(
       jobLog.success()
     } catch {
       case _: NoFileSkipException =>
-        ETLLogger.warn("Job won't process any files because there are no files to be proceed and `throwExceptionIfEmpty` is false")
+        ETLLogger.warn("Job won't checkRunningAndExecute any files because there are no files to be proceed and `throwExceptionIfEmpty` is false")
         jobLog.success()
       case e: NoFileToContinueException =>
         ETLLogger.warn("Job can not get any files!")
@@ -281,33 +278,33 @@ final case class LogDrivenJob(
   private def scheduleJob(startTime: LocalDateTime, execPeriod: Int, idx: Int, incrementalType: String): JobLog = {
     val dataRangeStart = startTime.plus((idx - 1) * execPeriod, ChronoUnit.MINUTES).asBigInt().toString
     val dataRangeEnd = startTime.plus(idx * execPeriod, ChronoUnit.MINUTES).asBigInt().toString
-    val jobScheduleId = s"$jobName-$dataRangeStart"
+    val jobScheduleId = s"$workflowName-$dataRangeStart"
     new JobLog(
-      jobId = 0, jobName = jobName,
+      jobId = 0, jobName = workflowName,
       jobPeriod = execPeriod, jobScheduleId = jobScheduleId,
       dataRangeStart = dataRangeStart, dataRangeEnd = dataRangeEnd,
       jobStartTime = nullDataTime, jobEndTime = nullDataTime,
       status = RUNNING, createTime = nullDataTime,
       lastUpdateTime = nullDataTime,
       incrementalType = incrementalType,
-      currentFile = "", applicationId = jobInterpreter.applicationId(),
-      projectName = ProjectJobNameUtil.getProjectName(jobName)
+      currentFile = "", applicationId = workflowInterpreter.applicationId(),
+      projectName = workflow.getProjectName()
     )
   }
 
   private def dependOnUpstreamScheduleJob(upstreamLogId: BigInt, incrementalType: String): JobLog = {
     val dataRangeStart = upstreamLogId.toString()
-    val jobScheduleId = s"$jobName-$dataRangeStart"
+    val jobScheduleId = s"$workflowName-$dataRangeStart"
     new JobLog(
-      jobId = 0, jobName = jobName,
+      jobId = 0, jobName = workflowName,
       jobPeriod = period, jobScheduleId = jobScheduleId,
       dataRangeStart = dataRangeStart, dataRangeEnd = "",
       jobStartTime = nullDataTime, jobEndTime = nullDataTime,
       status = RUNNING, createTime = nullDataTime,
       lastUpdateTime = nullDataTime,
       incrementalType = incrementalType,
-      currentFile = "", applicationId = jobInterpreter.applicationId(),
-      projectName = ProjectJobNameUtil.getProjectName(jobName)
+      currentFile = "", applicationId = workflowInterpreter.applicationId(),
+      projectName = workflow.getProjectName()
     )
   }
 
@@ -336,7 +333,7 @@ final case class LogDrivenJob(
       .getOrElse(1)
   }
 
-  def execute[A](seq: Seq[A], f: A => A): Seq[Try[A]] = {
+  def executeAndGetResult[A](seq: Seq[A], f: A => A): Seq[Try[A]] = {
     @tailrec
     def loop(seq: Seq[A], acc: ListBuffer[Try[A]]): Seq[Try[A]] = {
       seq match {

@@ -2,6 +2,7 @@ package com.github.sharpdata.sharpetl.spark.end2end
 
 import com.github.sharpdata.sharpetl.core.util.WorkflowReader
 import ETLSuit.runJob
+import com.github.sharpdata.sharpetl.core.syntax.Workflow
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.MockitoSugar.{when, withObjectMocked}
 import org.scalatest.DoNotDiscover
@@ -29,7 +30,7 @@ class TaskDependenciesSpec extends ETLSuit {
 
   it("should respect to job dependencies") {
     withObjectMocked[WorkflowReader.type] {
-      when(WorkflowReader.readSteps(anyString())).thenReturn(Nil)
+      when(WorkflowReader.readWorkflow(anyString())).thenReturn(wf)
       // 0. run migration if needed
       runJob(jobParameters("task-0"))
     }
@@ -40,7 +41,7 @@ class TaskDependenciesSpec extends ETLSuit {
     }
 
     withObjectMocked[WorkflowReader.type] {
-      when(WorkflowReader.readSteps(anyString())).thenReturn(Nil)
+      when(WorkflowReader.readWorkflow(anyString())).thenReturn(wf)
       // 2. run task-a (success)
       runJob(jobParameters("task-a"))
     }
@@ -51,7 +52,7 @@ class TaskDependenciesSpec extends ETLSuit {
     }
 
     withObjectMocked[WorkflowReader.type] {
-      when(WorkflowReader.readSteps(anyString())).thenReturn(Nil)
+      when(WorkflowReader.readWorkflow(anyString())).thenReturn(wf)
       // 4. run task-b (success)
       runJob(jobParameters("task-b"))
     }

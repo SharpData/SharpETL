@@ -1,6 +1,6 @@
 package com.github.sharpdata.sharpetl.spark.transformation
 
-import com.github.sharpdata.sharpetl.core.notification.NotificationService
+import com.github.sharpdata.sharpetl.core.notification.NotificationUtil
 import com.github.sharpdata.sharpetl.core.notification.sender.NotificationFactory
 import com.github.sharpdata.sharpetl.core.notification.sender.email.{Email, EmailAttachment, Sender}
 import com.github.sharpdata.sharpetl.core.repository.JobLogAccessor.jobLogAccessor
@@ -20,7 +20,7 @@ import scala.collection.immutable.ListMap
 import scala.util.{Failure, Success, Try}
 
 object DailyJobsSummaryReportTransformer extends Transformer {
-  private lazy val notificationService = new NotificationService(jobLogAccessor)
+  private lazy val notificationService = new NotificationUtil(jobLogAccessor)
 
   override def transform(args: Map[String, String]): DataFrame = {
     sendAllJobsSummaryReport(

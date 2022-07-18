@@ -1,7 +1,5 @@
 package com.github.sharpdata.sharpetl.core.notification.sender
 
-import com.github.sharpdata.sharpetl.core.notification.sender.email.EmailSenderConfiguration
-import com.github.sharpdata.sharpetl.core.util.ETLConfig
 import com.github.sharpdata.sharpetl.core.notification.sender.email.{EmailSender, EmailSenderConfiguration}
 import com.github.sharpdata.sharpetl.core.util.ETLConfig
 

@@ -4,11 +4,11 @@ import com.github.sharpdata.sharpetl.modeling.excel.model.OdsTable.{OdsModeling,
 import com.google.common.base.Strings.isNullOrEmpty
 import com.github.sharpdata.sharpetl.core.datasource.config._
 import com.github.sharpdata.sharpetl.core.syntax.{Workflow, WorkflowStep}
+import com.github.sharpdata.sharpetl.core.util.Constants.DataSourceType.HIVE
 import com.github.sharpdata.sharpetl.core.util.Constants.IncrementalType._
 import com.github.sharpdata.sharpetl.core.util.Constants.LoadType._
 import com.github.sharpdata.sharpetl.core.util.Constants.WriteMode
 import com.github.sharpdata.sharpetl.core.util.ETLConfig.partitionColumn
-import com.github.sharpdata.sharpetl.modeling.excel.model.OdsTable.{OdsModeling, OdsModelingColumn}
 import com.github.sharpdata.sharpetl.modeling.sql.dialect.SqlDialect.{getSqlDialect, quote}
 
 object OdsWorkflowGen {
@@ -27,7 +27,7 @@ object OdsWorkflowGen {
     val sourceTable = quote(odsModeling.odsTableConfig.sourceTable, dataSourceType)
     val steps = odsModeling.odsTableConfig.updateType match {
       case INCREMENTAL =>
-        step.writeMode = WriteMode.APPEND
+        step.writeMode = if (dataSourceType == HIVE) WriteMode.OVER_WRITE else WriteMode.APPEND
         val filterColumnName = quote(incrColumn(odsModeling), dataSourceType)
         val partitionClause = genPartitionClause(odsModeling)
 
@@ -37,7 +37,7 @@ object OdsWorkflowGen {
               |WHERE $filterColumnName >= '$${DATA_RANGE_START}' AND $filterColumnName < '$${DATA_RANGE_END}'
               |""".stripMargin
         List(step)
-      case DIFF =>
+      case FULL | DIFF =>
         step.writeMode = WriteMode.OVER_WRITE
         step.sqlTemplate =
           s"""|SELECT $columns,\n '$${DATA_RANGE_START}' AS $partitionColumn
