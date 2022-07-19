@@ -1,6 +1,7 @@
 ## Sharp ETL
 
 [![Sharp ETL](https://github.com/SharpData/SharpETL/actions/workflows/push.yml/badge.svg?branch=main)](https://github.com/SharpData/SharpETL/actions/workflows/push.yml) [![License](https://img.shields.io/badge/license-Apache%202-brightgreen.svg)](https://github.com/SharpData/SharpETL/blob/main/LICENSE) [![codecov](https://codecov.io/gh/SharpData/SharpETL/branch/main/graph/badge.svg?token=299D3CIJ7Y)](https://codecov.io/gh/SharpData/SharpETL) ![stage](https://img.shields.io/badge/Project%20Stage-Production%20Ready-brightgreen.svg)
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FSharpData%2FSharpETL.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FSharpData%2FSharpETL?ref=badge_shield)
 
 Sharp ETL is a ETL framework that simplifies writing and executing ETLs by simply writing SQL workflow files.
 The SQL workflow file format is combined your favourite SQL dialects with just a little bit of configurations.
@@ -81,3 +82,7 @@ The compatible versions of [Spark](http://spark.apache.org/) are as follows:
 | 3.2.x | 2.12 / 2.13
 | 3.3.x | 2.12 / 2.13
 
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FSharpData%2FSharpETL.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2FSharpData%2FSharpETL?ref=badge_large)
