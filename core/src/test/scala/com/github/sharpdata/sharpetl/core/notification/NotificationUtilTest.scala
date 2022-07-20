@@ -31,10 +31,10 @@ class NotificationUtilTest extends AnyFlatSpec with should.Matchers {
       job2.setStepLogs(Array(mockStepLog(2, "1", JobStatus.SUCCESS), mockStepLog(2, "2", JobStatus.FAILURE)))
 
       val wf1 = Workflow("job1", "1440", "full", "timewindow", null, null, null, -1, null, false,
-        Notify("email", "zhangsan@gmail.com", NotifyTriggerCondition.ALWAYS), Map(), List())
+        Seq(Notify("email", "zhangsan@gmail.com", NotifyTriggerCondition.ALWAYS)), Map(), List())
 
       val wf2 = Workflow("job2", "1440", "full", "timewindow", null, null, null, -1, null, false,
-        Notify("email", "lisi@gmail.com", NotifyTriggerCondition.ALWAYS), Map(), List())
+        Seq(Notify("email", "lisi@gmail.com", NotifyTriggerCondition.ALWAYS)), Map(), List())
 
       service.notify(Seq(
         WFInterpretingResult(wf1, Seq(Failure(job1, new RuntimeException("???")))),
@@ -60,10 +60,10 @@ class NotificationUtilTest extends AnyFlatSpec with should.Matchers {
       job2.setStepLogs(Array(mockStepLog(2, "1", JobStatus.SUCCESS), mockStepLog(2, "2", JobStatus.FAILURE)))
 
       val wf1 = Workflow("job1", "1440", "full", "timewindow", null, null, null, -1, null, false,
-        Notify("email", "zhangsan@gmail.com", NotifyTriggerCondition.ALWAYS), Map(), List())
+        Seq(Notify("email", "zhangsan@gmail.com", NotifyTriggerCondition.ALWAYS)), Map(), List())
 
       val wf2 = Workflow("job2", "1440", "full", "timewindow", null, null, null, -1, null, false,
-        Notify("email", "zhangsan@gmail.com", NotifyTriggerCondition.ALWAYS), Map(), List())
+        Seq(Notify("email", "zhangsan@gmail.com", NotifyTriggerCondition.ALWAYS)), Map(), List())
 
       service.notify(Seq(
         WFInterpretingResult(wf1, Seq(Failure(job1, new RuntimeException("???")))),
@@ -85,7 +85,7 @@ class NotificationUtilTest extends AnyFlatSpec with should.Matchers {
       jobLog.setStepLogs(Array(mockStepLog(2, "1", JobStatus.FAILURE)))
 
       val tempWf = Workflow("test", "1440", "full", "timewindow", null, null, null, -1, null, false,
-        Notify("email", "zhangsan@gmail.com", NotifyTriggerCondition.ALWAYS), Map(), List())
+        Seq(Notify("email", "zhangsan@gmail.com", NotifyTriggerCondition.ALWAYS)), Map(), List())
 
       service.notify(Seq(WFInterpretingResult(tempWf, Seq(Success(jobLog)))))
       verify(NotificationFactory, times(1)).sendNotification(any())
@@ -109,7 +109,7 @@ class NotificationUtilTest extends AnyFlatSpec with should.Matchers {
         .thenReturn(previousJobLog)
 
       val wf = Workflow("test", "1440", "full", "timewindow", null, null, null, -1, null, false,
-        Notify("email", "zhangsan@gmail.com", NotifyTriggerCondition.FAILURE), Map(), List())
+        Seq(Notify("email", "zhangsan@gmail.com", NotifyTriggerCondition.FAILURE)), Map(), List())
 
       service.notify(Seq(WFInterpretingResult(wf, Seq(Success(jobLog)))))
       verify(NotificationFactory, times(1)).sendNotification(any())
@@ -133,7 +133,7 @@ class NotificationUtilTest extends AnyFlatSpec with should.Matchers {
         .thenReturn(previousJobLog)
 
       val wf = Workflow("test", "1440", "full", "timewindow", null, null, null, -1, null, false,
-        Notify("email", "zhangsan@gmail.com", NotifyTriggerCondition.FAILURE), Map(), List())
+        Seq(Notify("email", "zhangsan@gmail.com", NotifyTriggerCondition.FAILURE)), Map(), List())
 
       service.notify(Seq(WFInterpretingResult(wf, Seq(Success(jobLog)))))
       verify(NotificationFactory, times(0)).sendNotification(any())

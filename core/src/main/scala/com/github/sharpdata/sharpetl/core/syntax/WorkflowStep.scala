@@ -4,7 +4,6 @@ import com.github.sharpdata.sharpetl.core.util.Constants.{BooleanString, WriteMo
 import com.google.common.base.Strings.isNullOrEmpty
 import com.github.sharpdata.sharpetl.core.annotation.Annotations.Evolving
 import com.github.sharpdata.sharpetl.core.datasource.config.DataSourceConfig
-import com.github.sharpdata.sharpetl.core.util.Constants.BooleanString
 import com.github.sharpdata.sharpetl.core.util.Constants.Separator.ENTER
 import com.github.sharpdata.sharpetl.core.util.StringUtil
 

@@ -22,9 +22,9 @@ class NotificationUtil(val jobLogAccessor: JobLogAccessor) {
   def notify(jobResults: Seq[WFInterpretingResult]): Unit = {
     val configToLogs: Seq[(NotifyConfig, Seq[JobLog])] =
       jobResults
-        .filterNot(it => it.workflow.notifys == null || it.workflow.notifys.isEmpty)
+        .filterNot(it => it.workflow.notifies == null || it.workflow.notifies.isEmpty)
         .flatMap(it =>
-          it.workflow.notifys
+          it.workflow.notifies
             .flatMap(_.toConfigs())
             .map(n => (n, it.jobLogs.map(_.get)))
             .map { case (config, logs) =>

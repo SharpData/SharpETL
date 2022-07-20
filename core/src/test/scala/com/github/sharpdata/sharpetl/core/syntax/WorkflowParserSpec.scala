@@ -22,7 +22,7 @@ class WorkflowParserSpec extends AnyFunSpec with should.Matchers {
         |--  stopScheduleWhenFail=false
         |--  options
         |--   project=abc
-        |--  notification
+        |--  notify
         |--   notifyType=email
         |--   recipients=a@q.com,b@q.com
         |--   notifyCondition=SUCCESS/FAILURE/ALWAYS
@@ -52,11 +52,12 @@ class WorkflowParserSpec extends AnyFunSpec with should.Matchers {
         |""".stripMargin
 
     val r = parseWorkflow(text)
+    //println(r.asInstanceOf[WFParseFail].toString)
     r.asInstanceOf[WFParseFail].toString should be(
-      """5:18: error: Expected parse by `stepHeader` at 5:18, but found "=upstream/".
-        |Parse stack is workflow:1:1 / step:5:18 / stepHeader:5:18
-        |5|--  logDrivenType=upstream/timewindow/diff/kafka/inc...
-        | |                 ^""".stripMargin)
+      """4:1: error: Expected parse by `stepHeader` at 4:1, but found "--  loadTy".
+        |Parse stack is workflow:1:1 / step:4:1 / stepHeader:4:1
+        |4|--  loadType
+        | |^""".stripMargin)
   }
 
   it("parse sample workflow") {
@@ -74,7 +75,7 @@ class WorkflowParserSpec extends AnyFunSpec with should.Matchers {
         |--  stopScheduleWhenFail=false
         |--  options
         |--   project=abc
-        |--  notification
+        |--  notify
         |--   notifyType=email
         |--   recipients=a@q.com,b@q.com
         |--   notifyCondition=SUCCESS/FAILURE/ALWAYS
@@ -90,7 +91,7 @@ class WorkflowParserSpec extends AnyFunSpec with should.Matchers {
     val wf = header.get.value
     wf.name should be("same_with_file_name")
     wf.options.size should be(1)
-    wf.notification.recipients should be("a@q.com,b@q.com")
+    wf.notifies.head.recipients should be("a@q.com,b@q.com")
     wf.timeout should be(3600)
   }
 
@@ -104,10 +105,14 @@ class WorkflowParserSpec extends AnyFunSpec with should.Matchers {
         |--  upstream=ods_product
         |--  dependsOn=dim_user,dim_price
         |--  defaultStart=20220101
-        |--  notification
+        |--  notify
         |--   notifyType=email
         |--   recipients=a@q.com,b@q.com
         |--   notifyCondition=SUCCESS/FAILURE/ALWAYS
+        |--  notify
+        |--   notifyType=email
+        |--   recipients=c@q.com,d@q.com
+        |--   notifyCondition=ALWAYS
         |
         |-- step=read csv
         |-- source=csv
@@ -115,13 +120,16 @@ class WorkflowParserSpec extends AnyFunSpec with should.Matchers {
         |
         |""".stripMargin
 
-    val header = parse(text, workflow(_))
+    val header = parseWorkflow(text)
+    //println(header.asInstanceOf[WFParseFail].toString)
     header.isSuccess should be(true)
-    val wf = header.get.value
+    val wf = header.get
     wf.name should be("same_with_file_name")
-    wf.options should be(null)
-    wf.notification.recipients should be("a@q.com,b@q.com")
+    wf.options should be(Map())
     wf.timeout should be(0)
+    wf.notifies.size should be(2)
+    wf.notifies.head.recipients should be("a@q.com,b@q.com")
+    wf.notifies.reverse.head.recipients should be("c@q.com,d@q.com")
   }
 
   it("parse sample un-ordered workflow") {
@@ -139,14 +147,14 @@ class WorkflowParserSpec extends AnyFunSpec with should.Matchers {
         |
         |--  defaultStart=20220101
         |--  stopScheduleWhenFail=false
-        |--  notification
+        |--  options
+        |--   project=abc
         |
+        |--  notify
         |--   notifyType=email
         |--   recipients=a@q.com,b@q.com
         |--   notifyCondition=SUCCESS/FAILURE/ALWAYS
         |
-        |--  options
-        |--   project=abc
         |
         |-- step=read csv
         |-- source=csv
@@ -175,7 +183,7 @@ class WorkflowParserSpec extends AnyFunSpec with should.Matchers {
     val wf = header.get.value
     wf.name should be("same_with_file_name")
     wf.options.size should be(1)
-    wf.notification.recipients should be("a@q.com,b@q.com")
+    wf.notifies.head.recipients should be("a@q.com,b@q.com")
     wf.timeout should be(3600)
     wf.steps.size should be(2)
     wf.steps(0).sqlTemplate should be("select 'a' as result")
@@ -212,6 +220,7 @@ class WorkflowParserSpec extends AnyFunSpec with should.Matchers {
     header.isSuccess should be(true)
     val s = header.get.value
     s.sqlTemplate should be("")
+    s.writeMode should be("overwrite")
   }
 
 
@@ -287,7 +296,7 @@ class WorkflowParserSpec extends AnyFunSpec with should.Matchers {
 
   }
 
-  it("parse options") {
+  it("parse options and conf") {
     val text =
       """
         |-- workflow=same_with_file_name
@@ -306,6 +315,8 @@ class WorkflowParserSpec extends AnyFunSpec with should.Matchers {
         |--  options
         |--   delimiter="
         |--   header=false
+        |-- conf
+        |--  spark.sql.shuffle.partitions=1
         |select id, name,
         |
         |-- \\\\  -- this is another comment date=lates
@@ -318,6 +329,8 @@ class WorkflowParserSpec extends AnyFunSpec with should.Matchers {
     val steps = wf.steps
 
     assert(steps.length == 1)
+
+    assert(steps(0).conf("spark.sql.shuffle.partitions") == "1")
 
     assert(steps(0).source.dataSourceType == "temp")
     assert(steps(0).source.options.size == 2)
@@ -677,14 +690,14 @@ class WorkflowParserSpec extends AnyFunSpec with should.Matchers {
         |--   a=b
         |""".stripMargin
 
-    val header = parse(text, nestedObj(2)(_), verboseFailures = true)
+    val header = parse(text, options(2)(_), verboseFailures = true)
     header match {
       case Parsed.Success(_, _) => ()
       case failure: Parsed.Failure => print(failure.trace())
     }
     header.isSuccess should be(true)
     val wf = header.get.value
-    wf._2.head._2 should be(
+    wf.head._2 should be(
       """[
         |{"source_table": "a", "target_table": "a" },
         |{"source_table": "b", "target_table": "b" }

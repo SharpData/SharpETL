@@ -7,6 +7,7 @@ import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.github.sharpdata.sharpetl.core.datasource.config.{DataSourceConfig, TransformationDataSourceConfig}
 import com.github.sharpdata.sharpetl.core.annotation.AnnotationScanner.{configRegister, defaultConfigType}
 import com.github.sharpdata.sharpetl.core.annotation.Annotations.Experimental
+import com.github.sharpdata.sharpetl.core.exception.Exception.WorkFlowSyntaxException
 import com.github.sharpdata.sharpetl.core.syntax.ParserUtils.{Until, objectMapper, trimSql}
 
 
@@ -48,17 +49,18 @@ object WorkflowParser {
 
   def sql[_: P]: P[String] = Until(stepHeader | End)
 
-  def nestedObj[_: P](indent: Int): P[(String, Map[String, String])] = P(
-    comment(indent) ~ !P("step=" | "source=" | "target=") ~ P(key.rep(1).!) ~ newlines
-      ~ keyValPairs(indent + 1)
-  ).map {
-    case (obj, kv) => (obj, kv.toMap)
-  }
-
-  def options[_: P](indent: Int): P[Map[String, String]] = P(
-    comment(indent) ~ !P("step=" | "source=" | "target=") ~ P("options") ~ newlines
+  def nestedObj[_: P](objName: String, indent: Int): P[Map[String, String]] = P(
+    comment(indent) ~ P(objName) ~ newlines
       ~ keyValPairs(indent + 1)
   ).map(_.toMap)
+
+  def notifies[_: P](indent: Int): P[Seq[Map[String, String]]] = notify(indent).rep(sep = newlines)
+
+  def notify[_: P](indent: Int): P[Map[String, String]] = nestedObj("notify", indent)
+
+  def options[_: P](indent: Int): P[Map[String, String]] = nestedObj("options", indent)
+
+  def conf[_: P](indent: Int): P[Map[String, String]] = nestedObj("conf", indent)
 
   def dataSource[_: P](`type`: String): P[DataSourceConfig] = P(
     s"-- ${`type`}=" ~/ key.rep.! ~ newlines
@@ -98,11 +100,11 @@ object WorkflowParser {
       ~ P(transformer("source") | dataSource("source")) ~ newlines
       ~ P(transformer("target") | dataSource("target")) ~ newlines
       ~ keyValPairs(1).? ~ newlines
-      ~ nestedObj(1).? ~ newlines
+      ~ conf(1).? ~ newlines
       ~ sql
   ).map {
     // scalastyle:off
-    case (step, source, target, kv, opts, sql) =>
+    case (step, source, target, kv, conf, sql) =>
       val map = kv.getOrElse(Seq()).toMap
       val workflowStep = new WorkflowStep
       workflowStep.step = step
@@ -113,7 +115,7 @@ object WorkflowParser {
       workflowStep.checkPoint = map.getOrElse("checkPoint", null)
       workflowStep.writeMode = map.getOrElse("writeMode", null)
       workflowStep.skipFollowStepWhenEmpty = map.getOrElse("skipFollowStepWhenEmpty", null) //TODO: drop this later
-      workflowStep.conf = opts.getOrElse(("", Map[String, String]()))._2
+      workflowStep.conf = conf.getOrElse(Map())
       workflowStep
     //      WorkflowStep(step, source, target, sql.map(_.trim),
     //        map.getOrElse("persist", null), map.getOrElse("checkpoint", null),
@@ -128,16 +130,13 @@ object WorkflowParser {
     Start
       ~ whitespace.rep
       ~ "-- workflow" ~/ "=" ~/ singleLineValue ~ newlines
-      ~ keyValPairs(2) ~ newlines
-      ~ nestedObj(2).rep(sep = newlines) ~ newlines
+      ~ keyValPairs(2) ~/ newlines
+      ~ options(2).? ~/ newlines
+      ~ notifies(2).? ~/ newlines
       ~ steps
       ~ End
-  ).map { case (name, kv, objs, steps) =>
-    val value = Map(
-      "name" -> name
-    ) ++ kv.toMap ++ objs.map {
-      case (obj, kv) => obj -> kv
-    }
+  ).map { case (name, kv, options, notifies, steps) =>
+    val value = kv.toMap + ("name" -> name) + ("options" -> options.getOrElse(Map())) + ("notifies" -> notifies.getOrElse(Seq()))
     val json = objectMapper.writeValueAsString(value)
     val wf = objectMapper.readValue(json, classOf[Workflow])
     wf.steps = steps.toList
@@ -176,9 +175,17 @@ private object ParserUtils {
   }
 }
 
-sealed trait WFParseResult
+sealed trait WFParseResult {
+  def isSuccess: Boolean
 
-case class WFParseSuccess(wf: Workflow) extends WFParseResult
+  def get: Workflow
+}
+
+case class WFParseSuccess(wf: Workflow) extends WFParseResult {
+  override def isSuccess: Boolean = true
+
+  override def get: Workflow = wf
+}
 
 case class WFParseFail(parsed: Parsed.Failure) extends WFParseResult {
   override def toString: String = {
@@ -219,5 +226,9 @@ case class WFParseFail(parsed: Parsed.Failure) extends WFParseResult {
   def formatTrailing(input: ParserInput, index: Int): String = {
     fastparse.internal.Util.literalize(input.slice(index, index + 10))
   }
+
+  override def isSuccess: Boolean = false
+
+  override def get: Workflow = throw WorkFlowSyntaxException(this.toString)
 }
 

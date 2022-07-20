@@ -38,8 +38,7 @@ class DeltaLakeDataSource extends Source[DataFrame, SparkSession] with Sink[Data
     if (!isEmpty) {
       if (!isNullOrEmpty(step.target.asInstanceOf[DBDataSourceConfig].partitionColumn)) {
         writeByPartition(df, step, targetPath, step.target.asInstanceOf[DBDataSourceConfig].partitionColumn)
-      }
-      else {
+      } else {
         write(df, step, targetPath)
       }
     }
