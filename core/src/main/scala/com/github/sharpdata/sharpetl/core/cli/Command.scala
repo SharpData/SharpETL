@@ -37,7 +37,7 @@ abstract class CommonCommand extends Runnable {
     description = Array("Default start time(eg, 20210101000000)/incremental id of this job"),
     required = false
   )
-  var defaultStart: String = "20210101000000"
+  var defaultStart: String = _
 
   @CommandLine.Option(
     names = Array("--log-driven-type"),
@@ -150,7 +150,7 @@ abstract class CommonCommand extends Runnable {
 
   // scalastyle:off
   def formatCommand(): Unit = {
-    if (defaultStart.contains(":")) {
+    if (!isNullOrEmpty(defaultStart) && defaultStart.contains(":")) {
       // 2021-09-24 00:00:00 => 20210924000000
       defaultStart = defaultStart.replace("-", "").replace(" ", "").replace(":", "")
     }

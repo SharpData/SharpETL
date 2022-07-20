@@ -103,7 +103,6 @@ class LogDrivenInterpreterSpec extends AnyFlatSpec with should.Matchers {
     val command = new TestJobCommand()
     command.once = true
     val logDrivenJob = LogDrivenInterpreter(
-      "jobName",
       Workflow("jobName", execPeriod.toString, "incremental", "timewindow", null, null, null, -1, null, false, null, Map(), Nil), // scalastyle:off
       new FakeWorkflowInterpreter(),
       jobLogAccessor = jobLogAccessor,

@@ -1,3 +1,8 @@
+-- workflow=sales.order__ods.t_order
+--  period=1440
+--  loadType=incremental
+--  logDrivenType=timewindow
+
 -- step=1
 -- source=postgres
 --  dbName=postgres

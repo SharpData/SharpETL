@@ -2,14 +2,12 @@ package com.github.sharpdata.sharpetl.spark.cli
 
 import com.github.sharpdata.sharpetl.modeling.cli.{GenerateDwdStepCommand, GenerateSqlFiles}
 import com.github.sharpdata.sharpetl.spark.utils.JavaVersionChecker
-import com.github.sharpdata.sharpetl.core.api
 import com.github.sharpdata.sharpetl.core.api.WFInterpretingResult.checkSuccessOrThrow
 import com.github.sharpdata.sharpetl.core.api.{LogDrivenInterpreter, WFInterpretingResult}
 import com.github.sharpdata.sharpetl.core.cli.{BatchJobCommand, EncryptionCommand, SingleJobCommand}
 import com.github.sharpdata.sharpetl.core.notification.NotificationUtil
 import com.github.sharpdata.sharpetl.core.quality.QualityCheckRuleConfig.readQualityCheckRules
 import com.github.sharpdata.sharpetl.core.repository.JobLogAccessor.jobLogAccessor
-import com.github.sharpdata.sharpetl.core.repository.model.JobLog
 import com.github.sharpdata.sharpetl.core.util.FlywayUtil.migrate
 import com.github.sharpdata.sharpetl.core.util._
 import com.github.sharpdata.sharpetl.spark.utils.ETLSparkSession.getSparkInterpreter
@@ -27,11 +25,9 @@ class SingleSparkJobCommand extends SingleJobCommand {
     val interpreter = getSparkInterpreter(local, jobName, releaseResource, etlDatabaseType, readQualityCheckRules())
     JavaVersionChecker.checkJavaVersion()
     try {
-      val wfInterpretingResult: WFInterpretingResult = api.LogDrivenInterpreter(
-        jobName,
+      val wfInterpretingResult: WFInterpretingResult = LogDrivenInterpreter(
         WorkflowReader.readWorkflow(jobName),
         interpreter,
-        additionalProperties = Map(("defaultStart", defaultStart)),
         jobLogAccessor = jobLogAccessor,
         command = this
       ).interpreting()
@@ -82,10 +78,8 @@ class BatchSparkJobCommand extends BatchJobCommand {
         val interpreter = getSparkInterpreter(local, jobName, releaseResource, etlDatabaseType, readQualityCheckRules())
         JavaVersionChecker.checkJavaVersion()
         LogDrivenInterpreter(
-          jobName,
           WorkflowReader.readWorkflow(jobName),
           interpreter,
-          additionalProperties = Map(("defaultStart", defaultStart)),
           jobLogAccessor = jobLogAccessor,
           command = this
         )

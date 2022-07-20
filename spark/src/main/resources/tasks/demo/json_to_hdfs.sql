@@ -1,3 +1,8 @@
+-- workflow=json_to_hdfs
+--  period=1440
+--  loadType=incremental
+--  logDrivenType=timewindow
+
 -- step=1
 -- source=ftp
 --  configPrefix=ehr

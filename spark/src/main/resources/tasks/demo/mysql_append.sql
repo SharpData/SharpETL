@@ -1,3 +1,8 @@
+-- workflow=mysql_append
+--  period=1440
+--  loadType=incremental
+--  logDrivenType=timewindow
+
 -- step=1
 -- source=hive
 -- target=mysql

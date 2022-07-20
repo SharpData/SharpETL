@@ -2,7 +2,6 @@ package com.github.sharpdata.sharpetl.spark.end2end
 
 import com.github.sharpdata.sharpetl.core.util.WorkflowReader
 import ETLSuit.runJob
-import com.github.sharpdata.sharpetl.core.syntax.Workflow
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.MockitoSugar.{when, withObjectMocked}
 import org.scalatest.DoNotDiscover
@@ -21,16 +20,14 @@ class TaskDependenciesSpec extends ETLSuit {
   override val targetDbName = "int_test"
   override val sourceDbName: String = "int_test"
 
-  val firstDay = "2021-10-01 00:00:00"
-
   def jobParameters(jobName: String): Array[String] = Array("single-job",
     s"--name=$jobName", "--period=1440",
-    "--local", s"--default-start-time=$firstDay", "--env=test", "--once")
+    "--local", "--env=test", "--once")
 
 
   it("should respect to job dependencies") {
     withObjectMocked[WorkflowReader.type] {
-      when(WorkflowReader.readWorkflow(anyString())).thenReturn(wf)
+      when(WorkflowReader.readWorkflow(anyString())).thenReturn(workflow("task-0"))
       // 0. run migration if needed
       runJob(jobParameters("task-0"))
     }
@@ -41,7 +38,7 @@ class TaskDependenciesSpec extends ETLSuit {
     }
 
     withObjectMocked[WorkflowReader.type] {
-      when(WorkflowReader.readWorkflow(anyString())).thenReturn(wf)
+      when(WorkflowReader.readWorkflow(anyString())).thenReturn(workflow("task-a"))
       // 2. run task-a (success)
       runJob(jobParameters("task-a"))
     }
@@ -52,7 +49,7 @@ class TaskDependenciesSpec extends ETLSuit {
     }
 
     withObjectMocked[WorkflowReader.type] {
-      when(WorkflowReader.readWorkflow(anyString())).thenReturn(wf)
+      when(WorkflowReader.readWorkflow(anyString())).thenReturn(workflow("task-b"))
       // 4. run task-b (success)
       runJob(jobParameters("task-b"))
     }

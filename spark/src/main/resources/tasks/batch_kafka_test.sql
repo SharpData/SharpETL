@@ -1,3 +1,8 @@
+-- workflow=batch_kafka_test
+--  period=1440
+--  loadType=incremental
+--  logDrivenType=timewindow
+
 -- step=1
 -- source=batch_kafka
 --  topics=test

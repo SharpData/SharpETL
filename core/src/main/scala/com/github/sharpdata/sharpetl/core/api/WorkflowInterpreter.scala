@@ -16,9 +16,8 @@ import org.apache.commons.lang3.reflect.FieldUtils
 
 import java.lang.reflect.Field
 
-// scalastyle:off
 @Stable(since = "1.0.0")
-trait WorkflowInterpreter[DataFrame] extends Serializable with QualityCheck[DataFrame] with AutoCloseable {
+trait WorkflowInterpreter[DataFrame] extends Serializable with QualityCheck[DataFrame] with AutoCloseable { // scalastyle:ignore
 
   def executeJob(steps: List[WorkflowStep],
                  jobLog: JobLog,
@@ -39,13 +38,14 @@ trait WorkflowInterpreter[DataFrame] extends Serializable with QualityCheck[Data
         .foreach(index => executeStep(steps, index, jobLog, variables, start, end))
     } catch {
       case _: EmptyDataException =>
-        if (steps.exists(step => step.skipFollowStepWhenEmpty == true.toString)) {
+        if (steps.exists(step => step.skipFollowStepWhenEmpty == true.toString)) { // scalastyle:ignore
           ETLLogger.info("Data empty! and skip follow steps!")
         }
       case ex: Exception => throw ex
     }
   }
 
+  // scalastyle:off
   def executeStep(steps: List[WorkflowStep],
                   index: Int,
                   jobLog: JobLog,
@@ -111,6 +111,8 @@ trait WorkflowInterpreter[DataFrame] extends Serializable with QualityCheck[Data
       stepLogAccessor.update(stepLog)
     }
   }
+
+  // scalastyle:on
 
   def read(steps: List[WorkflowStep],
            jobLog: JobLog,

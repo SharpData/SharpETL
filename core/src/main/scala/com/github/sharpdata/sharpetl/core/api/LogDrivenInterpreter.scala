@@ -27,13 +27,13 @@ import scala.collection.mutable.ListBuffer
 
 @Stable(since = "1.0.0")
 final case class LogDrivenInterpreter(
-                                       workflowName: String,
                                        workflow: Workflow,
                                        workflowInterpreter: WorkflowInterpreter[_],
-                                       additionalProperties: Map[String, String] = Map(),
                                        jobLogAccessor: JobLogAccessor = jobLogAccessor,
                                        command: CommonCommand
                                      ) {
+
+  @inline def workflowName: String = workflow.name
 
   private lazy val period = {
     if (command.period > 0) {
@@ -149,8 +149,8 @@ final case class LogDrivenInterpreter(
                                   startTimeStr: Option[String] = None, endTimeStr: Option[String] = None) = {
     val startFrom = startTimeStr.getOrElse {
       lastJob.map(_.dataRangeEnd)
-        .getOrElse(additionalProperties
-          .getOrElse("defaultStart", if (isNullOrEmpty(workflow.defaultStart)) "0" else workflow.defaultStart)
+        .getOrElse(Option(command.defaultStart)
+          .getOrElse(if (isNullOrEmpty(workflow.defaultStart)) "0" else workflow.defaultStart)
           .padding()
         )
     }
@@ -310,7 +310,7 @@ final case class LogDrivenInterpreter(
 
   private def getStartTime(lastJob: Option[JobLog]): LocalDateTime = {
     if (lastJob.isEmpty) {
-      additionalProperties.get("defaultStart")
+      Option(command.defaultStart)
         .map(
           new BigInteger(_).asLocalDateTime()
         )

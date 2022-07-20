@@ -1,3 +1,8 @@
+-- workflow=excel_test
+--  period=1440
+--  loadType=incremental
+--  logDrivenType=timewindow
+
 -- step=1
 -- source=excel
 --  onlyOneName=true

@@ -1,3 +1,8 @@
+-- workflow=test_rand_model
+--  period=1440
+--  loadType=incremental
+--  logDrivenType=timewindow
+
 -- step=1
 -- source=pmml
 --  className=com.github.sharpdata.sharpetl.spark.extension.PmmlUDF
