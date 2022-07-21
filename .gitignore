@@ -1,0 +1,15 @@
+# Directories #
+/build/
+target/
+
+_site
+.sass-cache
+.jekyll-cache
+.jekyll-metadata
+.idea/
+*.iml
+.DS_Store
+*.pdf
+*.log
+website/metastore_db
+content
