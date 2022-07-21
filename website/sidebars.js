@@ -10,6 +10,7 @@ module.exports = {
             items: [
                 'quick-start-guide',
                 'docker-setup',
+                'developer-setup',
                 'end-to-end-showcase',
                 'end-to-end-showcase-postgres'
             ],
