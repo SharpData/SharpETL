@@ -14,7 +14,7 @@ const config = {
   title: 'Sharp ETL website',
   tagline: 'Write ETL using your favorite SQL dialects',
   url: 'https://sharpdata.github.io/SharpETL/',
-  baseUrl: '/',
+  baseUrl: '/SharpETL/',
   onBrokenLinks: 'ignore',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
