@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunksharp_etl_site=self.webpackChunksharp_etl_site||[]).push([[535],{5641:e=>{e.exports=JSON.parse('{"title":"Recent posts","items":[{"title":"hello sharp etl blog","permalink":"/SharpETL/blog/hello sharp etl blog"}]}')}}]);
