@@ -51,7 +51,7 @@ const config = {
         title: 'Sharp ETL',
         logo: {
           alt: 'Sharp ETL Logo',
-          src: 'img/logo.svg',
+          src: 'img/sharp_etl.png',
         },
         items: [
           {
@@ -99,19 +99,21 @@ const config = {
             ],
           },
         ],
-        logo: {
-          alt: 'Sharp ETL Logo',
-          src: '/img/meta_opensource_logo_negative.svg',
-          href: 'https://github.com/SharpData/SharpETL',
-        },
-        copyright: `Copyright © ${new Date().getFullYear()} Sharp Data, Built with Docusaurus.`,
+        // logo: {
+        //   alt: 'Sharp ETL Logo',
+        //   src: '/img/sharp_etl.png',
+        //   href: 'https://github.com/SharpData/SharpETL',
+        //   width: 128,
+        //   height: 128,
+        // },
+        copyright: `Copyright © ${new Date().getFullYear()} Sharp Data`,
       },
       prism: {
         theme: require('prism-react-renderer/themes/dracula'),
         additionalLanguages: ['java', 'scala', 'sql'],
       },
       announcementBar: {
-        id: 'announcementBar',
+        id: 'announcementBar-2',
         content:
             '⭐️ If you like Sharp ETL, give it a star on <a target="_blank" rel="noopener noreferrer" href="https://github.com/SharpData/SharpETL">GitHub</a>! ⭐',
       },
