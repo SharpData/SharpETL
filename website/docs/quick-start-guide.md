@@ -266,7 +266,7 @@ Then we will run a sample job which reads data from `sales.online_order` table a
 <Tabs
 defaultValue="bash"
 values={[
-{ label: 'bash', value: 'bash', },
+{ label: 'bash', value: 'bash', },o
 ]}>
 <TabItem value="bash">
 
