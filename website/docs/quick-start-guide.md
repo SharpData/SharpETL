@@ -56,7 +56,7 @@ docker run --name postgres -e POSTGRES_PASSWORD=postgres -d -p 5432:5432 postgre
 Start a ETL db instance
 
 ```bash
-docker run --name mysql8 -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=bigdata_etl mysql:8.0
+docker run --name mysql8 -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=sharp_etl mysql:8.0
 ```
 
 Suppose we have a table named `online_order` in postgres with schema `sales`:
@@ -105,10 +105,10 @@ create table sales.online_order
 </TabItem>
 </Tabs>
 
-**We can download [this excel](https://docs.google.com/spreadsheets/d/1EwQLzKOjEbl8TDD4DFNav7zkIStjxMpBQjV_6jT9giw/edit?usp=sharing) to your `~/Desktop` for the quick start guide.**
+**We can download [this excel](https://docs.google.com/spreadsheets/d/1k4U2QgZyknJLfpJvVxASsiOcX2nIHX0tx_rUKAINLTY/edit#gid=0) to your `~/Desktop` for the quick start guide.**
 
 :::tip
-You can also use the existing [excel template](https://docs.google.com/spreadsheets/d/193aR2HXvvIUNeI4W9sSxNbLhQ78mvVNnYp9pmItSpVU/edit) for your new cases.
+You can also use the existing [excel template](https://docs.google.com/spreadsheets/d/1eRgSHWKDaRufvPJLp9QhcnWiVKzRegQ6PeZocvAgHEo/edit#gid=0) for your new cases.
 :::
 
 ## Generate sql files from excel config
@@ -121,7 +121,7 @@ values={[
 <TabItem value="bash">
 
 ```bash
-./gradlew :spark:run --args="generate-sql -f ~/Desktop/sharp-etl-Quick-Start-Guide.xlsx --output ~/Desktop/"
+./gradlew :spark:run --args="generate-ods-sql -f ~/Desktop/sharp-etl-Quick-Start-Guide.xlsx --output ~/Desktop/"
 ```
 
 </TabItem>
@@ -135,39 +135,38 @@ And you can see a new file generated at `~/Desktop/sales.online_order.sql`
 -- source=postgres
 --  dbName=postgres
 --  tableName=sales.online_order
--- target=postgres
---  dbName=postgres
---  tableName=ods.t_fact_online_order
--- checkPoint=false
--- dateRangeInterval=0
+-- target=hive
+--  dbName=ods
+--  tableName=t_fact_online_order
 -- writeMode=append
--- incrementalType=incremental_append
-SELECT  "order_no" AS "order_no",
-        "user_id" AS "user_id",
-        "user_name" AS "user_name",
-        "order_total_amount" AS "order_total_amount",
-        "actual_amount" AS "actual_amount",
-        "post_amount" AS "post_amount",
-        "order_pay_amount" AS "order_pay_amount",
-        "total_discount" AS "total_discount",
-        "pay_type" AS "pay_type",
-        "source_type" AS "source_type",
-        "order_status" AS "order_status",
-        "note" AS "note",
-        "confirm_status" AS "confirm_status",
-        "payment_time" AS "payment_time",
-        "delivery_time" AS "delivery_time",
-        "receive_time" AS "receive_time",
-        "comment_time" AS "comment_time",
-        "delivery_company" AS "delivery_company",
-        "delivery_code" AS "delivery_code",
-        "business_date" AS "business_date",
-        "return_flag" AS "return_flag",
-        "created_at" AS "created_at",
-        "updated_at" AS "updated_at",
-        "deleted_at" AS "deleted_at",
-        ${JOB_ID} AS "job_id",
-        now() AS "job_time"
+SELECT "order_no" AS "order_no",
+       "user_id" AS "user_id",
+       "user_name" AS "user_name",
+       "order_total_amount" AS "order_total_amount",
+       "actual_amount" AS "actual_amount",
+       "post_amount" AS "post_amount",
+       "order_pay_amount" AS "order_pay_amount",
+       "total_discount" AS "total_discount",
+       "pay_type" AS "pay_type",
+       "source_type" AS "source_type",
+       "order_status" AS "order_status",
+       "note" AS "note",
+       "confirm_status" AS "confirm_status",
+       "payment_time" AS "payment_time",
+       "delivery_time" AS "delivery_time",
+       "receive_time" AS "receive_time",
+       "comment_time" AS "comment_time",
+       "delivery_company" AS "delivery_company",
+       "delivery_code" AS "delivery_code",
+       "business_date" AS "business_date",
+       "return_flag" AS "return_flag",
+       "created_at" AS "created_at",
+       "updated_at" AS "updated_at",
+       "deleted_at" AS "deleted_at",
+       ${JOB_ID} AS "job_id",
+       to_char("business_date", 'yyyy') as "year",
+       to_char("business_date", 'MM') as "month",
+       to_char("business_date", 'DD') as "day"
 FROM "postgres"."sales"."online_order"
 WHERE "business_date" >= '${DATA_RANGE_START}' AND "business_date" < '${DATA_RANGE_END}';
 ```
@@ -209,8 +208,7 @@ create table ods.t_fact_online_order
     created_at         timestamp default CURRENT_TIMESTAMP,
     updated_at         timestamp default CURRENT_TIMESTAMP,
     deleted_at         timestamp,
-    job_id             varchar(16),
-    job_time           timestamp
+    job_id             varchar(16)
 );
 ```
 </TabItem>
@@ -301,10 +299,10 @@ values={[
 SELECT * FROM ods.t_fact_online_order;
 ```
 
-| order_no      | user_id | user_name    | order_total_amount | actual_amount | post_amount | order_pay_amount | total_discount | pay_type | source_type      | order_status | note | confirm_status | payment_time               | delivery_time | receive_time | comment_time | delivery_company | delivery_code | business_date | return_flag | created_at                 | updated_at                 | deleted_at | job_id | job_time                   |
-| :------------ | :------ | :----------- | :----------------- | :------------ | :---------- | :--------------- | :------------- | :------- | :--------------- | :----------- | :--- | :------------- | :------------------------- | :------------ | :----------- | :----------- | :--------------- | :------------ | :------------ | :---------- | :------------------------- | :------------------------- | :--------- | :----- | :------------------------- |
-| 2021093000002 | 2       | 李四o(╥﹏╥)o | 399                | 200           | 0           | 200              | 199            | wechat   | official-website | paid         |      |                | 2021-09-30 19:00:35.000000 |               |              |              |                  |               | 2021-09-30    |             | 2021-09-30 19:00:00.000000 | 2021-09-30 19:00:35.000000 |            | 1      | 2021-10-26 16:30:49.486856 |
-| 2021093000001 | 1       | 张三ð        | 200                | 100           | 0           | 99               | 101            | wechat   | mini-program     | paid         |      |                | 2021-09-30 09:00:35.000000 |               |              |              |                  |               | 2021-09-30    |             | 2021-09-30 09:00:00.000000 | 2021-09-30 09:00:35.000000 |            | 1      | 2021-10-26 16:30:49.486856 |
-|               |         |              |                    |               |             |                  |                |          |                  |              |      |                |                            |               |              |              |                  |               |               |             |                            |                            |            |        |                            |
+| order_no      | user_id | user_name    | order_total_amount | actual_amount | post_amount | order_pay_amount | total_discount | pay_type | source_type      | order_status | note | confirm_status | payment_time               | delivery_time | receive_time | comment_time | delivery_company | delivery_code | business_date | return_flag | created_at                 | updated_at                 | deleted_at | job_id |
+| :------------ | :------ | :----------- | :----------------- | :------------ | :---------- | :--------------- | :------------- | :------- | :--------------- | :----------- | :--- | :------------- | :------------------------- | :------------ | :----------- | :----------- | :--------------- | :------------ | :------------ | :---------- | :------------------------- | :------------------------- | :--------- |:-------|
+| 2021093000002 | 2       | 李四o(╥﹏╥)o | 399                | 200           | 0           | 200              | 199            | wechat   | official-website | paid         |      |                | 2021-09-30 19:00:35.000000 |               |              |              |                  |               | 2021-09-30    |             | 2021-09-30 19:00:00.000000 | 2021-09-30 19:00:35.000000 |            | 2      |
+| 2021093000001 | 1       | 张三ð        | 200                | 100           | 0           | 99               | 101            | wechat   | mini-program     | paid         |      |                | 2021-09-30 09:00:35.000000 |               |              |              |                  |               | 2021-09-30    |             | 2021-09-30 09:00:00.000000 | 2021-09-30 09:00:35.000000 |            | 2      |
+|               |         |              |                    |               |             |                  |                |          |                  |              |      |                |                            |               |              |              |                  |               |               |             |                            |                            |            |        |
 </TabItem>
 </Tabs>
