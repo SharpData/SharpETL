@@ -131,6 +131,11 @@ values={[
 And you can see a new file generated at `~/Desktop/sales.online_order.sql`
 
 ```sql
+-- workflow=ods__t_fact_online_order
+--  period=1440
+--  loadType=incremental
+--  logDrivenType=timewindow
+
 -- step=1
 -- source=postgres
 --  dbName=postgres
