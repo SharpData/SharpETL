@@ -271,12 +271,6 @@ values={[
 <TabItem value="bash">
 
 ```bash
-# run all job in batch by `spark-submit`
-spark-submit --class com.github.sharpdata.sharpetl.spark.Entrypoint spark/build/libs/spark-1.0.0-SNAPSHOT.jar batch-job -f ~/Desktop/sharp-etl-Quick-Start-Guide.xlsx --default-start-time="2021-09-30 00:00:00" --local --once
-
-# run all job locally
-./gradlew :spark:run --args="batch-job -f ~/Desktop/sharp-etl-Quick-Start-Guide.xlsx --default-start-time='2021-09-30 00:00:00' --local --once"
-
 # run single job by `spark-submit`
 spark-submit --class com.github.sharpdata.sharpetl.spark.Entrypoint spark/build/libs/spark-1.0.0-SNAPSHOT.jar single-job --name=sales.online_order --period=1440 --default-start-time="2021-09-30 00:00:00" --local --once
 
