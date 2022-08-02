@@ -1,7 +1,17 @@
-## Sharp ETL
+<h1 align="center">Sharp ETL</h1>
+<div align="center">
+    <a href="https://sharpdata.github.io/SharpETL">
+        <img src="https://sharpdata.github.io/SharpETL/img/sharp_etl.png" width="320" height="320" alt="logo"/>
+    </a>
+</div>
 
-[![Sharp ETL](https://github.com/SharpData/SharpETL/actions/workflows/push.yml/badge.svg?branch=main)](https://github.com/SharpData/SharpETL/actions/workflows/push.yml) [![License](https://img.shields.io/badge/license-Apache%202-brightgreen.svg)](https://github.com/SharpData/SharpETL/blob/main/LICENSE) [![codecov](https://codecov.io/gh/SharpData/SharpETL/branch/main/graph/badge.svg?token=299D3CIJ7Y)](https://codecov.io/gh/SharpData/SharpETL) ![stage](https://img.shields.io/badge/Project%20Stage-Production%20Ready-brightgreen.svg)
-[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2FSharpData%2FSharpETL.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2FSharpData%2FSharpETL?ref=badge_shield)
+<p align="center">
+<a href="https://github.com/SharpData/SharpETL/actions/workflows/push.yml"><img src="https://github.com/SharpData/SharpETL/actions/workflows/push.yml/badge.svg?branch=main"></a>
+<a href="https://github.com/SharpData/SharpETL/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache%202-brightgreen.svg"></a>
+<a href="https://codecov.io/gh/SharpData/SharpETL"><img src="https://codecov.io/gh/SharpData/SharpETL/branch/main/graph/badge.svg?token=299D3CIJ7Y"></a>
+<a><img src="https://img.shields.io/badge/Project%20Stage-Production%20Ready-brightgreen.svg"></a>
+<a href="https://app.fossa.com/projects/git%2Bgithub.com%2FSharpData%2FSharpETL?ref=badge_shield"><img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2FSharpData%2FSharpETL.svg?type=shield"></a>
+</p> 
 
 Sharp ETL is a ETL framework that simplifies writing and executing ETLs by simply writing SQL workflow files.
 The SQL workflow file format is combined your favourite SQL dialects with just a little bit of configurations.
