@@ -277,15 +277,15 @@ values ('AAA', 'p1', '华为', 'mate40', '上架', 'u1', '张三', 12, '胜利�
 3. 通过这个命令生成任务脚本
 
 ```bash
-./gradlew :spark:run --args="generate-ods-sql -f ~/Desktop/ods.xlsx --output ~/Downloads/sharp-etl/spark/src/main/resources/tasks"
+./gradlew :spark:run --args="generate-ods-sql -f ~/Desktop/ods.xlsx --output ~/Downloads/SharpETL/spark/src/main/resources/tasks"
 ```
 
 4. 你看到如下日志表示任务脚本已经生成好了
 
 ```log
-2022/04/09 15:00:32 INFO  [ETLLogger] - Write sql file to /Users/izhangzhihao/Downloads/sharp-etl/spark/src/main/resources/tasks/sales.order__t_order.sql
-2022/04/09 15:00:32 INFO  [ETLLogger] - Write sql file to /Users/izhangzhihao/Downloads/sharp-etl/spark/src/main/resources/tasks/sales.user__t_user.sql
-2022/04/09 15:00:32 INFO  [ETLLogger] - Write sql file to /Users/izhangzhihao/Downloads/sharp-etl/spark/src/main/resources/tasks/sales.product__t_product.sql
+2022/08/02 17:23:51 INFO  [ETLLogger] - Write sql file to /Users/izhangzhihao/Downloads/SharpETL/spark/src/main/resources/tasks/ods__t_order.sql
+2022/08/02 17:23:51 INFO  [ETLLogger] - Write sql file to /Users/izhangzhihao/Downloads/SharpETL/spark/src/main/resources/tasks/ods__t_user.sql
+2022/08/02 17:23:51 INFO  [ETLLogger] - Write sql file to /Users/izhangzhihao/Downloads/SharpETL/spark/src/main/resources/tasks/ods__t_product.sql
 ```
 
 5. 准备连接信息
@@ -301,7 +301,7 @@ sales.postgres.fetchsize=10
 6. 通过脚本启动任务
 
 ```bash
-./gradlew :spark:run --args="batch-job --names=sales.order__t_order --period=1440 --default-start-time='2022-04-08 00:00:00' --once"
+./gradlew :spark:run --args="batch-job --names=ods__t_order --period=1440 --default-start-time='2022-04-08 00:00:00' --once"
 ```
 
 运行结果:
@@ -309,7 +309,7 @@ sales.postgres.fetchsize=10
 ```log
 Total jobs: 1, success: 1, failed: 0, skipped: 0
 Details:
-job name: sales.order__t_order SUCCESS x 1
+job name: ods__t_order SUCCESS x 1
 ```
 
 ### 运行从ods到dwd的任务
@@ -319,15 +319,15 @@ job name: sales.order__t_order SUCCESS x 1
 2. 通过这个命令生成任务脚本
 
 ```bash
-./gradlew :spark:run --args="generate-dwd-sql -f ~/Desktop/dwd.xlsx --output ~/Downloads/sharp-etl/spark/src/main/resources/tasks"
+./gradlew :spark:run --args="generate-dwd-sql -f ~/Desktop/dwd.xlsx --output ~/Downloads/SharpETL/spark/src/main/resources/tasks"
 ```
 
 3. 你看到如下日志表示任务脚本已经生成好了
 
 ```log
-2022/04/09 16:14:50 INFO  [ETLLogger] - Write sql file to /Users/izhangzhihao/Downloads/sharp-etl/spark/src/main/resources/tasks/t_order_t_fact_order.sql
-2022/04/09 16:14:50 INFO  [ETLLogger] - Write sql file to /Users/izhangzhihao/Downloads/sharp-etl/spark/src/main/resources/tasks/t_user_t_dim_user.sql
-2022/04/09 16:14:50 INFO  [ETLLogger] - Write sql file to /Users/izhangzhihao/Downloads/sharp-etl/spark/src/main/resources/tasks/t_product_t_dim_product.sql
+2022/08/03 09:02:26 INFO  [ETLLogger] - Write sql file to /Users/izhangzhihao/Downloads/SharpETL/spark/src/main/resources/tasks/t_order_t_fact_order.sql
+2022/08/03 09:02:26 INFO  [ETLLogger] - Write sql file to /Users/izhangzhihao/Downloads/SharpETL/spark/src/main/resources/tasks/t_user_t_dim_user.sql
+2022/08/03 09:02:26 INFO  [ETLLogger] - Write sql file to /Users/izhangzhihao/Downloads/SharpETL/spark/src/main/resources/tasks/t_product_t_dim_product.sql
 ```
 
 4. 通过脚本启动任务
@@ -349,6 +349,11 @@ job name: t_order_t_fact_order SUCCESS x 1
 1. 手动创建两个step，分别代表两个report的需求, 华为mate40-v2真实的销量表,并将其放在`~/Downloads/sharp-etl/spark/src/main/resources/tasks/`路径下，命名为`order_report_actual_hive.sql`
 
 ```sql
+-- workflow=report__t_fact_order_report_actual
+--  period=1440
+--  loadType=incremental
+--  logDrivenType=timewindow
+
 -- step=1
 -- source=hive
 --  dbName=dwd
@@ -378,6 +383,10 @@ from dwd.t_fact_order fact
 2. 手动创建两个step，分别代表两个report的需求, 华为mate40-v2算上v1的销量,并将其放在`~/Downloads/sharp-etl/spark/src/main/resources/tasks/`路径下，命名为`order_report_latest_hive.sql`
 
 ```sql
+-- workflow=report__t_fact_order_report_latest
+--  period=1440
+--  loadType=incremental
+--  logDrivenType=timewindow
 
 -- step=1
 -- source=hive
@@ -403,6 +412,7 @@ from dwd.t_fact_order fact
          inner join dim.t_dim_product dim on fact.product_id = dim.product_id and fact.is_latest = '1'
          inner join (select * from dim.t_dim_product dim_latest where is_latest = '1') dim2
                     on dim.mid = dim2.mid and fact.is_latest = '1';
+mid = dim2.mid and fact.is_latest = '1';
 ```
 
 2. 通过脚本启动任务
