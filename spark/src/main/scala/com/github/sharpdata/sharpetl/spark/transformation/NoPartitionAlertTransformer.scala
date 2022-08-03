@@ -7,7 +7,8 @@ import com.github.sharpdata.sharpetl.spark.utils.ETLSparkSession
 import org.apache.spark.sql
 import org.joda.time.DateTime
 import org.joda.time.format.DateTimeFormat
-
+import org.apache.hadoop.hive.metastore.HiveMetaStoreClient
+import org.apache.hadoop.hive.ql.metadata.Hive
 
 // $COVERAGE-OFF$
 object NoPartitionAlertTransformer extends Transformer {
@@ -44,9 +45,7 @@ object NoPartitionAlertTransformer extends Transformer {
     partitions.exists(partition => {
       var partitionNum: Integer = 0
       try {
-        partitionNum = HiveMetaStoreUtil
-          .getHiveMetaStoreClient
-          .getNumPartitionsByFilter(databaseName, tableName, partition)
+        Hive.get().getMSC().getNumPartitionsByFilter(databaseName, tableName, partition)
       } catch {
         case e: Exception =>
           ETLLogger.warn(s"Exception occur when get partition[${partition.mkString(",")}] " +
