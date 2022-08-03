@@ -13,8 +13,7 @@ dependencies {
     implementation "org.scala-lang:scala-library:$scalaCompt"
     implementation "org.scala-lang.modules:scala-collection-compat_$scalaVersion:2.6.0"
     implementation "org.apache.spark:spark-sql_$scalaVersion:$sparkVersion"
-    api group: "org.apache.spark", name: "spark-hive_$scalaVersion", version: "$sparkVersion"
-    api 'org.apache.hive:hive-metastore:2.1.0'
+    api "org.apache.spark:spark-hive_$scalaVersion:$sparkVersion"
 }
 
 test {
