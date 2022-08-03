@@ -24,8 +24,15 @@ To access local hive instance you need
 in `spark/build.gradle`
 
 ```diff
--compile(project(":datasource:hive3"))
-+compile(project(":datasource:hive2"))
+-compileOnly(project(":datasource:hive3"))
++compileOnly(project(":datasource:hive2"))
++implementation "org.apache.spark:spark-hive_$scalaVersion:$sparkVersion"
+```
+
+in `datasource/hive2/build.gradle`
+
+```diff
++api 'org.apache.hive:hive-metastore:2.1.0'
 ```
 
 add `hive-site.xml` in `spark/src/main/resources/hive-site.xml`
