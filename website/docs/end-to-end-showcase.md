@@ -412,7 +412,6 @@ from dwd.t_fact_order fact
          inner join dim.t_dim_product dim on fact.product_id = dim.product_id and fact.is_latest = '1'
          inner join (select * from dim.t_dim_product dim_latest where is_latest = '1') dim2
                     on dim.mid = dim2.mid and fact.is_latest = '1';
-mid = dim2.mid and fact.is_latest = '1';
 ```
 
 2. 通过脚本启动任务
