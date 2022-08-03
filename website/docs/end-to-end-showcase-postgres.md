@@ -288,15 +288,15 @@ values ('AAA', 'p1', '华为', 'mate40', '上架', 'u1', '张三', 12, '胜利�
 2. 通过这个命令生成任务脚本
 
 ```bash
-./gradlew :spark:run --args="generate-ods-sql -f ~/Desktop/postgres-ods.xlsx --output ~/Downloads/sharp-etl/spark/src/main/resources/tasks/"
+./gradlew :spark:run --args="generate-ods-sql -f ~/Desktop/postgres-ods.xlsx --output ~/Downloads/SharpETL/spark/src/main/resources/tasks/"
 ```
 
 3. 你看到如下日志表示任务脚本已经生成好了
 
 ```log
-2022/04/10 14:24:41 INFO  [ETLLogger] - Write sql file to /Users/xiaoqiangma/Downloads/sharp-etl/spark/src/main/resources/tasks/sales.order__ods.t_order.sql
-2022/04/10 14:24:41 INFO  [ETLLogger] - Write sql file to /Users/xiaoqiangma/Downloads/sharp-etl/spark/src/main/resources/tasks/sales.user__ods.t_user.sql
-2022/04/10 14:24:41 INFO  [ETLLogger] - Write sql file to /Users/xiaoqiangma/Downloads/sharp-etl/spark/src/main/resources/tasks/sales.product__ods.t_product.sql
+2022/08/03 10:54:49 INFO  [ETLLogger] - Write sql file to /Users/xiaoqiangma/Downloads/SharpETL/spark/src/main/resources/tasks/ods__ods.t_order.sql
+2022/08/03 10:54:49 INFO  [ETLLogger] - Write sql file to /Users/xiaoqiangma/Downloads/SharpETL/spark/src/main/resources/tasks/ods__ods.t_user.sql
+2022/08/03 10:54:49 INFO  [ETLLogger] - Write sql file to /Users/xiaoqiangma/Downloads/SharpETL/spark/src/main/resources/tasks/ods__ods.t_product.sql
 ```
 
 4. 创建ods表
@@ -315,7 +315,7 @@ sales.postgres.fetchsize=10
 6. 通过脚本启动任务
 
 ```bash
-./gradlew :spark:run --args="single-job --name=sales.order__ods.t_order --period=1440 --default-start-time='2022-04-08 00:00:00' --local --once"
+./gradlew :spark:run --args="single-job --name=ods__ods.t_order --period=1440 --default-start-time='2022-04-08 00:00:00' --local --once"
 ```
 
 
@@ -327,13 +327,13 @@ sales.postgres.fetchsize=10
 2. 通过这个命令生成任务脚本
 
 ```bash
-./gradlew :spark:run --args="generate-dwd-sql -f ~/Desktop/postgres-dwd.xlsx --output ~/Downloads/sharp-etl/spark/src/main/resources/tasks/"
+./gradlew :spark:run --args="generate-dwd-sql -f ~/Desktop/postgres-dwd.xlsx --output ~/Downloads/SharpETL/spark/src/main/resources/tasks/"
 ```
 
 3. 你看到如下日志表示任务脚本已经生成好了
 
 ```log
-2022/04/10 14:27:42 INFO  [ETLLogger] - Write sql file to /Users/xiaoqiangma/Downloads/sharp-etl/spark/src/main/resources/tasks//ods.t_order_dwd.t_fact_order.sql
+2022/08/03 10:58:10 INFO  [ETLLogger] - Write sql file to /Users/xiaoqiangma/Downloads/SharpETL/spark/src/main/resources/tasks/ods.t_order_dwd.t_fact_order.sql
 ```
 
 4. 创建dwd/dim表
@@ -341,7 +341,7 @@ sales.postgres.fetchsize=10
 6. 通过脚本启动任务
 
 ```bash
-./gradlew :spark:run --args="single-job --name=ods.t_order_dwd.t_fact_order --period=1440 --upstream_job_name=sales.order__ods.t_order --local"
+./gradlew :spark:run --args="single-job --name=ods.t_order_dwd.t_fact_order --period=1440 --local"
 ```
 
 
@@ -349,9 +349,14 @@ sales.postgres.fetchsize=10
 ### 运行从dwd到report的任务
 
 1. 手动创建两个step，分别代表两个report的需求：
-    1. report层 华为mate40-v2真实的销量表,并将其放在`~/Downloads/sharp-etl/spark/src/main/resources/tasks/`路径下，命名为`order_report_actual.sql`
+    1. report层 华为mate40-v2真实的销量表,并将其放在`~/Downloads/SharpETL/spark/src/main/resources/tasks/`路径下，命名为`order_report_actual.sql`
 
        ```sql
+       -- workflow=order_report_actual
+       --  period=1440
+       --  loadType=incremental
+       --  logDrivenType=timewindow
+       
        -- step=1
        -- sourceConfig
        --  dataSourceType=postgres
@@ -381,9 +386,14 @@ sales.postgres.fetchsize=10
                on fact.product_id = dim.product_id;
        ```
 
-    2. report层 华为mate40-v2算上v1的销量,并将其放在`~/Downloads/sharp-etl/spark/src/main/resources/tasks/`路径下，命名为`order_report_latest.sql`
+    2. report层 华为mate40-v2算上v1的销量,并将其放在`~/Downloads/SharpETL/spark/src/main/resources/tasks/`路径下，命名为`order_report_latest.sql`
 
        ```sql
+       -- workflow=order_report_latest
+       --  period=1440
+       --  loadType=incremental
+       --  logDrivenType=timewindow
+       
        -- step=1
        -- sourceConfig
        --  dataSourceType=postgres
@@ -416,10 +426,10 @@ sales.postgres.fetchsize=10
 2. 通过脚本启动任务
 
 ```bash
-./gradlew :spark:run --args="single-job --name=order_report_actual --period=1440 --upstream_job_name=ods.t_order_dwd.t_fact_order --local"
+./gradlew :spark:run --args="single-job --name=order_report_actual --period=1440 --local"
 ```
 ```bash
-./gradlew :spark:run --args="single-job --name=order_report_latest --period=1440 --upstream_job_name=ods.t_order_dwd.t_fact_order --local"
+./gradlew :spark:run --args="single-job --name=order_report_latest --period=1440 --local"
 ```
 
 
