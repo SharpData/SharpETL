@@ -2,7 +2,7 @@
 title: "Datasource"
 sidebar_position: 1
 toc: true
-last_modified_at: 2021-11-03T18:25:57-04:00
+last_modified_at: 2022-08-05T18:25:57-04:00
 ---
 
 ## 支持的数据源
@@ -47,7 +47,7 @@ last_modified_at: 2021-11-03T18:25:57-04:00
   --  tableName=temp_table
   select 1 as a;
   
-  -- stepId=2
+  -- step=2
   -- source=temp
   -- target=console
   select *
@@ -98,7 +98,7 @@ last_modified_at: 2021-11-03T18:25:57-04:00
          cast(max(id) as int8) as upperBound
   from test_table;
   
-  -- stepId=2
+  -- step=2
   -- source=postgres
   --  dbName=test
   --  numPartitions=10000
@@ -265,9 +265,11 @@ last_modified_at: 2021-11-03T18:25:57-04:00
       ```
 
     - sftp
+
       对于sftp,会将匹配的文件先下载到本地，然后再将本地文件上传到hdfs
     
       参数
+
       | 参数名称        | 默认值 | 是否可空 | 说明                                                         |
       | --------------- | ------ | -------- | ------------------------------------------------------------ |
       | sourceDir  | 无     | 否       | 表示sftp服务器里的绝对路径                                 |
@@ -297,6 +299,7 @@ last_modified_at: 2021-11-03T18:25:57-04:00
     - mount(sharefolder)
     
       参数
+
       | 参数名称        | 默认值 | 是否可空 | 说明                                                         |
       | --------------- | ------ | -------- | ------------------------------------------------------------ |
       | sourceDir  | 无     | 否       | 表示sftp服务器里的绝对路径                                 |
@@ -473,7 +476,7 @@ last_modified_at: 2021-11-03T18:25:57-04:00
   --  methodName=desDecryptHex
   --  udfName=des_decrypt
   
-  -- stepId=2
+  -- step=2
   -- source=hive
   -- target=hive
   --  tableName=test_table
@@ -509,7 +512,7 @@ last_modified_at: 2021-11-03T18:25:57-04:00
       --  methodName=predict
       --  udfName=predict
       
-      -- stepId=2
+      -- step=2
       -- source=hive
       -- target=hive
       --  tableName=test_table
@@ -525,12 +528,14 @@ last_modified_at: 2021-11-03T18:25:57-04:00
 - bigquery
  
   参数
+
   | 参数名称       | 默认值 | 是否可空 | 说明                    |
   | -------------- | ------ | -------- | ----------------------- |
   | dataSourceType | 无     | 否       | 值必须为bigquery |
   | system | 无     | 否       | 通过bigquery.${system}.*来获取数据源的配置信息 |
 
   bigquery在application.properties里的配置信息
+
   ```properties
   bigquery.test.proxyAddress=localhost:8080
   bigquery.test.parentProject=project1
@@ -543,12 +548,11 @@ last_modified_at: 2021-11-03T18:25:57-04:00
   
   示例
   ```sql
-  -- stepId=2
+  -- step=2
   -- source=bigquery
   --  system=test
   -- target=temp
   --  tableName=`login_raw`
-  -- skipFollowStepWhenEmpty=true
   select * from project2.table1
   ```
 
@@ -581,7 +585,7 @@ last_modified_at: 2021-11-03T18:25:57-04:00
   --  tableName=temp_table
   select 1 as a;
   
-  -- stepId=2
+  -- step=2
   -- source=temp
   -- target=temp
   select *
@@ -645,7 +649,7 @@ last_modified_at: 2021-11-03T18:25:57-04:00
   select '1' as a,
          '2' as b;
   
-  -- stepId=2
+  -- step=2
   -- source=temp
   -- target=hive
   --  tableName=temp_table
@@ -678,7 +682,7 @@ last_modified_at: 2021-11-03T18:25:57-04:00
   --  methodName=predict
   --  udfName=predict
   
-  -- stepId=2
+  -- step=2
   -- source=hive
   -- target=temp
   --  tableName=temp1
@@ -686,7 +690,7 @@ last_modified_at: 2021-11-03T18:25:57-04:00
          cast(1.0 as float) as x2,
          cast(1.0 as float) as x3;
   
-  -- stepId=3
+  -- step=3
   -- source=temp
   -- target=temp
   --  tableName=temp2
@@ -938,7 +942,7 @@ last_modified_at: 2021-11-03T18:25:57-04:00
       示例：
 
       ```sql
-      -- stepId=3
+      -- step=3
       -- source=hive
       -- target=hdfs
       --  configPrefix=test
@@ -956,7 +960,7 @@ last_modified_at: 2021-11-03T18:25:57-04:00
       示例：
 
       ```sql
-      -- stepId=3
+      -- step=3
       -- source=hive
       -- target=csv
       --  filePath=/test.csv
