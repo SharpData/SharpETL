@@ -57,7 +57,7 @@ date: 2022-08-03T00:00:00+08:00
 
 ## 待执行队列的具体计算逻辑
 
-* [time-based](https://github.com/big-data-platform/sharp-etl/blob/master/core/src/main/scala/com/thoughtworks/bigdata/etl/core/LogDrivenJob.scala#L148-L161)
+* [time-based](https://github.com/SharpData/SharpETL/blob/97f303cbd1f40a29780551851f690c283bcb2061/core/src/main/scala/com/github/sharpdata/sharpetl/core/api/LogDrivenInterpreter.scala#L189)
     
     包括 db的增量和全量、API的增量和全量、文件的增量和全量 等
 
@@ -70,17 +70,22 @@ date: 2022-08-03T00:00:00+08:00
 
     对于一个运行过的任务，之前已经设定过`--default-start`为 20220101000000，但是已经运行过一段时间，假设当前任务对应的`dataRangeEnd`的最大值为20220107000000，当前时间为2022-01-08 14:00:00，那么会schedule 1个任务（20220107000000-20220108000000）。
 
-* [auto-incremental primary key](https://github.com/big-data-platform/sharp-etl/blob/master/core/src/main/scala/com/thoughtworks/bigdata/etl/core/LogDrivenJob.scala#L126-L146)
+* [auto-incremental primary key](https://github.com/SharpData/SharpETL/blob/97f303cbd1f40a29780551851f690c283bcb2061/core/src/main/scala/com/github/sharpdata/sharpetl/core/api/LogDrivenInterpreter.scala#L148)
     
     数据库自增主键场景
     `dataRangeStart`取 ‘开始主键值’ option `--default-start`（默认：0） 和 ‘上次成功任务的’ `dataRangeEnd` 的最大值，
     `dataRangeEnd`取值 `max(primary key)`, 任务运行结束后会更新这次任务的实际取到的最大主键值到`dataRangeEnd`中。
 
-* [kafka topic](https://github.com/big-data-platform/sharp-etl/blob/master/core/src/main/scala/com/thoughtworks/bigdata/etl/core/LogDrivenJob.scala#L76-L123)
+* [kafka topic](https://github.com/SharpData/SharpETL/blob/97f303cbd1f40a29780551851f690c283bcb2061/core/src/main/scala/com/github/sharpdata/sharpetl/core/api/LogDrivenInterpreter.scala#L95)
     
     与自增主键类似，
     `dataRangeStart`取 ‘开始主键值’ option `--default-start`（默认：`earlist`） 和 ‘上次成功任务的’ `dataRangeEnd` 的最大值，
     `dataRangeEnd`取值 `latest`, 任务运行结束后会更新这次任务的实际取到的最大offset到`dataRangeEnd`中。
+
+* [upstream](https://github.com/SharpData/SharpETL/blob/97f303cbd1f40a29780551851f690c283bcb2061/core/src/main/scala/com/github/sharpdata/sharpetl/core/api/LogDrivenInterpreter.scala#L173)
+    
+    upstream方式驱动的任务有点特殊，它往往是贴源层(ODS)之后的层需要的，例如我们在明细层（DWD）创建一个新的任务，这个任务天然有依赖，它依赖于贴源层(ODS)的任务，这个时候我们不像针对当前任务多做配置，而是希望当前任务完全fellow贴源层(ODS)任务的配置，只要ODS任务跑过了，就会自动跑DWD的任务。
+    这种方式还有一个额外的好处，如果ODS的任务需要重刷，如果DWD是timewindow的任务，则需要重新配置，但是如果DWD是upstream，则不需要配置，只要ODS重刷了，DWD也会跟着重刷，它们完全同频，大大降低了配置任务依赖的难度。
 
 
 ## 日志驱动的表设计
