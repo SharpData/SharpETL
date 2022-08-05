@@ -12,6 +12,12 @@ object AnnotationScanner {
 
   val defaultConfigType: Class[DataSourceConfig] = classOf[DBDataSourceConfig].asInstanceOf[Class[DataSourceConfig]]
 
+  lazy val tempConfig = {
+    val conf = new DBDataSourceConfig()
+    conf.dataSourceType = "temp"
+    conf
+  }
+
   val configRegister: Map[String, Class[DataSourceConfig]] =
     new ClassGraph()
       .acceptPackages("com.github.sharpdata.sharpetl")

@@ -744,4 +744,41 @@ class WorkflowParserSpec extends AnyFunSpec with should.Matchers {
     wf.size should be(1)
     wf.head._2 should be("a")
   }
+
+  it("parse to temp data source if source not specified") {
+    val wf1 =
+      """-- workflow=default_to_temp_source
+        |--  period=1440
+        |--  loadType=incremental
+        |--  logDrivenType=timewindow
+        |
+        |-- step=1
+        |-- target=temp
+        |--  tableName=temp_table
+        |select 'SUCCESS' as `RESULT`;
+        |
+        |-- step=2
+        |-- target=console
+        |select * from temp_table;""".stripMargin
+
+
+    val wf2 =
+      """-- workflow=default_to_temp_source
+        |--  period=1440
+        |--  loadType=incremental
+        |--  logDrivenType=timewindow
+        |
+        |-- step=1
+        |-- source=temp
+        |-- target=temp
+        |--  tableName=temp_table
+        |select 'SUCCESS' as `RESULT`;
+        |
+        |-- step=2
+        |-- source=temp
+        |-- target=console
+        |select * from temp_table;""".stripMargin
+
+    parseWorkflow(wf1).get.toString should be(parseWorkflow(wf2).get.toString)
+  }
 }

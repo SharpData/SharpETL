@@ -4,8 +4,8 @@ import fastparse._
 import NoWhitespace._
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import com.github.sharpdata.sharpetl.core.datasource.config.{DataSourceConfig, TransformationDataSourceConfig}
-import com.github.sharpdata.sharpetl.core.annotation.AnnotationScanner.{configRegister, defaultConfigType}
+import com.github.sharpdata.sharpetl.core.datasource.config.{DBDataSourceConfig, DataSourceConfig, TransformationDataSourceConfig}
+import com.github.sharpdata.sharpetl.core.annotation.AnnotationScanner.{configRegister, defaultConfigType, tempConfig}
 import com.github.sharpdata.sharpetl.core.annotation.Annotations.Experimental
 import com.github.sharpdata.sharpetl.core.exception.Exception.WorkFlowSyntaxException
 import com.github.sharpdata.sharpetl.core.syntax.ParserUtils.{Until, objectMapper, trimSql}
@@ -97,18 +97,18 @@ object WorkflowParser {
 
   def step[_: P]: P[WorkflowStep] = P(
     newlines ~ stepHeader ~ singleLineValue ~ newlines
-      ~ P(transformer("source") | dataSource("source")) ~ newlines
+      ~ P(transformer("source") | dataSource("source")).? ~ newlines
       ~ P(transformer("target") | dataSource("target")) ~ newlines
       ~ keyValPairs(1).? ~ newlines
       ~ conf(1).? ~ newlines
       ~ sql
   ).map {
     // scalastyle:off
-    case (step, source, target, kv, conf, sql) =>
+    case (step, sourceOptional, target, kv, conf, sql) =>
       val map = kv.getOrElse(Seq()).toMap
       val workflowStep = new WorkflowStep
       workflowStep.step = step
-      workflowStep.source = source
+      workflowStep.source = sourceOptional.getOrElse(tempConfig)
       workflowStep.target = target
       workflowStep.sqlTemplate = trimSql(sql)
       workflowStep.persist = map.getOrElse("persist", null)
