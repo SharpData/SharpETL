@@ -16,7 +16,7 @@ This guide provides quick docker setup for local testing
 
 ```bash
 cd docker
-docker compose up -d # to start ETL database(mysql 5.7) & hive instance(version 2.3.7)
+docker compose up -d # to start ETL database(mysql 5.7.28) & hive instance(version 3.1.2)
 ```
 
 To access local hive instance you need
@@ -24,15 +24,7 @@ To access local hive instance you need
 in `spark/build.gradle`
 
 ```diff
--compileOnly(project(":datasource:hive3"))
-+compileOnly(project(":datasource:hive2"))
-+implementation "org.apache.spark:spark-hive_$scalaVersion:$sparkVersion"
-```
-
-in `datasource/hive2/build.gradle`
-
-```diff
-+api 'org.apache.hive:hive-metastore:2.1.0'
++ implementation "org.apache.spark:spark-hive_$scalaVersion:$sparkVersion"
 ```
 
 add `hive-site.xml` in `spark/src/main/resources/hive-site.xml`
