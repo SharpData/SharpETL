@@ -16,13 +16,6 @@ module.exports = {
             ],
         }, {
             type: 'category',
-            label: 'Concept',
-            collapsed: false,
-            items: [
-                'log-driven',
-            ],
-        }, {
-            type: 'category',
             label: 'Configuration',
             collapsed: false,
             items: [

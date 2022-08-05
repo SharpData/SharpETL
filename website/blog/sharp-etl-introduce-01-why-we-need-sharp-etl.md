@@ -1,7 +1,8 @@
 ---
-slug: 为什么我们需要Sharp ETL
-title: 为什么我们需要Sharp ETL
+slug: sharp-etl-introduce-01-why-we-need-sharp-etl
+title: Sharp ETL介绍(一):为什么我们需要Sharp ETL
 tags: [sharp etl]
+date: 2022-08-01T00:00:00+08:00
 ---
 
 ## 导言
@@ -120,8 +121,8 @@ workflow一开始是一个header，描述workflow本身的属性，包括workflo
 --  tableName=t_device
 --  options
 --   idColumn=order_id
---   column.device_id.qualityCheckRules=power null check(error)
---   column.status.qualityCheckRules=empty check(warn)
+--   column.device_id.qualityCheckRules=power null check
+--   column.status.qualityCheckRules=empty check
 -- target=temp
 --  tableName=t_device__extracted
 -- writeMode=overwrite
@@ -231,6 +232,7 @@ ${DWD_UPDATED_PARTITION};
 
 其实上一段SQL是通过代码生成的，并非人工手写！在实际操作中，只需要填写我们的excel [ods模板](https://docs.google.com/spreadsheets/d/1Zn_Q-QUTf6us4RwdgUgBosXL09-D-TowmgwWlDskvlA) 或 [dwd模板](https://docs.google.com/spreadsheets/d/1CetkqBsXj_E8oZBsws9iGdaJB1QJUajnwqH4FoKhXKA)即可生成代码，可以成倍的提高开发效率。
 
-后续文章还将对内置的数据工程实践（包括但不限于“日志驱动”、“数据质量分级分类”等）和 Sharp ETL的实现等等进行介绍
+
+*后续文章还将对内置的数据工程实践（包括但不限于“日志驱动”、“数据质量分级分类”等）和 Sharp ETL的实现等等进行介绍*
 
 

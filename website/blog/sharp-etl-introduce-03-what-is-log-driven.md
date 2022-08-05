@@ -1,9 +1,13 @@
 ---
-title: "Log driven"
-sidebar_position: 6
-toc: true
-last_modified_at: 2022-02-23T18:25:57-04:00
+slug: sharp-etl-introduce-03-what-is-log-driven
+title: Sharp ETL介绍(三):什么是日志驱动
+tags: [sharp etl, log driven]
+date: 2022-08-03T00:00:00+08:00
 ---
+
+## 导言
+
+本文将从为什么需要日志驱动和日志驱动如何解决问题展开来对日志驱动做详细介绍
 
 ## 常规的任务调度
 
