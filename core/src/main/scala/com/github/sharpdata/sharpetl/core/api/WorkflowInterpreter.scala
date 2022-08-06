@@ -69,7 +69,7 @@ trait WorkflowInterpreter[DataFrame] extends Serializable with QualityCheck[Data
         /**
          * for [[IncrementalType.AUTO_INC_ID]] job to store max id, if is refresh job, end should not be "0".padding()
          */
-        if (jobLog.incrementalType == IncrementalType.AUTO_INC_ID && variables.contains("${upperBound}")) {
+        if (jobLog.logDrivenType == IncrementalType.AUTO_INC_ID && variables.contains("${upperBound}")) {
           if (jobLog.dataRangeEnd == "0".padding()) {
             jobLog.dataRangeEnd = variables("${upperBound}").padding()
             ETLLogger.info(s"Setting dataRangeEnd to ${jobLog.dataRangeEnd}")
@@ -80,7 +80,7 @@ trait WorkflowInterpreter[DataFrame] extends Serializable with QualityCheck[Data
             qualityCheck(
               step,
               jobLog.jobId,
-              jobLog.jobScheduleId,
+              jobLog.jobName,
               df
             ).passed
           } else {
@@ -126,16 +126,16 @@ trait WorkflowInterpreter[DataFrame] extends Serializable with QualityCheck[Data
            DataSourceType.FTP |
            DataSourceType.SCP =>
         val files = listFiles(steps, step)
-        jobLog.currentFile = files.map(StringUtil.getFileNameFromPath).mkString(",")
+        jobLog.file = files.map(StringUtil.getFileNameFromPath).mkString(",")
         val df = readFile(step, jobLog, variables, files)
         cleanUpTempFiles(step, files)
         df
       case DataSourceType.SFTP =>
-        ETLLogger.info("Be run file list: \n%s".format(jobLog.currentFile))
+        ETLLogger.info("Be run file list: \n%s".format(jobLog.file))
         downloadFileToHDFS(step, jobLog, variables)
         null.asInstanceOf[DataFrame] // scalastyle:ignore
       case DataSourceType.MOUNT =>
-        ETLLogger.info("Be run file list: \n%s".format(jobLog.currentFile))
+        ETLLogger.info("Be run file list: \n%s".format(jobLog.file))
         val hdfsPaths = downloadFileToHDFS(step, jobLog, variables)
         transformListFiles(hdfsPaths)
       case _ =>
@@ -202,7 +202,7 @@ trait WorkflowInterpreter[DataFrame] extends Serializable with QualityCheck[Data
 @Private
 object WorkflowInterpreter {
   def updateVariablesForRefreshAutoIncMode(jobLog: JobLog, variables: Variables): Unit = {
-    if (jobLog.incrementalType == IncrementalType.AUTO_INC_ID
+    if (jobLog.logDrivenType == IncrementalType.AUTO_INC_ID
       && variables.contains("${upperBound}")
       && jobLog.dataRangeEnd != "0".padding()
     ) {

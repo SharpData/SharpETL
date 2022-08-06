@@ -45,7 +45,7 @@ class DailyJobsSummaryReportTransformSpec extends ETLSuit {
       val emptyStr = ""
 
       assert(email.attachment.get.content ==
-        s"""projectName,jobName,jobId,dataRangeStart,dataRangeEnd,jobStartTime,jobStatus,duration(seconds),dataFlow,to-hive,to-postgres,failStep,errorMessage
+        s"""projectName,workflowName,jobId,dataRangeStart,dataRangeEnd,jobStartTime,jobStatus,duration(seconds),dataFlow,to-hive,to-postgres,failStep,errorMessage
           |projectName,job1,1,2022-02-09 00:00:00,2022-02-10 00:00:00,2022-01-01 20:00:00,SUCCESS,20,hive(10) -> postgres(10),10,10,,""
           |projectName,job2,2,2022-02-09 00:00:00,2022-02-10 00:00:00,2022-01-01 20:00:00,SUCCESS,20,hive(10) -> postgres(10),10,10,,""$emptyStr""".stripMargin
       )
@@ -67,12 +67,12 @@ class DailyJobsSummaryReportTransformSpec extends ETLSuit {
     )
   }
 
-  private def mockJobLog(jobName: String, jobStartTime: LocalDateTime): JobLog = {
+  private def mockJobLog(wfName: String, jobStartTime: LocalDateTime): JobLog = {
     new JobLog(
       jobId = 1,
-      jobName = jobName,
-      jobPeriod = 1440,
-      jobScheduleId = "111",
+      workflowName = wfName,
+      period = 1440,
+      jobName = "111",
       dataRangeStart = "20220209000000",
       dataRangeEnd = "20220210000000",
       jobStartTime = jobStartTime,
@@ -80,10 +80,12 @@ class DailyJobsSummaryReportTransformSpec extends ETLSuit {
       status = JobStatus.SUCCESS,
       createTime = LocalDateTime.now(),
       lastUpdateTime = LocalDateTime.now(),
-      incrementalType = "",
-      currentFile = "",
+      logDrivenType = "",
+      file = "",
       projectName = "projectName",
-      applicationId = "applicationId"
+      applicationId = "applicationId",
+      loadType = "",
+      runtimeArgs = ""
     )
   }
 

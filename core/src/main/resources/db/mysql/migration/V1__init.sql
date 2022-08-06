@@ -1,9 +1,9 @@
 create table job_log
 (
     job_id           bigint auto_increment primary key,
+    workflow_name    varchar(128) charset utf8 not null,
+    `period`         int                                not null,
     job_name         varchar(128) charset utf8 not null,
-    job_period       int                                not null,
-    job_schedule_id  varchar(128) charset utf8 not null,
     data_range_start varchar(128) charset utf8 null,
     data_range_end   varchar(128) charset utf8 null,
     job_start_time   datetime null,
@@ -11,10 +11,12 @@ create table job_log
     status           varchar(32) charset utf8 not null comment 'job status: SUCCESS,FAILURE,RUNNING',
     create_time      datetime default CURRENT_TIMESTAMP not null comment 'log create time',
     last_update_time datetime default CURRENT_TIMESTAMP not null comment 'log update time',
-    incremental_type varchar(64) null,
-    current_file     varchar(512) charset utf8 null,
+    load_type        varchar(32) null,
+    log_driven_type  varchar(32) null,
+    file             text charset utf8 null,
     application_id   varchar(64) charset utf8 null,
-    project_name     varchar(64) charset utf8 null
+    project_name     varchar(64) charset utf8 null,
+    runtime_args     text charset utf8 null
 ) charset = utf8;
 
 create table quality_check_log
@@ -22,7 +24,7 @@ create table quality_check_log
     id               bigint auto_increment
         primary key,
     job_id           bigint                             not null,
-    job_schedule_id  varchar(64) charset utf8 not null comment 'job schedule id(job_name + period)',
+    job_name         varchar(64) charset utf8 not null comment 'job name(workflow_name + period)',
     `column`         varchar(64) charset utf8 not null comment 'issue column name',
     data_check_type  varchar(64) charset utf8 not null,
     ids              text charset utf8 not null comment 'issue data primary key, concat by `, `, multiple primary key will be concat by `__`',

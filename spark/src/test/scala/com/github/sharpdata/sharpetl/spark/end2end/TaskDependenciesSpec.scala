@@ -26,11 +26,6 @@ class TaskDependenciesSpec extends ETLSuit {
 
 
   it("should respect to job dependencies") {
-    withObjectMocked[WorkflowReader.type] {
-      when(WorkflowReader.readWorkflow(anyString())).thenReturn(workflow("task-0"))
-      // 0. run migration if needed
-      runJob(jobParameters("task-0"))
-    }
 
     // 1. run jobDependencyCheck (do nothing)
     assertThrows[JobFailedException] {

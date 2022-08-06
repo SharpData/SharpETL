@@ -263,7 +263,7 @@ class PostgresModelingSpec extends PostgresEtlSuit {
 
     val initOdsLogSql =
       """
-        |insert into job_log (job_id, job_name, job_period, job_schedule_id, data_range_start, data_range_end, status) values
+        |insert into job_log (job_id, workflow_name, `period`, job_name, data_range_start, data_range_end, status) values
         |(1, 'source_to_ods', 1440, 'source_to_ods-20220408000000', '20220408000000', '20220409000000', 'SUCCESS'),
         |(2, 'source_to_ods', 1440, 'source_to_ods-20220408000000', '20220408000000', '20220409000000', 'SUCCESS');
         |""".stripMargin
@@ -409,7 +409,7 @@ class PostgresModelingSpec extends PostgresEtlSuit {
 
     val initOdsLogSql =
       """
-        |insert into job_log (job_id, job_name, job_period, job_schedule_id, data_range_start, data_range_end, status) values
+        |insert into job_log (job_id, workflow_name, `period`, job_name, data_range_start, data_range_end, status) values
         |(1, 'source_to_ods', 1440, 'source_to_ods-20220408000000', '20220408000000', '20220409000000', 'SUCCESS'),
         |(2, 'source_to_ods', 1440, 'source_to_ods-20220408000000', '20220408000000', '20220409000000', 'SUCCESS');
         |""".stripMargin
@@ -563,7 +563,7 @@ class PostgresModelingSpec extends PostgresEtlSuit {
 
     val initOdsLogSql =
       """
-        |insert into job_log (job_id, job_name, job_period, job_schedule_id, data_range_start, data_range_end, status) values
+        |insert into job_log (job_id, workflow_name, `period`, job_name, data_range_start, data_range_end, status) values
         |(1, 'source_to_ods', 1440, 'source_to_ods-20220408000000', '20220408000000', '20220409000000', 'SUCCESS'),
         |(2, 'source_to_ods', 1440, 'source_to_ods-20220408000000', '20220408000000', '20220409000000', 'SUCCESS');
         |""".stripMargin
@@ -722,7 +722,7 @@ class PostgresModelingSpec extends PostgresEtlSuit {
 
     val initOdsLogSql =
       """
-        |insert into job_log (job_id, job_name, job_period, job_schedule_id, data_range_start, data_range_end, status) values
+        |insert into job_log (job_id, workflow_name, `period`, job_name, data_range_start, data_range_end, status) values
         |(1, 'source_to_ods', 1440, 'source_to_ods-20220408000000', '20220408000000', '20220409000000', 'SUCCESS'),
         |(2, 'source_to_ods', 1440, 'source_to_ods-20220408000000', '20220408000000', '20220409000000', 'SUCCESS');
         |""".stripMargin

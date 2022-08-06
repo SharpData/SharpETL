@@ -22,11 +22,11 @@ class JobLog(
               @BeanProperty
               var jobId: Long,
               @BeanProperty
+              var workflowName: String,
+              @BeanProperty
+              var period: Int,
+              @BeanProperty
               var jobName: String,
-              @BeanProperty
-              var jobPeriod: Int,
-              @BeanProperty
-              var jobScheduleId: String,
               @BeanProperty
               var dataRangeStart: String,
               @BeanProperty
@@ -42,13 +42,17 @@ class JobLog(
               @BeanProperty
               var lastUpdateTime: LocalDateTime,
               @BeanProperty
-              var incrementalType: String,
+              var loadType: String,
               @BeanProperty
-              var currentFile: String,
+              var logDrivenType: String,
+              @BeanProperty
+              var file: String,
               @BeanProperty
               var applicationId: String,
               @BeanProperty
-              var projectName: String
+              var projectName: String,
+              @BeanProperty
+              var runtimeArgs: String
             ) extends Serializable {
   private val stepLogs: mutable.Map[String, StepLog] = mutable.Map()
 

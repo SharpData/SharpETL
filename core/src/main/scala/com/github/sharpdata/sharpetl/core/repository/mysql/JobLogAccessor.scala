@@ -14,24 +14,24 @@ import java.time.LocalDateTime.now
 class JobLogAccessor() extends repository.JobLogAccessor() {
 
 
-  def lastSuccessExecuted(jobName: String): JobLog = {
+  def lastSuccessExecuted(workflowName: String): JobLog = {
     execute[JobLog](sessionValue => {
       val mapper = sessionValue.getMapper(classOf[JobLogMapper])
-      mapper.lastSuccessExecuted(jobName)
+      mapper.lastSuccessExecuted(workflowName)
     })
   }
 
-  override def lastExecuted(jobName: String): JobLog = {
+  override def lastExecuted(workflowName: String): JobLog = {
     execute[JobLog](sessionValue => {
       val mapper = sessionValue.getMapper(classOf[JobLogMapper])
-      mapper.lastExecuted(jobName)
+      mapper.lastExecuted(workflowName)
     })
   }
 
-  def isAnotherJobRunning(jobScheduleId: String): JobLog = {
+  def isAnotherJobRunning(jobName: String): JobLog = {
     execute[JobLog](sessionValue => {
       val mapper = sessionValue.getMapper(classOf[JobLogMapper])
-      mapper.isAnotherJobRunning(jobScheduleId)
+      mapper.isAnotherJobRunning(jobName)
     })
   }
 
@@ -58,16 +58,16 @@ class JobLogAccessor() extends repository.JobLogAccessor() {
     update(jobLog)
   }
 
-  override def getLatestSuccessJobLogByNames(jobNames: Array[String]): Array[JobLog] = {
-    jobNames.map(name => {
+  override def getLatestSuccessJobLogByNames(wfNames: Array[String]): Array[JobLog] = {
+    wfNames.map(name => {
       this.lastSuccessExecuted(name)
     }).filterNot(_ == null)
   }
 
-  override def executionsLastYear(jobName: String): Array[JobLog] = {
+  override def executionsLastYear(workflowName: String): Array[JobLog] = {
     execute[Array[JobLog]](sessionValue => {
       val mapper = sessionValue.getMapper(classOf[JobLogMapper])
-      mapper.executionsLastYear(jobName, now().minusYears(1L).format(L_YYYY_MM_DD_HH_MM_SS))
+      mapper.executionsLastYear(workflowName, now().minusYears(1L).format(L_YYYY_MM_DD_HH_MM_SS))
     })
   }
 
@@ -81,14 +81,14 @@ class JobLogAccessor() extends repository.JobLogAccessor() {
   override def getPreviousJobLog(jobLog: JobLog): JobLog = {
     execute[JobLog](sessionValue => {
       val mapper = sessionValue.getMapper(classOf[JobLogMapper])
-      mapper.lastJobLog(jobLog.jobName, jobLog.jobStartTime.format(L_YYYY_MM_DD_HH_MM_SS))
+      mapper.lastJobLog(jobLog.workflowName, jobLog.jobStartTime.format(L_YYYY_MM_DD_HH_MM_SS))
     })
   }
 
-  override def getUnprocessedUpstreamJobLog(upstreamJobName: String, upstreamLogId: BigInt): Array[JobLog] = {
+  override def getUnprocessedUpstreamJobLog(upstreamWFName: String, upstreamLogId: BigInt): Array[JobLog] = {
     execute[Array[JobLog]](sessionValue => {
       val mapper = sessionValue.getMapper(classOf[JobLogMapper])
-      mapper.unprocessedUpstreamJobLog(upstreamJobName, upstreamLogId.toString())
+      mapper.unprocessedUpstreamJobLog(upstreamWFName, upstreamLogId.toString())
     })
   }
 }

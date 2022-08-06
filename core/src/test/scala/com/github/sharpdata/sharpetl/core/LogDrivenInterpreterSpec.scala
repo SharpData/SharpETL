@@ -103,7 +103,7 @@ class LogDrivenInterpreterSpec extends AnyFlatSpec with should.Matchers {
     val command = new TestJobCommand()
     command.once = true
     val logDrivenJob = LogDrivenInterpreter(
-      Workflow("jobName", execPeriod.toString, "incremental", "timewindow", null, null, null, -1, null, false, null, Map(), Nil), // scalastyle:off
+      Workflow("workflowName", execPeriod.toString, "incremental", "timewindow", null, null, null, -1, null, false, null, Map(), Nil), // scalastyle:off
       new FakeWorkflowInterpreter(),
       jobLogAccessor = jobLogAccessor,
       command = command
@@ -112,16 +112,16 @@ class LogDrivenInterpreterSpec extends AnyFlatSpec with should.Matchers {
   }
 
   private def mockJobLogAccessor(jobLogAccessor: JobLogAccessor, prevDataEndTime: LocalDateTime, execPeriod: Int): Any = {
-    when(jobLogAccessor.lastSuccessExecuted("jobName")).thenReturn(
+    when(jobLogAccessor.lastSuccessExecuted("workflowName")).thenReturn(
       new JobLog(
-        jobId = 0, jobName = "jobName",
-        jobPeriod = execPeriod, jobScheduleId = "jobScheduleId",
+        jobId = 0, workflowName = "workflowName",
+        period = execPeriod, jobName = "workflowName",
         dataRangeStart = "0", dataRangeEnd = prevDataEndTime.asBigInt().toString,
         jobStartTime = nullDataTime, jobEndTime = nullDataTime,
         status = RUNNING, createTime = now,
         lastUpdateTime = now,
-        IncrementalType.TIMEWINDOW,
-        "", "fake-app-001", ""
+        "",
+        IncrementalType.TIMEWINDOW, "","fake-app-001", "project", ""
       )
     )
     when(jobLogAccessor.isAnotherJobRunning(anyString())).thenReturn(null)

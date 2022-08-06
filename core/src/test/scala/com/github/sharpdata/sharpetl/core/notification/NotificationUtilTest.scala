@@ -141,12 +141,12 @@ class NotificationUtilTest extends AnyFlatSpec with should.Matchers {
 
   }
 
-  private def mockJobLog(jobName: String, jobId: Long, status: String): JobLog = {
+  private def mockJobLog(wfName: String, jobId: Long, status: String): JobLog = {
     new JobLog(
       jobId = jobId,
-      jobName = jobName,
-      jobPeriod = 1440,
-      jobScheduleId = "20221111",
+      workflowName = wfName,
+      period = 1440,
+      jobName = "20221111",
       dataRangeEnd = "20211212000000",
       dataRangeStart = "20211211000000",
       jobStartTime = LocalDateTime.now(),
@@ -154,10 +154,12 @@ class NotificationUtilTest extends AnyFlatSpec with should.Matchers {
       status = status,
       createTime = LocalDateTime.now(),
       lastUpdateTime = LocalDateTime.now(),
-      incrementalType = "",
-      currentFile = "",
+      logDrivenType = "",
+      file = "",
       applicationId = "fake-app-001",
-      projectName = ""
+      projectName = "",
+      loadType = "",
+      runtimeArgs = ""
     )
   }
 

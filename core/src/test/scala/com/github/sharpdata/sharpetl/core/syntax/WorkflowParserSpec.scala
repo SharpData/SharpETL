@@ -704,7 +704,7 @@ class WorkflowParserSpec extends AnyFunSpec with should.Matchers {
         |]""".stripMargin)
   }
 
-  it("parse incrementalType") {
+  it("parse logDrivenType") {
     val text =
       """-- step=6
         |-- source=transformation

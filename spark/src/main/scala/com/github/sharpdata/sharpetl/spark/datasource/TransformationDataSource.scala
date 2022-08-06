@@ -22,7 +22,7 @@ class TransformationDataSource extends Source[DataFrame, SparkSession] with Sink
     val start = "dataRangeStart" -> variables.getOrElse("${DATA_RANGE_START}", "")
     val end = "dataRangeEnd" -> variables.getOrElse("${DATA_RANGE_END}", "")
     val jobId = "jobId" -> variables.getOrElse("${JOB_ID}", "")
-    val jobName = "jobName" -> variables.getOrElse("${JOB_NAME}", "")
+    val jobName = "workflowName" -> variables.getOrElse("${JOB_NAME}", "")
     val jobTime = "jobTime" -> Timestamp.from(Instant.now()).toString
     val sql = "sql" -> step.sql
 

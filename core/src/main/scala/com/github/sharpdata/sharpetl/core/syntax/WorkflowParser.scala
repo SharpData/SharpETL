@@ -4,7 +4,7 @@ import fastparse._
 import NoWhitespace._
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
-import com.github.sharpdata.sharpetl.core.datasource.config.{DBDataSourceConfig, DataSourceConfig, TransformationDataSourceConfig}
+import com.github.sharpdata.sharpetl.core.datasource.config.{DataSourceConfig, TransformationDataSourceConfig}
 import com.github.sharpdata.sharpetl.core.annotation.AnnotationScanner.{configRegister, defaultConfigType, tempConfig}
 import com.github.sharpdata.sharpetl.core.annotation.Annotations.Experimental
 import com.github.sharpdata.sharpetl.core.exception.Exception.WorkFlowSyntaxException

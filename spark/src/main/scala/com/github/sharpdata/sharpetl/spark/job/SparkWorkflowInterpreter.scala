@@ -178,7 +178,7 @@ class SparkWorkflowInterpreter(override val spark: SparkSession,
 
   override def executeWrite(jobLog: JobLog, df: DataFrame, step: WorkflowStep, variables: Variables): Unit = {
     val stepLog = jobLog.getStepLog(step.step)
-    val incrementalType = jobLog.incrementalType
+    val incrementalType = jobLog.logDrivenType
     ETLLogger.info(s"incremental type is ${incrementalType}")
     if (incrementalType == IncrementalType.DIFF && df.count() > incrementalDiffModeDataLimit.toLong) {
       throw IncrementalDiffModeTooMuchDataException(
