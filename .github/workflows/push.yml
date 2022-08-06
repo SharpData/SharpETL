@@ -11,7 +11,7 @@ jobs:
     strategy:
       matrix:
         env: [
-            '-PscalaVersion=2.11 -PsparkVersion=2.3.2 -PscalaCompt=2.11.12',
+            '-PscalaVersion=2.11 -PsparkVersion=2.4.8 -PscalaCompt=2.11.12',
         ]
 
     steps:

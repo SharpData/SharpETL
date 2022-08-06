@@ -25,6 +25,8 @@ import org.apache.spark.storage.StorageLevel
 import org.apache.spark.streaming.{Seconds, StreamingContext}
 
 import java.time.LocalDateTime
+import scala.collection.immutable
+import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
 class SparkWorkflowInterpreter(override val spark: SparkSession,
@@ -101,7 +103,7 @@ class SparkWorkflowInterpreter(override val spark: SparkSession,
     sparkSession.sql(s"SELECT '${filePaths.mkString(",")}' AS `FILE_PATHS`")
   }
 
-  override def listFiles(steps: List[WorkflowStep], step: WorkflowStep): List[String] = {
+  override def listFiles(step: WorkflowStep): List[String] = {
     val conf = step.source.asInstanceOf[FileDataSourceConfig]
 
     val files: List[String] = if (!isNullOrEmpty(conf.filePaths)) {
@@ -274,4 +276,32 @@ class SparkWorkflowInterpreter(override val spark: SparkSession,
   }
 
   override def applicationId(): String = sparkSession.sparkContext.applicationId
+
+  override def executeSqlToVariables(sql: String): List[Map[String, String]] = {
+    val data: immutable.Seq[Map[String, String]] =
+      sparkSession.sql(sql).toLocalIterator().asScala.toList
+        .map(it =>
+          it.getValuesMap(it.schema.fieldNames)
+        )
+    data
+      .map(
+        it =>
+          it.map {
+            case (key, value) => ("${" + key + "}", value)
+          }
+      )
+      .toList
+  }
+
+  override def union(left: DataFrame, right: DataFrame): DataFrame = {
+    if (left != null && right != null) {
+      left.union(right)
+    } else if (left == null && right == null) {
+      null // scalastyle:ignore
+    } else if (left == null) {
+      right
+    } else {
+      left
+    }
+  }
 }

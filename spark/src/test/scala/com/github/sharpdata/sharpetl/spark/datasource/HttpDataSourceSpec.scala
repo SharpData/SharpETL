@@ -141,5 +141,54 @@ class HttpDataSourceSpec extends ETLSuit with BeforeAndAfterAll {
     }
   }
 
+  describe("loop over HttpDataSource") {
+    def requestDef(tableName: String): HttpRequest = request().withPath(s"/get_from_table/$tableName")
+
+    def testJsonStr(tableName: String): String =
+      s"""{
+         |  "result": "result_of_$tableName"
+         |}""".stripMargin
+
+    it("should send loop request") {
+      if (spark.version.startsWith("2.3")) {
+        ETLLogger.error("`struct` complex type does NOT support Spark 2.3.x")
+      } else {
+        val mockServerClient = new MockServerClient(mockHttpServer.getHost, mockHttpServer.getServerPort)
+        (1 to 4).foreach(it => {
+
+          val req = requestDef(s"test_$it")
+          mockServerClient
+            .clear(req)
+            .when(req)
+            .respond(response().withBody(testJsonStr(s"test_$it")))
+
+        })
+
+        val jobParameters: Array[String] = Array("single-job",
+          "--name=http_loop_request", "--period=1440",
+          "--local", s"--default-start-time=2021-11-28 15:30:30", "--env=test", "--once")
+
+        runJob(jobParameters)
+        spark
+          .sql("select * from `target_temp_table`")
+          .select("result")
+          .toLocalIterator().asScala.toList.mkString("\n") should be(
+          """[{
+            |  "result": "result_of_test_1"
+            |}]
+            |[{
+            |  "result": "result_of_test_2"
+            |}]
+            |[{
+            |  "result": "result_of_test_3"
+            |}]
+            |[{
+            |  "result": "result_of_test_4"
+            |}]""".stripMargin
+        )
+      }
+    }
+  }
+
   override val createTableSql: String = ""
 }

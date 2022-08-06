@@ -22,11 +22,11 @@ class SingleSparkJobCommand extends SingleJobCommand {
     ETLConfig.setPropertyPath(propertyPath, env)
     val etlDatabaseType = JDBCUtil.dbType
     migrate()
-    val interpreter = getSparkInterpreter(local, jobName, releaseResource, etlDatabaseType, readQualityCheckRules())
+    val interpreter = getSparkInterpreter(local, wfName, releaseResource, etlDatabaseType, readQualityCheckRules())
     JavaVersionChecker.checkJavaVersion()
     try {
       val wfInterpretingResult: WFInterpretingResult = LogDrivenInterpreter(
-        WorkflowReader.readWorkflow(jobName),
+        WorkflowReader.readWorkflow(wfName),
         interpreter,
         jobLogAccessor = jobLogAccessor,
         command = this
@@ -73,12 +73,12 @@ class BatchSparkJobCommand extends BatchJobCommand {
   }
 
   def getInterpretersFromSqlFile(etlDatabaseType: String): Seq[LogDrivenInterpreter] = {
-    sqlFileOptions.jobNames
-      .map(jobName => {
-        val interpreter = getSparkInterpreter(local, jobName, releaseResource, etlDatabaseType, readQualityCheckRules())
+    sqlFileOptions.wfNames
+      .map(wfName => {
+        val interpreter = getSparkInterpreter(local, wfName, releaseResource, etlDatabaseType, readQualityCheckRules())
         JavaVersionChecker.checkJavaVersion()
         LogDrivenInterpreter(
-          WorkflowReader.readWorkflow(jobName),
+          WorkflowReader.readWorkflow(wfName),
           interpreter,
           jobLogAccessor = jobLogAccessor,
           command = this

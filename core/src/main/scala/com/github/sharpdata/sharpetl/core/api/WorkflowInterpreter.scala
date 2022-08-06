@@ -2,7 +2,7 @@ package com.github.sharpdata.sharpetl.core.api
 
 import com.github.sharpdata.sharpetl.core.repository.model.JobLog
 import com.github.sharpdata.sharpetl.core.syntax.WorkflowStep
-import com.github.sharpdata.sharpetl.core.util.Constants.{BooleanString, IncrementalType, DataSourceType}
+import com.github.sharpdata.sharpetl.core.util.Constants.{BooleanString, DataSourceType, IncrementalType}
 import com.github.sharpdata.sharpetl.core.annotation.Annotations.{Private, Stable}
 import com.github.sharpdata.sharpetl.core.api.WorkflowInterpreter._
 import com.github.sharpdata.sharpetl.core.datasource.config.{DataSourceConfig, FileDataSourceConfig, TransformationDataSourceConfig}
@@ -12,6 +12,8 @@ import com.github.sharpdata.sharpetl.core.repository.StepLogAccessor.stepLogAcce
 import com.github.sharpdata.sharpetl.core.util.HDFSUtil.downloadFileToHDFS
 import com.github.sharpdata.sharpetl.core.util.IncIdUtil.NumberStringPadding
 import com.github.sharpdata.sharpetl.core.util.{ETLLogger, StringUtil}
+import com.google.common.base.Strings.isNullOrEmpty
+import org.apache.commons.lang3.SerializationUtils
 import org.apache.commons.lang3.reflect.FieldUtils
 
 import java.lang.reflect.Field
@@ -34,8 +36,7 @@ trait WorkflowInterpreter[DataFrame] extends Serializable with QualityCheck[Data
                    end: String): Unit = {
     try {
       steps
-        .indices
-        .foreach(index => executeStep(steps, index, jobLog, variables, start, end))
+        .foreach(step => executeStep(step, jobLog, variables, start, end))
     } catch {
       case _: EmptyDataException =>
         if (steps.exists(step => step.skipFollowStepWhenEmpty == true.toString)) { // scalastyle:ignore
@@ -46,24 +47,34 @@ trait WorkflowInterpreter[DataFrame] extends Serializable with QualityCheck[Data
   }
 
   // scalastyle:off
-  def executeStep(steps: List[WorkflowStep],
-                  index: Int,
-                  jobLog: JobLog,
-                  variables: Variables,
-                  start: String,
-                  end: String): Unit = {
-    val step = steps(index)
+  def executeStep(step: WorkflowStep, jobLog: JobLog, variables: Variables, start: String, end: String): Unit = {
+
     val stepLog = jobLog.createStepLog(step.step)
     stepLog.setSourceType(step.source.dataSourceType)
     stepLog.setTargetType(step.target.dataSourceType)
     stepLogAccessor.create(stepLog)
-    try {
+
+    def doRead(step: WorkflowStep, variables: Variables): DataFrame = {
       applyConf(step.conf)
       updateVariablesForRefreshAutoIncMode(jobLog, variables)
       prepareSql(jobLog, variables, start, end, step)
       stepLog.info(s"[Step]: \n$step")
       stepLogAccessor.update(stepLog)
-      val df = read(steps, jobLog, variables, step)
+      read(jobLog, variables, step)
+    }
+
+    try {
+      val df =
+        if (!isNullOrEmpty(step.loopOver)) {
+          executeSqlToVariables(s"SELECT * FROM `${step.loopOver}`")
+            .map { newVariables =>
+              val newStep = SerializationUtils.clone(step)
+              doRead(newStep, variables.++(newVariables))
+            }
+            .reduce((left, right) => union(left, right))
+        } else {
+          doRead(step, variables)
+        }
 
       if (df != null) {
         /**
@@ -94,9 +105,9 @@ trait WorkflowInterpreter[DataFrame] extends Serializable with QualityCheck[Data
       case e: NoFileFoundException =>
         stepLog.failed(e)
         if (step.throwExceptionIfEmpty == BooleanString.TRUE) {
-          throw NoFileToContinueException(steps(index).step)
+          throw NoFileToContinueException(step.step)
         } else {
-          throw NoFileSkipException(steps(index).step)
+          throw NoFileSkipException(step.step)
         }
       case e: EmptyDataException =>
         if (step.skipFollowStepWhenEmpty == true.toString) {
@@ -106,7 +117,7 @@ trait WorkflowInterpreter[DataFrame] extends Serializable with QualityCheck[Data
         stepLog.success()
       case t: Throwable =>
         stepLog.failed(t)
-        throw StepFailedException(t, steps(index).step)
+        throw StepFailedException(t, step.step)
     } finally {
       stepLogAccessor.update(stepLog)
     }
@@ -114,8 +125,7 @@ trait WorkflowInterpreter[DataFrame] extends Serializable with QualityCheck[Data
 
   // scalastyle:on
 
-  def read(steps: List[WorkflowStep],
-           jobLog: JobLog,
+  def read(jobLog: JobLog,
            variables: Variables,
            step: WorkflowStep): DataFrame = {
     step.getSourceConfig.getDataSourceType match {
@@ -125,7 +135,7 @@ trait WorkflowInterpreter[DataFrame] extends Serializable with QualityCheck[Data
            DataSourceType.CSV |
            DataSourceType.FTP |
            DataSourceType.SCP =>
-        val files = listFiles(steps, step)
+        val files = listFiles(step)
         jobLog.file = files.map(StringUtil.getFileNameFromPath).mkString(",")
         val df = readFile(step, jobLog, variables, files)
         cleanUpTempFiles(step, files)
@@ -164,7 +174,7 @@ trait WorkflowInterpreter[DataFrame] extends Serializable with QualityCheck[Data
 
   def transformListFiles(filePaths: List[String]): DataFrame
 
-  def listFiles(steps: List[WorkflowStep], step: WorkflowStep): List[String]
+  def listFiles(step: WorkflowStep): List[String]
 
   def cleanUpTempFiles(step: WorkflowStep,
                        files: List[String]): Unit = {
@@ -197,6 +207,10 @@ trait WorkflowInterpreter[DataFrame] extends Serializable with QualityCheck[Data
   def applyConf(conf: Map[String, String]): Unit = ()
 
   def applicationId(): String
+
+  def executeSqlToVariables(sql: String): List[Map[String, String]] = List()
+
+  def union(left: DataFrame, right: DataFrame): DataFrame
 }
 
 @Private
