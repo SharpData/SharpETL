@@ -1,0 +1,1 @@
+"use strict";(self.webpackChunksharp_etl_site=self.webpackChunksharp_etl_site||[]).push([[3555],{16:e=>{e.exports=JSON.parse('{"label":"data engineering","permalink":"/SharpETL/blog/tags/data-engineering","allTagsPath":"/SharpETL/blog/tags","count":1}')}}]);
