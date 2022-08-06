@@ -1,8 +1,8 @@
 ---
-slug: sharp-etl-introduce-04-workflow-in-a-glance
-title: Sharp ETL介绍(四):Workflow入门
+slug: sharp-etl-introduce-05-workflow-in-a-glance
+title: Sharp ETL介绍(五):Workflow入门
 tags: [sharp etl, workflow]
-date: 2022-08-04T00:00:00+08:00
+date: 2022-08-05T00:00:00+08:00
 ---
 
 ## 导言
