@@ -1,9 +1,16 @@
-package com.github.sharpdata.sharpetl.spark.transformation
+package com.github.sharpdata.sharpetl.spark.datasource
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.github.sharpdata.sharpetl.spark.utils.{ETLSparkSession, HttpStatusUtils}
-import com.jayway.jsonpath.JsonPath
+import com.github.sharpdata.sharpetl.core.annotation.source
+import com.github.sharpdata.sharpetl.core.api.Variables
+import com.github.sharpdata.sharpetl.core.datasource.Source
+import com.github.sharpdata.sharpetl.core.datasource.config.HttpDataSourceConfig
+import com.github.sharpdata.sharpetl.core.repository.model.JobLog
+import com.github.sharpdata.sharpetl.core.syntax.WorkflowStep
 import com.github.sharpdata.sharpetl.core.util.{ETLConfig, ETLLogger}
+import com.github.sharpdata.sharpetl.spark.utils.{ETLSparkSession, HttpStatusUtils}
+import com.google.common.base.Strings.isNullOrEmpty
+import com.jayway.jsonpath.JsonPath
 import net.minidev.json.JSONArray
 import org.apache.http.HttpHost
 import org.apache.http.client.config.RequestConfig
@@ -12,26 +19,27 @@ import org.apache.http.entity.StringEntity
 import org.apache.http.impl.client._
 import org.apache.http.util.EntityUtils
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
-import org.apache.spark.sql.{DataFrame, Row}
+import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 
 import java.net.URLEncoder
-
 import scala.util.Using
 
-object HttpTransformer extends Transformer {
+@source(types = Array("http"))
+class HttpDataSource extends Source[DataFrame, SparkSession] {
 
   var httpClient: CloseableHttpClient = _
 
   lazy val mapper = new ObjectMapper
 
-  override def transform(args: Map[String, String]): DataFrame = {
-    val responseBody = getHttpResponseBody(args)
-    transformerDF(responseBody, args)
+  def read(step: WorkflowStep, jobLog: JobLog, executionContext: SparkSession, variables: Variables): DataFrame = {
+    val config = step.getSourceConfig[HttpDataSourceConfig]
+    val responseBody = getHttpResponseBody(config)
+    transformerDF(responseBody, config)
   }
 
-  private def getHttpResponseBody(args: Map[String, String]): String = {
+  private def getHttpResponseBody(config: HttpDataSourceConfig): String = {
 
-    val httpProperties = HttpProperties.initHttpProperties(args)
+    val httpProperties = HttpProperties.initHttpProperties(config)
     val httpRequest = httpProperties.initRequest()
     ETLLogger.info(s"url: ${httpRequest.getURI.toString}")
     if (httpClient == null) {
@@ -53,10 +61,10 @@ object HttpTransformer extends Transformer {
     }.get
   }
 
-  private def transformerDF(value: String, args: Map[String, String]): DataFrame = {
-    val fieldName = args.getOrElse("fieldName", "value")
-    val jsonPath = args.getOrElse("jsonPath", "$")
-    val splitBy = args.getOrElse("splitBy", "")
+  private def transformerDF(value: String, config: HttpDataSourceConfig): DataFrame = {
+    val fieldName = config.fieldName
+    val jsonPath = config.jsonPath
+    val splitBy = config.splitBy
 
     var result = value
     if (jsonPath != "$" || splitBy != "") {
@@ -112,12 +120,12 @@ object HttpProperties {
     s"""${URLEncoder.encode(keyAndValue(0), "UTF-8")}=${URLEncoder.encode(keyAndValue(1), "UTF-8")}"""
   }
 
-  def initHttpProperties(args: Map[String, String]): HttpProperties = {
-    val url = getEncodeUrl(args("url"))
-    val httpMethod = args.getOrElse("httpMethod", "GET")
-    val connectionName = args.get("connectionName")
-    if (connectionName.nonEmpty) {
-      val httpConnectionProperties = ETLConfig.getHttpProperties(connectionName.get)
+  def initHttpProperties(config: HttpDataSourceConfig): HttpProperties = {
+    val url = getEncodeUrl(config.url)
+    val httpMethod = config.httpMethod
+    val connectionName = config.connectionName
+    if (!isNullOrEmpty(connectionName)) {
+      val httpConnectionProperties = ETLConfig.getHttpProperties(connectionName)
       val headers = httpConnectionProperties
         .filter(_._1.startsWith("header."))
         .map { case (key, value) => key.substring("header.".length, key.length) -> value }
@@ -131,22 +139,22 @@ object HttpProperties {
       }
       val proxyPort = proxyProperties.getOrElse("port", "8080").toInt
       val proxy = new HttpHost(proxyHost.get, proxyPort)
-      new HttpProperties(url, httpMethod, headers, Option(proxy), args)
+      new HttpProperties(url, httpMethod, headers, Option(proxy), config)
     } else {
-      new HttpProperties(url, httpMethod, Map.empty, Option.empty, args)
+      new HttpProperties(url, httpMethod, Map.empty, Option.empty, config)
     }
   }
 }
 
-class HttpProperties(url: String, httpMethod: String, headers: Map[String, String], proxy: Option[HttpHost], optionalArgs: Map[String, String]) {
+class HttpProperties(url: String, httpMethod: String, headers: Map[String, String], proxy: Option[HttpHost], config: HttpDataSourceConfig) {
 
   def initRequest(): HttpRequestBase = {
     val httpRequest = httpMethod.toUpperCase match {
       case "GET" => new HttpGet(url)
       case _ =>
         val httpPost = new HttpPost(url)
-        if (optionalArgs.contains("requestBody")) {
-          val requestBody = optionalArgs.getOrElse("requestBody", "")
+        if (!isNullOrEmpty(config.requestBody)) {
+          val requestBody = config.requestBody
           ETLLogger.info(s"request the $url with the body $requestBody")
           httpPost.setEntity(new StringEntity(requestBody))
           httpPost.addHeader("Content-type", "application/json")

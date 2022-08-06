@@ -15,10 +15,7 @@ select from_unixtime(unix_timestamp('${DATA_RANGE_START}', 'yyyy-MM-dd HH:mm:ss'
 
 
 -- step=2
--- source=transformation
---  className=com.github.sharpdata.sharpetl.spark.transformation.HttpTransformer
---  methodName=transform
---  transformerType=object
+-- source=http
 --  url=http://localhost:1080/get_workday?satrt=${START_TIME_TIMESTAMP}&end=${START_TIME_TIMESTAMP}
 -- target=temp
 --  tableName=`source_data`

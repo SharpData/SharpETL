@@ -3,6 +3,7 @@ package com.github.sharpdata.sharpetl.spark.end2end
 import com.github.sharpdata.sharpetl.spark.transformation._
 import com.github.sharpdata.sharpetl.core.repository.MyBatisSession
 import com.github.sharpdata.sharpetl.core.util.ETLConfig
+import com.github.sharpdata.sharpetl.spark.datasource.HttpDataSourceSpec
 import org.scalatest.{BeforeAndAfterAll, DoNotDiscover, Suites}
 import org.testcontainers.containers.MySQLContainer
 
@@ -10,7 +11,7 @@ import org.testcontainers.containers.MySQLContainer
 @DoNotDiscover
 class ETLSuitExecutor extends Suites(
   new DailyJobsSummaryReportTransformSpec,
-  new HttpTransformerSpec,
+  new HttpDataSourceSpec,
   new DynamicLoadingTransformerSpec,
   new Source2TargetSpec,
   new BatchJobSpec,
