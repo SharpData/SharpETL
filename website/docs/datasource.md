@@ -7,8 +7,8 @@ last_modified_at: 2022-08-05T18:25:57-04:00
 
 ## 支持的数据源
 
-### Read
-- hive
+## Read
+### hive
 
   该 step 直接通过 SparkSession （需启用 hive 支持）执行 hive sql 并返回 DataFrame 以供后续操作。
 
@@ -28,7 +28,7 @@ last_modified_at: 2022-08-05T18:25:57-04:00
   from table1;
   ```
 
-- temp
+### temp
 
   该 step 直接通过 SparkSession （不需启用 hive 支持）执行 hive sql 并返回 DataFrame 以供后续操作。
 
@@ -54,7 +54,7 @@ last_modified_at: 2022-08-05T18:25:57-04:00
   from temp_table;
   ```
 
-- jdbc 类
+### jdbc
 
     - mysql
     - oracle
@@ -112,7 +112,7 @@ last_modified_at: 2022-08-05T18:25:57-04:00
   from test_table;
   ```
 
-- kudu
+### kudu
 
   该 step 通过 kudu spark 去读取 kudu 表中的数据，之后根据 selectSql 对 load 出来的数据做其他操作（基本的查询谓词可下推到 kudu）。
 
@@ -142,7 +142,7 @@ last_modified_at: 2022-08-05T18:25:57-04:00
   from test_table;
   ```
 
-- impala_kudu
+### impala_kudu
 
   impale_kudu 与 kudu 查询的逻辑基本一致，都是通过 kudu spark 去操作数据，但不同的是 impale_kudu 是操作由 impala 托管的 kudu 表。由于 impala 默认会在建表时给表名加一个前缀，因此我们在 impala 中操作 kudu 表时使用的表名可能是 'test_db.test_table'，但通过 kudu 直接去操作时表名可能就是 `impala::test_db.test_table` 了。
 
@@ -173,7 +173,7 @@ last_modified_at: 2022-08-05T18:25:57-04:00
   from test_table;
   ```
 
-- 文件传输类
+### 文件传输类
 
   该 step 只是 copy 文件，不解析文件内容（不涉及 spark 操作）。暂时只支持 copy 文件到 hdfs。
 
@@ -322,7 +322,7 @@ last_modified_at: 2022-08-05T18:25:57-04:00
       -- dateRangeInterval=0
       ```
   
-- hdfs 文件读取类
+### hdfs 文件
 
   该 step 会读取并解析文件内容，返回一个 DataFrame 以供后续使用。
 
@@ -453,7 +453,7 @@ last_modified_at: 2022-08-05T18:25:57-04:00
       -- target=console
       ```
 
-- udf 注册类
+### udf注册
 
   该 step 在 read 时会将指定类路径下的类加载到内存中。普通的 object 和 class 没什么差别，可以混着用。如果是带参的 class ，需要修改代码支持（pmml即是这种类型）。
 
@@ -525,7 +525,7 @@ last_modified_at: 2022-08-05T18:25:57-04:00
       from temp;
       ```
 
-- bigquery
+### bigquery
  
   参数
 
@@ -556,7 +556,75 @@ last_modified_at: 2022-08-05T18:25:57-04:00
   select * from project2.table1
   ```
 
-### Write
+### http & http_file
+ 
+  参数
+
+  | 参数名称       | 默认值 | 是否可空 | 说明                    |
+  | -------------- | ------ | -------- | ----------------------- |
+  | connectionName | 无     | 否       | 连接信息 |
+  | url | 无     | 否       | 请求地址 |
+  | httpMethod | GET     | 否       | 请求方式 |
+  | timeout | 无     | 否       | timeout时长 |
+  | requestBody | 无     | 否       | 请求体 |
+  | fieldName | value     | 否       | 解析response |
+  | jsonPath | $     | 否       | 解析response |
+  | splitBy | 空字符串     | 否       | 解析response |
+  | tempDestinationDir | /tmp     | 否       | 本地临时目录 |
+  | hdfsDir | /tmp     | 否       | HDFS保存目录 |
+
+  在application.properties里的配置信息
+
+  ```properties
+  your_connection_name.http.header.Authorization=Basic 123456
+  your_connection_name.http.proxy.host=localhost
+  your_connection_name.http.proxy.port=8080
+  ```
+  
+  示例
+  ```sql
+  -- step=1
+  -- source=http
+  --  url=http://localhost:1080/get_workday?satrt=${START_TIME_TIMESTAMP}&end=${START_TIME_TIMESTAMP}
+  -- target=temp
+  --  tableName=source_data
+
+  -- step=2
+  -- source=temp
+  --  tableName=source_data
+  -- target=temp
+  --  tableName=source_data_workday
+  -- writeMode=append
+  with `workday_temp` as (select explode(from_json(value,
+                                                  'struct<Report_Entry:array<struct<a:string,b:string,c:string,d:string,e:string,f:string,g:string,h:string,i:string,j:string,k:string,l:string,m:string,n:string,o:string,p:string,q:string>>>').Report_Entry)
+                                    as Report_Entry
+                          from `source_data`)
+  select Report_Entry.`a` as `a`,
+        Report_Entry.`b` as `b`,
+        Report_Entry.`c` as `c`,
+        Report_Entry.`d` as `d`,
+        Report_Entry.`e` as `e`,
+        Report_Entry.`f` as `f`,
+        Report_Entry.`g` as `g`,
+        Report_Entry.`h` as `h`,
+        Report_Entry.`i` as `i`,
+        Report_Entry.`j` as `j`,
+        Report_Entry.`k` as `k`,
+        Report_Entry.`l` as `l`,
+        Report_Entry.`m` as `m`,
+        Report_Entry.`n` as `n`,
+        Report_Entry.`o` as `o`,
+        Report_Entry.`p` as `p`,
+        Report_Entry.`q` as `q`,
+        '${YEAR}'  as `year`,
+        '${MONTH}' as `month`,
+        '${DAY}'   as `day`,
+        '${HOUR}'  as `hour`
+  from `workday_temp`;
+  ```
+
+
+## Write
 
 输出类型分为以下几类：
 
@@ -565,7 +633,7 @@ last_modified_at: 2022-08-05T18:25:57-04:00
 
 详细输出类型如下：
 
-- temp
+### temp
 
   该 step 的计算结果将注册为当前 SparkSession 生命周期内可用的内存临时表，可在后续 Read 类型为 `hive` 或 `temp` 的 step 中直接在 sql 中调用。
 
@@ -592,7 +660,7 @@ last_modified_at: 2022-08-05T18:25:57-04:00
   from temp_table;
   ```
 
-- hive
+### hive
 
   该 step 的计算结果将写入到目标 hive 表，默认采用动态分区的方式。
 
@@ -615,7 +683,7 @@ last_modified_at: 2022-08-05T18:25:57-04:00
          2 as b;
   ```
 
-- 命令行输出
+### 命令行输出
 
   该 step 的计算结果将输出到 console ，最多显示前 10000 行。
 
@@ -634,7 +702,7 @@ last_modified_at: 2022-08-05T18:25:57-04:00
   select 1 as a;
   ```
 
-- variables
+### variables
 
   该 step 的执行结果为只有一行（可以为多列）数据的 DataFrame，每个字段都将被设置为全局变量，可以在后续 step 的 sql 中直接引用。
 
@@ -707,7 +775,7 @@ last_modified_at: 2022-08-05T18:25:57-04:00
   from temp1;
   ```
 
-- do_nothing
+### do_nothing
 
   该 step 只执行 Read 部分的操作，Write 部分不做任何处理。
 
@@ -767,7 +835,7 @@ last_modified_at: 2022-08-05T18:25:57-04:00
     - postgres
     - ms_sql_server
 
-- es
+### ElasticSearch
 
   es 操作需在 application.properties 中配置基本连接信息，格式为 `es.*`，示例：
 
@@ -805,7 +873,7 @@ last_modified_at: 2022-08-05T18:25:57-04:00
   from test_table;
   ```
 
-- kudu
+### kudu
 
   | 参数名称       | 默认值 | 是否可空 | 说明                            |
     | -------------- | ------ | -------- | ------------------------------- |
@@ -822,7 +890,7 @@ last_modified_at: 2022-08-05T18:25:57-04:00
   from test_table;
   ```
 
-- impala_kudu
+### impala_kudu
 
   impale_kudu 与 kudu 查询的逻辑基本一致，都是通过 kudu spark 去操作数据，但不同的是 impale_kudu 是操作由 impala 托管的 kudu 表。由于 impala 默认会在建表时给表名加一个前缀，因此我们在 impala 中操作 kudu 表时使用的表名可能是 'test_db.test_table'，但通过 kudu 直接去操作时表名可能就是 `impala::test_db.test_table` 了。
 
@@ -852,7 +920,7 @@ last_modified_at: 2022-08-05T18:25:57-04:00
   from test_table;
   ```
 
-- 文件传输类
+### 文件传输类
 
   此类操作的数据源格式为文件（ftp、scp、hdfs），输出类型也是文件，整个过程不需要解析文件内容，只需完成文件传输。
 
@@ -916,7 +984,7 @@ last_modified_at: 2022-08-05T18:25:57-04:00
       -- writeMode=overwrite
       ```
 
-- hdfs 文件写出类
+### hdfs 文件
 
   此类 step 数据源格式为结构化数据（各种类型的表），整个输出过程需要将源数据按照指定规则处理好并最终输出。
 
@@ -970,86 +1038,4 @@ last_modified_at: 2022-08-05T18:25:57-04:00
       from test_table;
       ```
 
-- yellowbrick
 
-  yellowbrick此数据库目前只支持用作目标数据库，会将此step里read的DataFrame存入yellowbrick里
-  yellowbrick操作需在 application.properties 中配置基本连接信息，格式为 `${dbName}.yellowbrick.*`，示例：
-
-  ```properties
-  test.yellowbrick.host=localhost
-  test.yellowbrick.port=5432
-  test.yellowbrick.user=root
-  test.yellowbrick.password=root
-  test.yellowbrick.relayHost=localhost
-  test.yellowbrick.relayPort=21212
-  test.yellowbrick.partition=4
-  ```
-
-  参数：
-
-  | 参数名称       | 默认值 | 是否可空 | 说明                    |
-        | -------------- | ------ | -------- | ----------------------- |
-  | dataSourceType | 无     | 否       | 值必须为yellowbrick |
-  | dbName      | 无     | 否       | 数据库名字，用以从配置文件里读取连接信息     |
-  | primaryKeys | 无 | 是 | 只有当writeMode是upsert时，才需要使用, 并且此值不能为空, 当有多个primaryKeys使用","拼接 |
-
-  示例
-  ```sql
-  -- step=1
-  -- source=impala_kudu
-  --  dbName=test_db
-  --  tableName=test_table
-  -- target=console
-  --  dbName=test
-  -- writeMode=append
-  select *
-  from test_table;
-  ```
-
-  目前yellowbrick支持的writeMode有三种: append, overwrite和upsert
-
-    - append
-
-  示例
-  ```sql
-  -- step=1
-  -- source=impala_kudu
-  --  dbName=test_db
-  --  tableName=test_table
-  -- target=console
-  --  dbName=test
-  -- writeMode=append
-  select *
-  from test_table;
-  ```
-
-    - overwrite
-
-  示例
-  ```sql
-  -- step=1
-  -- source=impala_kudu
-  --  dbName=test_db
-  --  tableName=test_table
-  -- target=console
-  --  dbName=test
-  -- writeMode=overwrite
-  select *
-  from test_table;
-  ```
-
-    - upsert
-  
-  示例
-  ```sql
-  -- step=1
-  -- source=impala_kudu
-  --  dbName=test_db
-  --  tableName=test_table
-  -- target=console
-  --  dbName=test
-  --  primaryKeys=loginhistory_id
-  -- writeMode=upsert
-  select *
-  from test_table;
-  ```
