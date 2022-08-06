@@ -97,39 +97,42 @@ date: 2022-08-03T00:00:00+08:00
 ```sql
 create table job_log
 (
-    job_id           bigint auto_increment comment '任务id，主键' primary key,
-    job_name         varchar(128) charset utf8          not null,
-    job_period       int                                not null comment '周期',
-    job_schedule_id  varchar(128) charset utf8          not null comment 'job_name + data_range_start 拼接的字符串',
-    data_range_start varchar(1024) charset utf8         null,
-    data_range_end   varchar(1024) charset utf8         null,
-    job_start_time   datetime                           null comment '任务开始时间',
-    job_end_time     datetime                           null comment '任务结束时间',
-    status           varchar(32) charset utf8           not null comment '任务结果:  SUCCESS,FAILURE,RUNNING',
-    create_time      datetime default CURRENT_TIMESTAMP not null comment '数据插入时间',
-    last_update_time datetime default CURRENT_TIMESTAMP not null comment '数据更新时间',
-    incremental_type varchar(16)                        null,
-    current_file     varchar(1024) charset utf8         null comment '文件数据源会记录文件名',
-    application_id   varchar(64) charset utf8           null comment '执行引擎的任务id，例如spark的applicationId',
-    project_name     varchar(256) charset utf8          null
-);
+    job_id           bigint auto_increment primary key,
+    workflow_name    varchar(128) charset utf8 not null,
+    `period`         int                                not null,
+    job_name         varchar(128) charset utf8 not null,
+    data_range_start varchar(128) charset utf8 null,
+    data_range_end   varchar(128) charset utf8 null,
+    job_start_time   datetime null,
+    job_end_time     datetime null,
+    status           varchar(32) charset utf8 not null comment 'job status: SUCCESS,FAILURE,RUNNING',
+    create_time      datetime default CURRENT_TIMESTAMP not null comment 'log create time',
+    last_update_time datetime default CURRENT_TIMESTAMP not null comment 'log update time',
+    load_type        varchar(32) null,
+    log_driven_type  varchar(32) null,
+    file             text charset utf8 null,
+    application_id   varchar(64) charset utf8 null,
+    project_name     varchar(64) charset utf8 null,
+    runtime_args     text charset utf8 null
+) charset = utf8;
 
 create table step_log
 (
-    job_id        bigint           not null,
-    step_id       varchar(64)      not null,
-    status        varchar(32)      not null,
-    start_time    datetime         not null,
-    end_time      datetime         not null,
+    job_id        bigint      not null,
+    step_id       varchar(64) not null,
+    status        varchar(32) not null,
+    start_time    datetime    not null,
+    end_time      datetime null,
     duration      int(11) unsigned not null,
-    output        text             not null comment 'info日志',
-    source_count  bigint           null,
-    target_count  bigint           null,
-    success_count bigint           null comment '执行成功条数',
-    failure_count bigint           null comment '执行失败条数',
-    error         varchar(10000)   null comment 'error日志',
-    source_type   varchar(256)     null comment '数据源类型',
-    target_type   varchar(256)     null comment '目标源类型',
+    output        text        not null,
+    source_count  bigint null,
+    target_count  bigint null,
+    success_count bigint null comment 'success data count',
+    failure_count bigint null comment 'failure data count',
+    error         text null,
+    source_type   varchar(32) null,
+    target_type   varchar(32) null,
     primary key (job_id, step_id)
-);
+) charset = utf8;
+
 ```
