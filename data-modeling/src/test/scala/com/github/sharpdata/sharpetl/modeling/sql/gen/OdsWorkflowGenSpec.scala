@@ -15,6 +15,7 @@ class OdsWorkflowGenSpec extends SqlUUIDSpec {
     val example = odsModelings.head
 
     val workflow = OdsWorkflowGen.genWorkflow(example, "ods-template")
+
     workflow.toString.trim should be(readExpectConfig(s"tasks/ods-template.sql").trim)
   }
 }

@@ -27,4 +27,5 @@ SELECT `xx1` AS `xx1`,
        from_unixtime(unix_timestamp(xx10), '%m') as `month`,
        from_unixtime(unix_timestamp(xx10), '%d') as `day`
 FROM `db`.`table_name`
-WHERE `xx10` >= '${DATA_RANGE_START}' AND `xx10` < '${DATA_RANGE_END}';
+WHERE `xx10` >= '${DATA_RANGE_START}' AND `xx10` < '${DATA_RANGE_END}'
+AND ` 1 ` = ' 1';

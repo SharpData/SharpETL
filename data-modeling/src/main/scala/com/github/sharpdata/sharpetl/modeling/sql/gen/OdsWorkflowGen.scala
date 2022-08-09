@@ -25,6 +25,8 @@ object OdsWorkflowGen {
     val columns = buildColumnString(odsModeling, additionalCols)
     val sourceDb = quote(odsModeling.odsTableConfig.sourceDb, dataSourceType)
     val sourceTable = quote(odsModeling.odsTableConfig.sourceTable, dataSourceType)
+    val rowFilterExpression = odsModeling.odsTableConfig.filterExpression
+    val rowFilterExpressionSql= getRowFilterAsString(rowFilterExpression,dataSourceType)
     val steps = odsModeling.odsTableConfig.updateType match {
       case INCREMENTAL =>
         step.writeMode = if (dataSourceType == HIVE) WriteMode.OVER_WRITE else WriteMode.APPEND
@@ -35,6 +37,7 @@ object OdsWorkflowGen {
           s"""|SELECT $columns$partitionClause
               |FROM $sourceDb.$sourceTable
               |WHERE $filterColumnName >= '$${DATA_RANGE_START}' AND $filterColumnName < '$${DATA_RANGE_END}'
+              |$rowFilterExpressionSql
               |""".stripMargin
         List(step)
       case FULL | DIFF =>
@@ -42,6 +45,7 @@ object OdsWorkflowGen {
         step.sqlTemplate =
           s"""|SELECT $columns,\n '$${DATA_RANGE_START}' AS $partitionColumn
               |FROM $sourceDb.$sourceTable
+              |$rowFilterExpressionSql
               |""".stripMargin
         List(step)
       case AUTO_INC_ID =>
@@ -52,6 +56,7 @@ object OdsWorkflowGen {
              |SELECT $${DATA_RANGE_START} AS ${quote("lowerBound", dataSourceType)},
              |       MAX(${quote(idColumn, dataSourceType)}) AS ${quote("upperBound", dataSourceType)}
              |FROM $sourceDb.$sourceTable
+             |$rowFilterExpressionSql
              |""".stripMargin
 
         val stepRead = new WorkflowStep()
@@ -68,6 +73,7 @@ object OdsWorkflowGen {
               |FROM $sourceDb.$sourceTable
               |WHERE ${quote(idColumn, dataSourceType)} > $${lowerBound}
               |  AND ${quote(idColumn, dataSourceType)} <= $${upperBound}
+              |$rowFilterExpressionSql
               |""".stripMargin
         List(step, stepRead)
     }
@@ -134,4 +140,16 @@ object OdsWorkflowGen {
       s""",\n       $partitionClause""".stripMargin
     }
   }
+
+  private def getRowFilterAsString(rowFilterExpression: String, sourceType: String): String = {
+    if (rowFilterExpression != null) {
+      rowFilterExpression.split(",").map(it => {
+        val rowFilterExpressionArray = it.split("=")
+        val colum: String = rowFilterExpressionArray(0)
+        val columnValue = rowFilterExpressionArray(1)
+        s"""AND ${quote(colum, sourceType)} = '$columnValue'"""
+      }).mkString(" ")
+    } else {
+      ""
+    }}
 }
