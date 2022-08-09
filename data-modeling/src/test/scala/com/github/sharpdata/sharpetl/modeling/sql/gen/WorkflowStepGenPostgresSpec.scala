@@ -26,7 +26,6 @@ class WorkflowStepGenPostgresSpec extends AnyFlatSpec with should.Matchers {
     val factOrder = dwdModelings.head
 
     var steps = genExtractStep(factOrder, 1)
-
     toActualConfig(steps) should be(
       """-- step=1
         |-- source=postgres
@@ -54,7 +53,8 @@ class WorkflowStepGenPostgresSpec extends AnyFlatSpec with should.Matchers {
         |	"order_update_time" as "order_update_time",
         |	price - discount as "actual"
         |from "ods"."t_order"
-        |where "job_id" = '${DATA_RANGE_START}';""".stripMargin)
+        |where "job_id" = '${DATA_RANGE_START}'
+        |and "a" = 'aa'  or xxx;""".stripMargin)
 
     steps = genAutoCreateDimStep(steps, factOrder, 2)._1
     val autoCreateDimSteps = steps.tail
