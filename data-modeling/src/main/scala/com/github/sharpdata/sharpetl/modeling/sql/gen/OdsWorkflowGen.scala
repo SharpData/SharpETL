@@ -10,6 +10,7 @@ import com.github.sharpdata.sharpetl.core.util.Constants.LoadType._
 import com.github.sharpdata.sharpetl.core.util.Constants.WriteMode
 import com.github.sharpdata.sharpetl.core.util.ETLConfig.partitionColumn
 import com.github.sharpdata.sharpetl.modeling.sql.dialect.SqlDialect.{getSqlDialect, quote}
+import com.github.sharpdata.sharpetl.modeling.sql.util.sqlParserTool.getRowFilterAsString
 
 object OdsWorkflowGen {
 
@@ -26,7 +27,7 @@ object OdsWorkflowGen {
     val sourceDb = quote(odsModeling.odsTableConfig.sourceDb, dataSourceType)
     val sourceTable = quote(odsModeling.odsTableConfig.sourceTable, dataSourceType)
     val rowFilterExpression = odsModeling.odsTableConfig.filterExpression
-    val rowFilterExpressionSql= getRowFilterAsString(rowFilterExpression,dataSourceType)
+    val rowFilterExpressionSql= getRowFilterAsString(rowFilterExpression,dataSourceType,"ods")
     val steps = odsModeling.odsTableConfig.updateType match {
       case INCREMENTAL =>
         step.writeMode = if (dataSourceType == HIVE) WriteMode.OVER_WRITE else WriteMode.APPEND
@@ -141,15 +142,4 @@ object OdsWorkflowGen {
     }
   }
 
-  private def getRowFilterAsString(rowFilterExpression: String, sourceType: String): String = {
-    if (rowFilterExpression != null) {
-      rowFilterExpression.split(",").map(it => {
-        val rowFilterExpressionArray = it.split("=")
-        val colum: String = rowFilterExpressionArray(0)
-        val columnValue = rowFilterExpressionArray(1)
-        s"""AND ${quote(colum, sourceType)} = '$columnValue'"""
-      }).mkString(" ")
-    } else {
-      ""
-    }}
 }

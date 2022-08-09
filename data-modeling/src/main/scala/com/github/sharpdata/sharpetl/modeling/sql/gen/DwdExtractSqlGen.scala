@@ -5,10 +5,11 @@ import com.github.sharpdata.sharpetl.modeling.sql.dialect.SqlDialect
 import com.github.sharpdata.sharpetl.core.datasource.config.DBDataSourceConfig
 import com.github.sharpdata.sharpetl.core.syntax.WorkflowStep
 import com.github.sharpdata.sharpetl.core.util.Constants.Separator.ENTER
-import com.github.sharpdata.sharpetl.core.util.Constants.{IncrementalType, DataSourceType, WriteMode}
+import com.github.sharpdata.sharpetl.core.util.Constants.{DataSourceType, IncrementalType, WriteMode}
 import com.github.sharpdata.sharpetl.core.util.ETLConfig.jobIdColumn
 import com.github.sharpdata.sharpetl.core.util.StringUtil.{getTempName, isNullOrEmpty}
 import SqlDialect.quote
+import com.github.sharpdata.sharpetl.modeling.sql.util.sqlParserTool.getRowFilterAsString
 
 import scala.collection.mutable.ArrayBuffer
 
@@ -37,7 +38,7 @@ object DwdExtractSqlGen {
 
     step.setWriteMode(WriteMode.OVER_WRITE)
 
-    val rowFilterConfig = getRowFilterAsString(rowFilterExpression, sourceType)
+    val rowFilterConfig = getRowFilterAsString(rowFilterExpression, sourceType,"dwd")
     //  TODO 抽象接口，不同引擎有不同的实现。
     val selectColumn = dwdModding.columns
       .map {
@@ -95,16 +96,8 @@ object DwdExtractSqlGen {
     if (isNullOrEmpty(column.targetColumn)) getSourceColumn(column) else column.targetColumn
   }
 
-  def getRowFilterAsString(rowFilterExpression: String, sourceType: String): String = {
-    if( rowFilterExpression == null) {
-      ""
-    } else {
-      rowFilterExpression.split(",").map(it => {
-        val rowFilterExpressionArray = it.split("=")
-        val colum: String =rowFilterExpressionArray(0)
-        val columnValue = rowFilterExpressionArray(1)
-        s"""AND ${quote(colum, sourceType)} = '$columnValue'"""
-      }).mkString(" ")
-    }}
+
+
+
 
 }
