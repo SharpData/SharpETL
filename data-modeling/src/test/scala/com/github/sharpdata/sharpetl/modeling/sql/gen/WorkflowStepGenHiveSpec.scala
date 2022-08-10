@@ -15,7 +15,6 @@ class WorkflowStepGenHiveSpec extends SqlUUIDSpec {
     val dwdModelings = DwdTableParser.readDwdConfig(excelFilePath)
 
     val dimStudent = dwdModelings(1)
-
     genWorkflow(dimStudent, "dim_student")
       .toString.trim should be(readExpectConfig(s"tasks/dim_student.sql").trim)
   }
