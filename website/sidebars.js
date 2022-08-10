@@ -46,6 +46,7 @@ module.exports = {
             items: [
                 'transformer-guide',
                 'UDF-guide',
+                'custom-datasource-guide',
             ],
         }, {
             type: 'category',

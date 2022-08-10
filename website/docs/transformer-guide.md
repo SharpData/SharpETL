@@ -82,29 +82,6 @@ last_modified_at: 2021-12-23T18:25:57-04:00
 
     - `dependencies`: 上游依赖job的名称，`jobName`即为需要检测的job名
 
-- `HttpTransformer`: 该transformer是将从api获得的json类型数据进行解析和落表，还支持url中的动态传参，可以采用`variables`定义具体参数并调用
-
-  ```sql
-  -- step=1
-  -- source=transformation
-  --  className=com.github.sharpdata.sharpetl.spark.transformation.HttpTransformer
-  --  methodName=transform
-  --  transformerType=object
-  --  url=https:xxxx
-  --  connectionName=connection_demo
-  --  fieldName=centerIds
-  --  jsonPath=$.centers[*].id
-  --  splitBy=,
-  -- target=variables
-  -- checkPoint=false
-  -- dateRangeInterval=0
-  ```
-
-    - `url`: 具体的API连接，其中可以包含动态传入的参数，与`variables`结合使用，如`https://${DAY}`
-    - `connectionName`: 部分url可能需要代理访问，该参数配置访问的代理参数，需要进行配置，格式为`http.{connectionName}.proxy.host`, `http.{connectionName}.proxy.port`, `http.{connectionName}.header.Authorization`，若api无需代理或鉴权则无需配置
-    - `fieldName`: api返回的json字符串一级名称，和`splitBy`参数一起对json字符串进行解析
-    - `splitBy`: json字符串中分隔符
-
 - `FileCleanTransformer`: 该transformer将删除目标路径下固定格式的文件，需要输入`filePath`和`fileNamePattern`，后者支持正则表达式
 
   ```sql
@@ -153,40 +130,6 @@ last_modified_at: 2021-12-23T18:25:57-04:00
   ```
 
     - `datasource`: 写入的数据库类型，用于汇总具体的`errorMessage`
-
-- `G2ApiTransformer`: 该transformer主要解析api来的json数据并将其存入`kafka topic`，随后写入到hdfs再进行后续dataflow
-
-  ```sql
-  -- step=1
-  -- source=transformation
-  --  className=com.github.sharpdata.sharpetl.spark.transformation.G2ApiTransformer
-  --  methodName=launch
-  --  transformerType=object
-  --  url=https://xxxx
-  --  checkPoint=/checkpoint
-  --  totalOpenCount=${TOTAL_OPEN_COUNT}
-  --  totalClosedCount=${TOTAL_CLOSED_COUNT}
-  --  openDDL=`demo1` STRING, `demo2` STRING
-  --  openSelectExpr=demo1, demo2
-  --  closedDDL=`demo1` STRING, `demo2` STRING, `demotimestamp` STRING
-  --  closedSelectExpr=demo1, demo2, demotimestamp
-  --  closedTimestampColumns=demotimestamp
-  --  openHdfsDest=hdfs:///open_ratings_demo.csv
-  --  closedHdfsDest=hdfs:///closed_ratings_demo.csv
-  --  dbName=bigdata
-  --  openTableName=quantumdbuser.open_ratings_demo
-  --  closedTableName=quantumdbuser.closed_ratings_demo
-  -- target=do_nothing
-  -- checkPoint=false
-  -- dateRangeInterval=0
-  ```
-
-    - 该段step大部分参数均为定制化参数，主要适用于本项目的业务场景，也是唯一的流失数据处理场景
-    - `url`: api的具体信息
-    - `openDDL`&`closedDDL`: 具体的数据结构信息，可以自定义参数名称，open和closed为业务场景需要
-    - `openSelectExpr`&`closedSelectExpr`: 落表时的具体字段名，用于拼接sql写入数据
-    - `openHdfsDest`&`closedHdfsDest`: 写入到hdfs的文件路径及文件名
-    - `openTableName`&`closedTableName`: 在yb落表时表名
 
 - `CheckAllConnectorStatusTransformer`: 该transformer集成了`kafka restapi`，通过调用接口返回各个`connector`的运行状态，若有`connector`状态为`failed`或`pause`，则会及时预警
 
@@ -272,6 +215,9 @@ object LoopHttpTransformer extends Transformer {
 }
 ```
 
+### Pro tips
+
+:::tip
 编写scala脚本实现的transformer，需要注意几个要点：
 
 * 文件开头不可带有package信息，在sql中调用时，会根据package.fileName中的fileName找到scala脚本
@@ -279,4 +225,4 @@ object LoopHttpTransformer extends Transformer {
 * 部分package需使用全名例如 `scala.collection.mutable.Map[String, String]`, 而不是 `mutable.Map[String, String]`
 * 如果你遇到了类似于`illegal cyclic reference involving object InterfaceAudience`的错误，你需要spark-submit option `--conf  "spark.executor.userClassPathFirst=true" --conf  "spark.driver.userClassPathFirst=true"`
 * 如果你遇到了错误`object x is not a member of package x`，你需要使用全引用例如 `scala.collection.mutable.Map[String, String]`
-
+:::
