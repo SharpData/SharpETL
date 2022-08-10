@@ -56,7 +56,7 @@ select from_unixtime(unix_timestamp('${DATA_RANGE_END}', 'yyyy-MM-dd HH:mm:ss'),
        from_unixtime(unix_timestamp('${DATA_RANGE_END}', 'yyyy-MM-dd HH:mm:ss'), 'HH')                     as `HOUR_END`,
        from_unixtime(unix_timestamp('${DATA_RANGE_START}', 'yyyy-MM-dd HH:mm:ss'), 'yyyy-MM-dd HH:mm:ss')  as `EFFECTIVE_START_TIME`;
 
--- stepId=2
+-- step=2
 -- source=hive
 --  dbName=usecase_ods
 --  tableName=test_cust
@@ -78,7 +78,7 @@ select `id` as `id`,
        '${DATE_END}'             as dw_insert_date
 from `usecase_ods`.`test_cust`;
 
--- stepId=3
+-- step=3
 -- source=hive
 --  dbName=usecase_dwd
 --  tableName=t_fact_test_cust
@@ -93,7 +93,7 @@ from `usecase_dwd`.`t_fact_test_cust` `t_fact_test_cust`
 where `dw_insert_date` = (select max(`dw_insert_date`)
                           from `usecase_dwd`.`t_fact_test_cust` `t_fact_test_cust`);
 
--- stepId=4
+-- step=4
 -- source=transformation
 --  className=com.github.sharpdata.sharpetl.spark.transformation.ZipTableTransformer
 --  methodName=transform
@@ -158,7 +158,7 @@ select from_unixtime(unix_timestamp('${DATA_RANGE_END}', 'yyyy-MM-dd HH:mm:ss'),
        from_unixtime(unix_timestamp('${DATA_RANGE_END}', 'yyyy-MM-dd HH:mm:ss'), 'HH')                     as `HOUR_END`,
        from_unixtime(unix_timestamp('${DATA_RANGE_START}', 'yyyy-MM-dd HH:mm:ss'), 'yyyy-MM-dd HH:mm:ss')  as `EFFECTIVE_START_TIME`;
 
--- stepId=2
+-- step=2
 -- source=hive
 --  dbName=usecase_ods
 --  tableName=test_user
@@ -181,7 +181,7 @@ select `id` as `id`,
        '${DATE_END}'             as dw_insert_date
 from `usecase_ods`.`test_user`;
 
--- stepId=3
+-- step=3
 -- source=hive
 --  dbName=usecase_dwd
 --  tableName=t_dim_user
@@ -196,7 +196,7 @@ from `usecase_dwd`.`t_dim_user` `t_dim_user`
 where `dw_insert_date` = (select max(`dw_insert_date`)
                           from `usecase_dwd`.`t_dim_user` `t_dim_user`);
 
--- stepId=4
+-- step=4
 -- source=transformation
 --  className=com.github.sharpdata.sharpetl.spark.transformation.ZipTableTransformer
 --  methodName=transform
@@ -226,7 +226,7 @@ select from_unixtime(unix_timestamp('${DATA_RANGE_END}', 'yyyy-MM-dd HH:mm:ss'),
        from_unixtime(unix_timestamp('${DATA_RANGE_END}', 'yyyy-MM-dd HH:mm:ss'), 'HH')                     as `HOUR_END`,
        from_unixtime(unix_timestamp('${DATA_RANGE_START}', 'yyyy-MM-dd HH:mm:ss'), 'yyyy-MM-dd HH:mm:ss')  as `EFFECTIVE_START_TIME`;
 
--- stepId=2
+-- step=2
 -- source=hive
 --  dbName=usecase_ods
 --  tableName=test_split
@@ -250,7 +250,7 @@ from `usecase_ods`.`test_split` `test_split`
          left join `usecase_dwd`.`t_dim_user` `t_dim_user`
                    on `test_split`.`user_id` = `t_dim_user`.`id` and `t_dim_user`.is_latest = '1';
 
--- stepId=3
+-- step=3
 -- source=hive
 --  dbName=usecase_dwd
 --  tableName=test_fact_split
@@ -265,7 +265,7 @@ from `usecase_dwd`.`test_fact_split` `test_fact_split`
 where `dw_insert_date` = (select max(`dw_insert_date`)
                           from `usecase_dwd`.`test_fact_split` `test_fact_split`);
 
--- stepId=4
+-- step=4
 -- source=transformation
 --  className=com.github.sharpdata.sharpetl.spark.transformation.ZipTableTransformer
 --  methodName=transform
@@ -323,7 +323,7 @@ select from_unixtime(unix_timestamp('${DATA_RANGE_END}', 'yyyy-MM-dd HH:mm:ss'),
        from_unixtime(unix_timestamp('${DATA_RANGE_END}', 'yyyy-MM-dd HH:mm:ss'), 'HH')                     as `HOUR_END`,
        from_unixtime(unix_timestamp('${DATA_RANGE_START}', 'yyyy-MM-dd HH:mm:ss'), 'yyyy-MM-dd HH:mm:ss')  as `EFFECTIVE_START_TIME`;
 
--- stepId=2
+-- step=2
 -- source=hive
 --  dbName=usecase_ods
 --  tableName=test_fact_case_3
@@ -338,7 +338,7 @@ select from_unixtime(unix_timestamp('${DATA_RANGE_END}', 'yyyy-MM-dd HH:mm:ss'),
 select *
 from `usecase_ods`.`test_fact_case_3`;
 
--- stepId=3
+-- step=3
 -- source=temp
 -- target=temp
 --  tableName=`ce47db66`
@@ -374,7 +374,7 @@ group by `real_cust_id`
 having 1 = 1
    and (`real_cust_id` is not null);
 
--- stepId=4
+-- step=4
 -- source=temp
 -- target=temp
 --  tableName=test_cust_case_3__f1e256b9
@@ -396,7 +396,7 @@ where 1 = 1
   and (`real_cust_id` is not null)
   and `distinct_count_num` = 1;
 
--- stepId=5
+-- step=5
 -- source=hive
 --  dbName=usecase_dwd
 --  tableName=test_cust_case_3
@@ -409,7 +409,7 @@ select `(dw_insert_date)?+.+`,
        '${DATE_END}' as `dw_insert_date`
 from `usecase_dwd`.`test_cust_case_3`;
 
--- stepId=6
+-- step=6
 -- source=transformation
 --  className=com.github.sharpdata.sharpetl.spark.transformation.ZipTableTransformer
 --  methodName=transform
@@ -426,7 +426,7 @@ from `usecase_dwd`.`test_cust_case_3`;
 -- dateRangeInterval=0
 -- writeMode=overwrite
 
--- stepId=7
+-- step=7
 -- source=temp
 -- target=temp
 --  tableName=test_fact_target_case_3__6637c70e
@@ -458,14 +458,14 @@ from `a8cc8c22` `test_fact_case_3`
          left join `duplicate_dimension_temp` `duplicate_dimension_temp_0`
                    on `test_fact_case_3`.`real_cust_id` = `duplicate_dimension_temp_0`.`real_cust_id`;
 
--- stepId=8
+-- step=8
 -- source=temp
 -- target=variables
 -- checkPoint=false
 -- dateRangeInterval=0
 select '' as `DW_PARTITION_CLAUSE`;
 
--- stepId=9
+-- step=9
 -- source=hive
 --  dbName=usecase_dwd
 --  tableName=test_fact_target_case_3
@@ -538,7 +538,7 @@ select from_unixtime(unix_timestamp('${DATA_RANGE_END}', 'yyyy-MM-dd HH:mm:ss'),
        from_unixtime(unix_timestamp('${DATA_RANGE_END}', 'yyyy-MM-dd HH:mm:ss'), 'HH')                     as `HOUR_END`,
        from_unixtime(unix_timestamp('${DATA_RANGE_START}', 'yyyy-MM-dd HH:mm:ss'), 'yyyy-MM-dd HH:mm:ss')  as `EFFECTIVE_START_TIME`;
 
--- stepId=2
+-- step=2
 -- source=hive
 --  dbName=usecase_ods
 --  tableName=test_fact_auto_dim
@@ -552,7 +552,7 @@ select from_unixtime(unix_timestamp('${DATA_RANGE_END}', 'yyyy-MM-dd HH:mm:ss'),
 select *
 from `usecase_ods`.`test_fact_auto_dim`;
 
--- stepId=3
+-- step=3
 -- source=temp
 -- target=temp
 --  tableName=`cb939fe5`
@@ -589,7 +589,7 @@ group by `area_code`, `area_name`
 having 1 = 1
    and (`area_code` is not null and `area_name` is not null);
 
--- stepId=4
+-- step=4
 -- source=temp
 -- target=temp
 --  tableName=test_area__f5045d67
@@ -613,7 +613,7 @@ where 1 = 1
        `area_name` is not null)
   and `distinct_count_num` = 1;
 
--- stepId=5
+-- step=5
 -- source=hive
 --  dbName=usecase_dwd
 --  tableName=test_area
@@ -628,7 +628,7 @@ from `usecase_dwd`.`test_area`
 where `dw_insert_date` = (select max(`dw_insert_date`)
                           from `usecase_dwd`.`test_area`);
 
--- stepId=6
+-- step=6
 -- source=transformation
 --  className=com.github.sharpdata.sharpetl.spark.transformation.ZipTableTransformer
 --  methodName=transform
@@ -645,7 +645,7 @@ where `dw_insert_date` = (select max(`dw_insert_date`)
 -- dateRangeInterval=0
 -- writeMode=overwrite
 
--- stepId=7
+-- step=7
 -- source=temp
 -- target=temp
 --  tableName=test_fact_target_auto_dim__d3531bfc
@@ -679,7 +679,7 @@ from `634737e2` `test_fact_auto_dim`
                    on `test_fact_auto_dim`.`area_code` = `duplicate_dimension_temp_0`.`area_code`
                        and `test_fact_auto_dim`.`area_name` = `duplicate_dimension_temp_0`.`area_name`;
 
--- stepId=8
+-- step=8
 -- source=hive
 --  dbName=usecase_dwd
 --  tableName=test_fact_target_auto_dim
@@ -694,7 +694,7 @@ from `usecase_dwd`.`test_fact_target_auto_dim` `test_fact_target_auto_dim`
 where `dw_insert_date` = (select max(`dw_insert_date`)
                           from `usecase_dwd`.`test_fact_target_auto_dim` `test_fact_target_auto_dim`);
 
--- stepId=9
+-- step=9
 -- source=transformation
 --  className=com.github.sharpdata.sharpetl.spark.transformation.ZipTableTransformer
 --  methodName=transform
@@ -760,7 +760,7 @@ select from_unixtime(unix_timestamp('${DATA_RANGE_END}', 'yyyy-MM-dd HH:mm:ss'),
        from_unixtime(unix_timestamp('${DATA_RANGE_END}', 'yyyy-MM-dd HH:mm:ss'), 'HH')                     as `HOUR_END`,
        from_unixtime(unix_timestamp('${DATA_RANGE_START}', 'yyyy-MM-dd HH:mm:ss'), 'yyyy-MM-dd HH:mm:ss')  as `EFFECTIVE_START_TIME`;
 
--- stepId=2
+-- step=2
 -- source=hive
 --  dbName=usecase_ods
 --  tableName=test_fact_case_6
@@ -774,7 +774,7 @@ select from_unixtime(unix_timestamp('${DATA_RANGE_END}', 'yyyy-MM-dd HH:mm:ss'),
 select *
 from `usecase_ods`.`test_fact_case_6`;
 
--- stepId=3
+-- step=3
 -- source=temp
 -- target=temp
 --  tableName=`6954aac5`
@@ -810,7 +810,7 @@ group by `area_id`
 having 1 = 1
    and (`area_id` is not null);
 
--- stepId=4
+-- step=4
 -- source=temp
 -- target=temp
 --  tableName=test_area_case_6__ebc46690
@@ -832,7 +832,7 @@ where 1 = 1
   and (`area_id` is not null)
   and `distinct_count_num` = 1;
 
--- stepId=5
+-- step=5
 -- source=hive
 --  dbName=usecase_dwd
 --  tableName=test_area_case_6
@@ -845,7 +845,7 @@ select `(dw_insert_date)?+.+`,
        '${DATE_END}' as `dw_insert_date`
 from `usecase_dwd`.`test_area_case_6`;
 
--- stepId=6
+-- step=6
 -- source=transformation
 --  className=com.github.sharpdata.sharpetl.spark.transformation.ZipTableTransformer
 --  methodName=transform
@@ -862,7 +862,7 @@ from `usecase_dwd`.`test_area_case_6`;
 -- dateRangeInterval=0
 -- writeMode=overwrite
 
--- stepId=7
+-- step=7
 -- source=temp
 -- target=temp
 --  tableName=test_fact_target_case_6__e9ae24c3
@@ -893,14 +893,14 @@ from `b53c9449` `test_fact_case_6`
          left join `duplicate_dimension_temp` `duplicate_dimension_temp_0`
                    on `test_fact_case_6`.`area_id` = `duplicate_dimension_temp_0`.`area_id`;
 
--- stepId=8
+-- step=8
 -- source=temp
 -- target=variables
 -- checkPoint=false
 -- dateRangeInterval=0
 select '' as `DW_PARTITION_CLAUSE`;
 
--- stepId=9
+-- step=9
 -- source=hive
 --  dbName=usecase_dwd
 --  tableName=test_fact_target_case_6
@@ -1057,7 +1057,7 @@ select from_unixtime(unix_timestamp('${DATA_RANGE_END}', 'yyyy-MM-dd HH:mm:ss'),
        from_unixtime(unix_timestamp('${DATA_RANGE_END}', 'yyyy-MM-dd HH:mm:ss'), 'HH')                     as `HOUR_END`,
        from_unixtime(unix_timestamp('${DATA_RANGE_START}', 'yyyy-MM-dd HH:mm:ss'), 'yyyy-MM-dd HH:mm:ss')  as `EFFECTIVE_START_TIME`;
 
--- stepId=2
+-- step=2
 -- source=hive
 --  dbName=usecase_ods
 --  tableName=test_region_source
@@ -1083,7 +1083,7 @@ select `id` as `id`,
        '${DATE_END}'             as dw_insert_date
 from `usecase_ods`.`test_region_source`;
 
--- stepId=3
+-- step=3
 -- source=hive
 --  dbName=usecase_dwd
 --  tableName=test_region
@@ -1098,7 +1098,7 @@ from `usecase_dwd`.`test_region` `test_region`
 where `dw_insert_date` = (select max(`dw_insert_date`)
                           from `usecase_dwd`.`test_region` `test_region`);
 
--- stepId=4
+-- step=4
 -- source=transformation
 --  className=com.github.sharpdata.sharpetl.spark.transformation.ZipTableTransformer
 --  methodName=transform
@@ -1129,7 +1129,7 @@ select from_unixtime(unix_timestamp('${DATA_RANGE_END}', 'yyyy-MM-dd HH:mm:ss'),
        from_unixtime(unix_timestamp('${DATA_RANGE_END}', 'yyyy-MM-dd HH:mm:ss'), 'HH')                     as `HOUR_END`,
        from_unixtime(unix_timestamp('${DATA_RANGE_START}', 'yyyy-MM-dd HH:mm:ss'), 'yyyy-MM-dd HH:mm:ss')  as `EFFECTIVE_START_TIME`;
 
--- stepId=2
+-- step=2
 -- source=hive
 --  dbName=usecase_ods
 --  tableName=test_fact_case8
@@ -1153,7 +1153,7 @@ from `usecase_ods`.`test_fact_case8` `test_fact_case8`
          left join `usecase_dwd`.`test_region` `test_region`
                    on `test_fact_case8`.`region_id` = `test_region`.`id` and `test_region`.is_latest = '1';
 
--- stepId=3
+-- step=3
 -- source=hive
 --  dbName=usecase_dwd
 --  tableName=test_fact_target_case8
@@ -1168,7 +1168,7 @@ from `usecase_dwd`.`test_fact_target_case8` `test_fact_target_case8`
 where `dw_insert_date` = (select max(`dw_insert_date`)
                           from `usecase_dwd`.`test_fact_target_case8` `test_fact_target_case8`);
 
--- stepId=4
+-- step=4
 -- source=transformation
 --  className=com.github.sharpdata.sharpetl.spark.transformation.ZipTableTransformer
 --  methodName=transform
@@ -1199,7 +1199,7 @@ select from_unixtime(unix_timestamp('${DATA_RANGE_END}', 'yyyy-MM-dd HH:mm:ss'),
        from_unixtime(unix_timestamp('${DATA_RANGE_END}', 'yyyy-MM-dd HH:mm:ss'), 'HH')                     as `HOUR_END`,
        from_unixtime(unix_timestamp('${DATA_RANGE_START}', 'yyyy-MM-dd HH:mm:ss'), 'yyyy-MM-dd HH:mm:ss')  as `EFFECTIVE_START_TIME`;
 
--- stepId=2
+-- step=2
 -- source=hive
 --  dbName=usecase_ods
 --  tableName=test_store_fact
@@ -1223,7 +1223,7 @@ from `usecase_ods`.`test_store_fact` `test_store_fact`
          left join `usecase_dwd`.`test_region` `test_region`
                    on `test_store_fact`.`region_id` = `test_region`.`id` and `test_region`.is_latest = '1';
 
--- stepId=3
+-- step=3
 -- source=hive
 --  dbName=usecase_dwd
 --  tableName=test_store_fact_target
@@ -1238,7 +1238,7 @@ from `usecase_dwd`.`test_store_fact_target` `test_store_fact_target`
 where `dw_insert_date` = (select max(`dw_insert_date`)
                           from `usecase_dwd`.`test_store_fact_target` `test_store_fact_target`);
 
--- stepId=4
+-- step=4
 -- source=transformation
 --  className=com.github.sharpdata.sharpetl.spark.transformation.ZipTableTransformer
 --  methodName=transform

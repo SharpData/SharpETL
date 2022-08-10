@@ -101,7 +101,7 @@ last_modified_at: 2021-12-23T18:25:57-04:00
 - `DropExternalTableTransformer`: 该transformer将删除hive和hdfs中以`tableNamePrefix`开头的在`databaseName`数据库中相应`partition`的表和文件, `partition`支持动态传参，可以与`variables`结合使用
 
   ```sql
-  -- stepId=2
+  -- step=2
   -- source=transformation
   --  className=com.github.sharpdata.sharpetl.spark.transformation.DropExternalTableTransformer
   --  methodName=transform
@@ -162,7 +162,7 @@ last_modified_at: 2021-12-23T18:25:57-04:00
 - `EnsureSinkConnectorFinished`: 该transformer用于确认`sink connector`即`consumer`端是否消费完数据，是否将数据全部写入hive/hdfs，一般接在`CheckConnectorStatusTransformer`后，为step2，若`consumer`还未写入完成，会等待5分钟，若5分钟后还未完成，则下游任务不会执行
 
   ```sql
-  -- stepId=2
+  -- step=2
   -- source=transformation
   --  className=com.github.sharpdata.sharpetl.spark.transformation.EnsureSinkConnectorFinished
   --  methodName=transform
