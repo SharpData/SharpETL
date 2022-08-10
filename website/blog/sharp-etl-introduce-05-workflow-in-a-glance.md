@@ -18,7 +18,7 @@ date: 2022-08-05T00:00:00+08:00
 * 扩展
  * UDF
  * Transformer
- * Dynamic transformer
+ * 自定义数据源
 
 <!--truncate-->
 
@@ -122,3 +122,7 @@ select test_udf('input') as `result`;
 ### Transformer
 
 Transformer的相关详细使用可以参考 [Transformer](/docs/transformer-guide)
+
+### 自定义数据源
+
+自定义数据源的相关详细使用可以参考 [Transformer](/docs/custom-datasource-guide)

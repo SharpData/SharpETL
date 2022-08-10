@@ -20,7 +20,6 @@ module.exports = {
             collapsed: false,
             items: [
                 'encrypt-in-properties-file',
-                'sql-scripts-guide',
                 'datasource',
             ],
         }, {
