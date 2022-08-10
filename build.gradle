@@ -41,6 +41,10 @@ allprojects {
         maven { url "https://repository.cloudera.com/artifactory/cloudera-repos/" }
     }
 
+    scala {
+        zincVersion = "1.7.1"
+    }
+
     scoverage {
         scoverageVersion = "1.4.11"
         excludedFiles = [".*datasource.*", ".*Config", ".*Exception", ".*Accessor"]
