@@ -15,7 +15,6 @@ class AutoCreateDimGenHiveSpec extends SqlUUIDSpec {
     val dwdModelings = DwdTableParser.readDwdConfig(excelFilePath)
 
     val order = dwdModelings.head
-
     genWorkflow(order, "auto_create_dim").toString.trim should be(readExpectConfig(s"tasks/auto_create_dim.sql").trim)
 
   }

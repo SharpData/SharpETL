@@ -7,15 +7,12 @@ class OdsWorkflowGenSpecNoRowFilter extends SqlUUIDSpec {
     val excelFilePath = this
       .getClass
       .getClassLoader
-      .getResource("sharp-etl-Quick-Start-Guide.xlsx")
+      .getResource("ods-template.xlsx")
       .getPath
-
     val odsModelings = OdsTableParser.readOdsConfig(excelFilePath)
-
-    val example = odsModelings.head
-
-    val workflow = OdsWorkflowGen.genWorkflow(example, "sharp-etl-Quick-Start-Guide")
-    workflow.toString.trim should be(readExpectConfig(s"tasks/sharp-etl-Quick-Start-Guide.sql").trim)
+    val use = odsModelings(1)
+    val workflow = OdsWorkflowGen.genWorkflow(use, "t_use")
+    workflow.toString.trim should be(readExpectConfig(s"tasks/t_use.sql").trim)
   }
 }
 
