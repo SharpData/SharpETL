@@ -15,7 +15,7 @@ trait Source[DataFrame, Context] extends Serializable {
 }
 
 trait Sink[DataFrame] extends Serializable {
-  def sink(df: DataFrame, step: WorkflowStep, variables: Variables): Unit
+  def write(df: DataFrame, step: WorkflowStep, variables: Variables): Unit
 }
 ```
 
@@ -77,7 +77,7 @@ class DeltaLakeDataSource extends Source[DataFrame, SparkSession] with Sink[Data
       .load(s"$deltaLakeBasePath/${step.source.asInstanceOf[DBDataSourceConfig].tableName}")
   }
 
-  override def sink(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = {
+  override def write(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = {
     df
       .write
       .format("delta")
