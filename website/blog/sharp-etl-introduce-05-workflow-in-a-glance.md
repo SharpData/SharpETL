@@ -99,6 +99,11 @@ class TestUdfObj extends Serializable {
 
 打包完成后需要将jar包与Sharp ETL的jar包一起提交，这样就可以很轻易的引用自己的UDF了。
 
+```bash
+spark-submit --class com.github.sharpdata.sharpetl.spark.Entrypoint spark/build/libs/spark-1.0.0-SNAPSHOT.jar /path/to/your-udf.jar ... ...
+```
+
+
 ```sql
 -- step=1
 -- source=class

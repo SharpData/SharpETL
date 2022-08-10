@@ -45,6 +45,7 @@ module.exports = {
             collapsed: false,
             items: [
                 'transformer-guide',
+                'UDF-guide',
             ],
         }, {
             type: 'category',
