@@ -32,4 +32,4 @@ SELECT "order_sn" AS "order_sn",
        to_char("order_update_time", 'DD') as "day"
 FROM "postgres"."sales"."order"
 WHERE "order_update_time" >= '${DATA_RANGE_START}' AND "order_update_time" < '${DATA_RANGE_END}'
-AND 1 = 1;
+AND product_count= 1;

@@ -23,4 +23,4 @@ SELECT "mid" AS "product_code",
        to_char("update_time", 'DD') as "day"
 FROM "postgres"."sales"."product"
 WHERE "update_time" >= '${DATA_RANGE_START}' AND "update_time" < '${DATA_RANGE_END}'
-AND a=1 and (c= 'sss' or d= false);
+AND version=1 and (name= 'sss' or status= false);

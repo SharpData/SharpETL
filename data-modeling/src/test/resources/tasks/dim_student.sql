@@ -26,7 +26,7 @@ from `ods`.`t_student`
 where `year` = '${YEAR}'
   and `month` = '${MONTH}'
   and `day` = '${DAY}'
-and  1 = 1;
+and student_age=18;
 
 -- step=2
 -- source=temp

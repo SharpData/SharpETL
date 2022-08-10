@@ -54,7 +54,7 @@ class WorkflowStepGenPostgresSpec extends AnyFlatSpec with should.Matchers {
         |	price - discount as "actual"
         |from "ods"."t_order"
         |where "job_id" = '${DATA_RANGE_START}'
-        |and a = 'aa' or xxx;""".stripMargin)
+        |and product_code=1 or product_name='airport';""".stripMargin)
 
     steps = genAutoCreateDimStep(steps, factOrder, 2)._1
     val autoCreateDimSteps = steps.tail

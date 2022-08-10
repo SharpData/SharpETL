@@ -10,6 +10,7 @@ import com.github.sharpdata.sharpetl.core.util.Constants.LoadType._
 import com.github.sharpdata.sharpetl.core.util.Constants.WriteMode
 import com.github.sharpdata.sharpetl.core.util.ETLConfig.partitionColumn
 import com.github.sharpdata.sharpetl.modeling.sql.dialect.SqlDialect.{getSqlDialect, quote}
+import com.github.sharpdata.sharpetl.modeling.sql.util.sqlParserTool.getRowFilterAsString
 
 object OdsWorkflowGen {
 

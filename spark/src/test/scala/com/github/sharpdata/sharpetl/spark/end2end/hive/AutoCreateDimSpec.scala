@@ -255,7 +255,6 @@ class AutoCreateDimSpec extends HiveSuit {
       spark.sparkContext.parallelize(newCreatedData),
       StructType(productSchema)
     )
-
     assertSmallDataFrameEquality(productDf.drop("product_id", "job_id"), productShouldBe, orderedComparison = false)
 
 
