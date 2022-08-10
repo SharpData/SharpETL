@@ -38,7 +38,7 @@ object DailyJobsSummaryReportTransformer extends Transformer {
 
       val allJobLogs: Array[JobLog] = ListMap(
         jobLogs
-          .groupBy(jobLog => (jobLog.projectName, jobLog.jobName))
+          .groupBy(jobLog => (jobLog.projectName, jobLog.workflowName))
           .toSeq.sortBy(_._1): _*
       )
         .mapValues(_.sortBy(_.dataRangeStart))
@@ -80,7 +80,7 @@ object JobLogDFConverter {
         val rows = jobLogs.map(jobLog => {
           val value = Array(
             jobLog.projectName,
-            jobLog.jobName,
+            jobLog.workflowName,
             jobLog.jobId.toString,
             Try(LocalDateTime.parse(jobLog.dataRangeStart, YYYYMMDDHHMMSS)) match {
               case Failure(_) => jobLog.dataRangeStart
@@ -105,7 +105,7 @@ object JobLogDFConverter {
 
         val fields = Array(
           StructField("projectName", StringType, true),
-          StructField("jobName", StringType, true),
+          StructField("workflowName", StringType, true),
           StructField("jobId", StringType, true),
           StructField("dataRangeStart", StringType, true),
           StructField("dataRangeEnd", StringType, true),

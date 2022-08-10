@@ -7,7 +7,7 @@ case class QualityCheckLog(
                             @BeanProperty
                             var jobId: Long,
                             @BeanProperty
-                            var jobScheduleId: String,
+                            var jobName: String,
                             @BeanProperty
                             var column: String,
                             @BeanProperty

@@ -2,6 +2,7 @@ package com.github.sharpdata.sharpetl.spark.utils
 
 import ETLSparkSession.sparkSession
 import org.apache.spark.sql.functions._
+import com.github.sharpdata.sharpetl.datasource.kafka.DFConversations._
 
 object SparkCatalogUtil {
   def getPartitionColNames(dbName: String, tableName: String): Array[String] = {
@@ -32,5 +33,9 @@ object SparkCatalogUtil {
       .select("name")
       .collect()
       .map(_.getAs[String]("name"))
+  }
+
+  def isPartitionDataExists(tableName: String, partitionQuery: String): Boolean = {
+    !sparkSession.sql(s"select * from $tableName where $partitionQuery limit 1").isEmpty
   }
 }

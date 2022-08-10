@@ -5,7 +5,7 @@ import NoWhitespace._
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.module.scala.DefaultScalaModule
 import com.github.sharpdata.sharpetl.core.datasource.config.{DataSourceConfig, TransformationDataSourceConfig}
-import com.github.sharpdata.sharpetl.core.annotation.AnnotationScanner.{configRegister, defaultConfigType}
+import com.github.sharpdata.sharpetl.core.annotation.AnnotationScanner.{configRegister, defaultConfigType, tempConfig}
 import com.github.sharpdata.sharpetl.core.annotation.Annotations.Experimental
 import com.github.sharpdata.sharpetl.core.exception.Exception.WorkFlowSyntaxException
 import com.github.sharpdata.sharpetl.core.syntax.ParserUtils.{Until, objectMapper, trimSql}
@@ -38,7 +38,7 @@ object WorkflowParser {
 
   def anyComment[_: P]: P0 = P("--" ~ " ".rep)
 
-  def otherPart[_: P]: P0 = P("step=" | "source=" | "target=" | "args" ~ newline | "options" ~ newline | "conf" ~ newline)
+  def otherPart[_: P]: P0 = P("step=" | "source=" | "target=" | "args" ~ newline | "options" ~ newline | "conf" ~ newline | "loopOver=")
 
   def keyValPair[_: P](indent: Int): P[(String, String)] =
     comment(indent) ~ !otherPart ~ P(key.rep(1).!) ~ "=" ~ P(multiLineValue(indent) | singleLineValue)
@@ -61,6 +61,8 @@ object WorkflowParser {
   def options[_: P](indent: Int): P[Map[String, String]] = nestedObj("options", indent)
 
   def conf[_: P](indent: Int): P[Map[String, String]] = nestedObj("conf", indent)
+
+  def loopOver[_: P]: P[String] = P("-- loopOver=") ~ singleLineValue.!
 
   def dataSource[_: P](`type`: String): P[DataSourceConfig] = P(
     s"-- ${`type`}=" ~/ key.rep.! ~ newlines
@@ -97,18 +99,19 @@ object WorkflowParser {
 
   def step[_: P]: P[WorkflowStep] = P(
     newlines ~ stepHeader ~ singleLineValue ~ newlines
-      ~ P(transformer("source") | dataSource("source")) ~ newlines
+      ~ P(transformer("source") | dataSource("source")).? ~ newlines
       ~ P(transformer("target") | dataSource("target")) ~ newlines
       ~ keyValPairs(1).? ~ newlines
       ~ conf(1).? ~ newlines
+      ~ loopOver.? ~ newlines
       ~ sql
   ).map {
     // scalastyle:off
-    case (step, source, target, kv, conf, sql) =>
+    case (step, sourceOptional, target, kv, conf, loopOverOptional, sql) =>
       val map = kv.getOrElse(Seq()).toMap
       val workflowStep = new WorkflowStep
       workflowStep.step = step
-      workflowStep.source = source
+      workflowStep.source = sourceOptional.getOrElse(tempConfig)
       workflowStep.target = target
       workflowStep.sqlTemplate = trimSql(sql)
       workflowStep.persist = map.getOrElse("persist", null)
@@ -116,6 +119,7 @@ object WorkflowParser {
       workflowStep.writeMode = map.getOrElse("writeMode", null)
       workflowStep.skipFollowStepWhenEmpty = map.getOrElse("skipFollowStepWhenEmpty", null) //TODO: drop this later
       workflowStep.conf = conf.getOrElse(Map())
+      workflowStep.loopOver = loopOverOptional.orNull
       workflowStep
     //      WorkflowStep(step, source, target, sql.map(_.trim),
     //        map.getOrElse("persist", null), map.getOrElse("checkpoint", null),

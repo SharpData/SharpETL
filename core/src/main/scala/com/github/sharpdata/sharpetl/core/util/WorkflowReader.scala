@@ -40,7 +40,7 @@ object WorkflowReader {
         case PathPrefix.HDFS | PathPrefix.DBFS =>
           HDFSUtil.readLines(taskPath)
       }
-      lines.filter(_.trim.nonEmpty)
+      lines
     } else {
       throw new FileNotFoundException(s"File '$jobName.sql/.scala' not found.")
     }

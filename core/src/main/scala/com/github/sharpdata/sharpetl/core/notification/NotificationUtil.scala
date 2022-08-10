@@ -70,7 +70,7 @@ class NotificationUtil(val jobLogAccessor: JobLogAccessor) {
 
     JobMessage(
       jobId = jobLog.jobId,
-      jobName = jobLog.jobName,
+      jobName = jobLog.workflowName,
       jobRangeStart = scala.util.Try(LocalDateTime.parse(jobLog.dataRangeStart, YYYYMMDDHHMMSS)) match {
         case scala.util.Failure(_) => jobLog.dataRangeStart
         case scala.util.Success(value) => value.format(L_YYYY_MM_DD_HH_MM_SS)
@@ -109,7 +109,7 @@ final case class JobMessage(jobId: Long,
       s"""
          |projectName: $projectName,
          |jobId: $jobId,
-         |jobName: $jobName,
+         |workflowName: $jobName,
          |jobRangeStart: $jobRangeStart,
          |jobRangeEnd: $jobRangeEnd,
          |jobStatus: $jobStatus,

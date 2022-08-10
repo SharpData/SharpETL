@@ -1,48 +1,52 @@
-package com.github.sharpdata.sharpetl.spark.transformation
+package com.github.sharpdata.sharpetl.spark.datasource
 
-import com.fasterxml.jackson.databind.ObjectMapper
+import com.github.sharpdata.sharpetl.core.annotation.source
+import com.github.sharpdata.sharpetl.core.api.Variables
+import com.github.sharpdata.sharpetl.core.datasource.Source
+import com.github.sharpdata.sharpetl.core.datasource.config.HttpFileDataSourceConfig
+import com.github.sharpdata.sharpetl.core.repository.model.JobLog
+import com.github.sharpdata.sharpetl.core.syntax.WorkflowStep
 import com.github.sharpdata.sharpetl.core.util.{ETLLogger, HDFSUtil}
 import com.github.sharpdata.sharpetl.spark.utils.ETLSparkSession
 import org.apache.commons.io.{FileUtils, FilenameUtils}
 import org.apache.http.HttpResponse
 import org.apache.http.client.{ClientProtocolException, ResponseHandler}
 import org.apache.http.impl.client._
-import org.apache.spark.sql.DataFrame
+import org.apache.spark.sql.{DataFrame, SparkSession}
 
 import java.io.{File, IOException}
 import java.nio.file.Paths
 
 // $COVERAGE-OFF$
-object HttpDownloadTransformer extends Transformer {
+@source(types = Array("http_file"))
+class HttpFileDataSource extends Source[DataFrame, SparkSession] {
   var httpClient: CloseableHttpClient = _
 
-  lazy val mapper = new ObjectMapper
-
-  override def transform(args: Map[String, String]): DataFrame = {
-    downloadFile(args)
+  def read(step: WorkflowStep, jobLog: JobLog, executionContext: SparkSession, variables: Variables): DataFrame = {
+    val config = step.getSourceConfig[HttpFileDataSourceConfig]
+    downloadFile(config)
     ETLSparkSession.sparkSession.emptyDataFrame
   }
 
-  private def downloadFile(args: Map[String, String]): File = {
 
-    val httpProperties = HttpProperties.initHttpProperties(args)
+  private def downloadFile(config: HttpFileDataSourceConfig): File = {
+
+    val httpProperties = HttpProperties.initHttpProperties(config)
     val httpRequest = httpProperties.initRequest()
     ETLLogger.info(s"url: ${httpRequest.getURI.toString}")
     if (httpClient == null) {
       httpClient = HttpClients.createDefault()
     }
 
-    val descDirPath = args.getOrElse("tempDestinationDir", "/tmp")
+    val descDirPath = config.tempDestinationDir
     val sourceFileName = FilenameUtils.getName(httpRequest.getURI.toString)
     val localDescPath = Paths.get(descDirPath, sourceFileName)
     httpClient.execute(httpRequest, new HttpDownloadResponseHandler(localDescPath.toFile))
 
-    if (args.contains("hdfsDir")) {
-      val hdfsDir = args.getOrElse("hdfsDir", "/tmp")
-      val hdfsDescPath = Paths.get(hdfsDir, sourceFileName).toString
-      ETLLogger.info(s"upload the local file ${localDescPath.toString} to hdfs ${hdfsDescPath}")
-      HDFSUtil.moveFromLocal(localDescPath.toString, hdfsDescPath)
-    }
+    val hdfsDir = config.hdfsDir
+    val hdfsDescPath = Paths.get(hdfsDir, sourceFileName).toString
+    ETLLogger.info(s"upload the local file ${localDescPath.toString} to hdfs ${hdfsDescPath}")
+    HDFSUtil.moveFromLocal(localDescPath.toString, hdfsDescPath)
 
     localDescPath.toFile
   }

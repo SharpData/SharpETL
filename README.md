@@ -6,7 +6,7 @@
 </div>
 
 <p align="center">
-<a href="https://github.com/SharpData/SharpETL/actions/workflows/push.yml"><img src="https://github.com/SharpData/SharpETL/actions/workflows/push.yml/badge.svg?branch=main"></a>
+<a href="https://github.com/SharpData/SharpETL/actions/workflows/build.yml"><img src="https://github.com/SharpData/SharpETL/actions/workflows/build.yml/badge.svg?branch=main"></a>
 <a href="https://github.com/SharpData/SharpETL/blob/main/LICENSE"><img src="https://img.shields.io/badge/license-Apache%202-brightgreen.svg"></a>
 <a href="https://codecov.io/gh/SharpData/SharpETL"><img src="https://codecov.io/gh/SharpData/SharpETL/branch/main/graph/badge.svg?token=299D3CIJ7Y"></a>
 <a><img src="https://img.shields.io/badge/Project%20Stage-Production%20Ready-brightgreen.svg"></a>

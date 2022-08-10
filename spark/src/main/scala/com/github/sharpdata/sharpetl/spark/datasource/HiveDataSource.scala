@@ -48,7 +48,7 @@ class HiveDataSource extends Sink[DataFrame] with Source[DataFrame, SparkSession
     val writeMode: String = step.writeMode
     val dbName = step.target.asInstanceOf[DBDataSourceConfig].dbName
     val resultTempTable = s"$dbName.$uuid"
-    /*if (step.incrementalType == DIFF) {
+    /*if (step.logDrivenType == DIFF) {
       //this column MUST be partition column with name configured by [[com.github.sharpdata.sharpetl.core.util.ETLConfig.partitionColumn]]
       df.withColumn(partitionColumn, lit(variables(partitionColumn)))
     }*/

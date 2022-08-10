@@ -1,8 +1,8 @@
-package com.github.sharpdata.sharpetl.spark.transformation
+package com.github.sharpdata.sharpetl.spark.datasource
 
-import com.github.sharpdata.sharpetl.spark.end2end.ETLSuit
 import com.github.sharpdata.sharpetl.core.util.ETLLogger
-import ETLSuit.runJob
+import com.github.sharpdata.sharpetl.spark.end2end.ETLSuit
+import com.github.sharpdata.sharpetl.spark.end2end.ETLSuit.runJob
 import org.mockserver.client.MockServerClient
 import org.mockserver.model.HttpRequest
 import org.mockserver.model.HttpRequest.request
@@ -15,7 +15,7 @@ import scala.jdk.CollectionConverters._
 
 
 @DoNotDiscover
-class HttpTransformerSpec extends ETLSuit with BeforeAndAfterAll {
+class HttpDataSourceSpec extends ETLSuit with BeforeAndAfterAll {
 
   private val mockHttpServer = new MockServerContainer(DockerImageName.parse("jamesdbloom/mockserver:mockserver-5.11.2"))
 
@@ -30,61 +30,7 @@ class HttpTransformerSpec extends ETLSuit with BeforeAndAfterAll {
     super.afterAll()
   }
 
-  describe("LoopHttpTransformer") {
-    val requestDef: HttpRequest = request().withPath("/report")
-    it("should save in spark temp table") {
-      new MockServerClient(mockHttpServer.getHost, mockHttpServer.getServerPort)
-        .clear(requestDef)
-        .when(requestDef)
-        .respond(response()
-          .withBody("{\"name\":\"zhangsan\",\"age\":18, \"address\":{\"province\":\"beijing\",\"city\":\"beijing\"}}"))
-
-      val jobParameters: Array[String] = Array("single-job",
-        "--name=loop_http_transformation_test", "--period=1440",
-        "--local", s"--default-start-time=2021-11-28 15:30:30", "--env=test", "--once")
-
-      runJob(jobParameters)
-      val df_source_data = spark.sql("select * from `target_db`")
-
-      assert(df_source_data.count() == 3)
-    }
-
-    it("should extract data by jsonPath") {
-      new MockServerClient(mockHttpServer.getHost, mockHttpServer.getServerPort)
-        .clear(requestDef)
-        .when(requestDef)
-        .respond(response()
-          .withBody("{\"users\":[" +
-            "{\"name\":\"zhangsan\",\"age\":18, \"address\":{\"province\":\"beijing\",\"city\":\"beijing\"}}, " +
-            "{\"name\":\"zhangsan\",\"age\":18, \"address\":{\"province\":\"beijing\",\"city\":\"beijing\"}}" +
-            "]}"))
-
-      val jobParameters: Array[String] = Array("single-job",
-        "--name=loop_http_transformation_json_path_test", "--period=1440",
-        "--local", s"--default-start-time=2021-11-28 15:30:30", "--env=test", "--once")
-
-      runJob(jobParameters)
-      val df_source_data = spark.sql("select city from `target_db`")
-
-      assert(df_source_data.count() == 6)
-    }
-
-    it("should extract data by jsonPath successful when data is empty") {
-      new MockServerClient(mockHttpServer.getHost, mockHttpServer.getServerPort)
-        .clear(requestDef)
-        .when(requestDef)
-        .respond(response()
-          .withBody("{\"users\":[]}"))
-      val jobParameters: Array[String] = Array("single-job",
-        "--name=loop_http_transformation_json_path_test", "--period=1440",
-        "--local", s"--default-start-time=2021-11-28 15:30:30", "--env=test", "--once")
-
-      runJob(jobParameters)
-
-    }
-  }
-
-  describe("HttpTransformer") {
+  describe("HttpDataSource") {
     val requestDef: HttpRequest = request().withPath("/get_workday")
     val testJsonStr: String =
       """{
@@ -141,7 +87,7 @@ class HttpTransformerSpec extends ETLSuit with BeforeAndAfterAll {
           .respond(response().withBody(testJsonStr))
 
         val jobParameters: Array[String] = Array("single-job",
-          "--name=http_transformation_test", "--period=1440",
+          "--name=http_datasource", "--period=1440",
           "--local", s"--default-start-time=2021-11-28 15:30:30", "--env=test", "--once")
 
         runJob(jobParameters)
@@ -184,7 +130,7 @@ class HttpTransformerSpec extends ETLSuit with BeforeAndAfterAll {
             |""".stripMargin))
 
       val jobParameters: Array[String] = Array("single-job",
-        "--name=http_transformation_to_variables_test", "--period=1440",
+        "--name=http_datasource_to_variables", "--period=1440",
         "--local", s"--default-start-time=2021-11-28 15:30:30", "--env=test", "--once")
 
       runJob(jobParameters)
@@ -192,6 +138,55 @@ class HttpTransformerSpec extends ETLSuit with BeforeAndAfterAll {
       val string_types = df_types.head().mkString(",")
 
       assert(string_types == "iPhone__home")
+    }
+  }
+
+  describe("loop over HttpDataSource") {
+    def requestDef(tableName: String): HttpRequest = request().withPath(s"/get_from_table/$tableName")
+
+    def testJsonStr(tableName: String): String =
+      s"""{
+         |  "result": "result_of_$tableName"
+         |}""".stripMargin
+
+    it("should send loop request") {
+      if (spark.version.startsWith("2.3")) {
+        ETLLogger.error("`struct` complex type does NOT support Spark 2.3.x")
+      } else {
+        val mockServerClient = new MockServerClient(mockHttpServer.getHost, mockHttpServer.getServerPort)
+        (1 to 4).foreach(it => {
+
+          val req = requestDef(s"test_$it")
+          mockServerClient
+            .clear(req)
+            .when(req)
+            .respond(response().withBody(testJsonStr(s"test_$it")))
+
+        })
+
+        val jobParameters: Array[String] = Array("single-job",
+          "--name=http_loop_request", "--period=1440",
+          "--local", s"--default-start-time=2021-11-28 15:30:30", "--env=test", "--once")
+
+        runJob(jobParameters)
+        spark
+          .sql("select * from `target_temp_table`")
+          .select("result")
+          .toLocalIterator().asScala.toList.mkString("\n") should be(
+          """[{
+            |  "result": "result_of_test_1"
+            |}]
+            |[{
+            |  "result": "result_of_test_2"
+            |}]
+            |[{
+            |  "result": "result_of_test_3"
+            |}]
+            |[{
+            |  "result": "result_of_test_4"
+            |}]""".stripMargin
+        )
+      }
     }
   }
 

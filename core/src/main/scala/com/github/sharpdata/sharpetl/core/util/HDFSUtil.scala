@@ -288,8 +288,8 @@ object HDFSUtil {
 
     val dataSourceConfig = step.getSourceConfig[RemoteFileDataSourceConfig]
     val hdfsPaths = ListBuffer[String]()
-    if (!isNullOrEmpty(jobLog.currentFile)) {
-      jobLog.currentFile.split(",")
+    if (!isNullOrEmpty(jobLog.file)) {
+      jobLog.file.split(",")
         .foreach(fileName => {
           val hdfsFilePath = StringUtil.concatFilePath(dataSourceConfig.hdfsDir, fileName)
           HDFSUtil.moveFromLocal(
@@ -330,7 +330,7 @@ object HDFSUtil {
       }
       ETLLogger.warn("No files need download, and current config `breakFollowStepWhenEmpty` is false, so the job will continue the next steps.")
     } else {
-      jobLog.currentFile = fileNames.mkString(",")
+      jobLog.file = fileNames.mkString(",")
       ETLLogger.info("Downloaded file to local")
     }
   }

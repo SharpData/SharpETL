@@ -1,7 +1,7 @@
 version: '3'
 services:
   hive:
-    image: metorikku/hive:2.3.7
+    image: sharpetl/hive3:3.1.2
     ports:
       - "9083:9083"
       - "10000:10000"
@@ -17,7 +17,7 @@ services:
     volumes:
       - ${HOME}/Documents/warehouse:${HOME}/Documents/warehouse
   mysql:
-    image: mysql:5.7
+    image: mysql:5.7.28
     ports:
       - "3306:3306"
     volumes:

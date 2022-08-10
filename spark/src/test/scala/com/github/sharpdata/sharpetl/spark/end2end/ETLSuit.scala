@@ -26,7 +26,7 @@ trait ETLSuit extends AnyFunSpec
   var migrationPort: Int = 2333
   var dataPort: Int = 2334
 
-  val wf = workflow("jobName")
+  val wf = workflow("workflowName")
 
   def workflow(name: String) = Workflow(name, "1440", "incremental", "timewindow", null, null, null, -1, null, false, null, Map(), Nil) // scalastyle:off
 

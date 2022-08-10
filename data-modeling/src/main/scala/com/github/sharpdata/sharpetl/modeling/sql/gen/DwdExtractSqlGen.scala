@@ -5,7 +5,7 @@ import com.github.sharpdata.sharpetl.modeling.sql.dialect.SqlDialect
 import com.github.sharpdata.sharpetl.core.datasource.config.DBDataSourceConfig
 import com.github.sharpdata.sharpetl.core.syntax.WorkflowStep
 import com.github.sharpdata.sharpetl.core.util.Constants.Separator.ENTER
-import com.github.sharpdata.sharpetl.core.util.Constants.{IncrementalType, DataSourceType, WriteMode}
+import com.github.sharpdata.sharpetl.core.util.Constants.{DataSourceType, IncrementalType, WriteMode}
 import com.github.sharpdata.sharpetl.core.util.ETLConfig.jobIdColumn
 import com.github.sharpdata.sharpetl.core.util.StringUtil.{getTempName, isNullOrEmpty}
 import SqlDialect.quote
@@ -79,7 +79,6 @@ object DwdExtractSqlGen {
          |where $whereClause
          |$rowFilterExpression
          |""".stripMargin
-
     step.setSqlTemplate(selectSql)
 
 
@@ -94,4 +93,9 @@ object DwdExtractSqlGen {
   def getTargetColumn(column: DwdModelingColumn): String = {
     if (isNullOrEmpty(column.targetColumn)) getSourceColumn(column) else column.targetColumn
   }
+
+
+
+
+
 }

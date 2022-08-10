@@ -1,7 +1,7 @@
 -- workflow=ods.t_order_dwd.t_fact_order
---  period=1440
 --  loadType=incremental
---  logDrivenType=timewindow
+--  logDrivenType=upstream
+--  upstream=ods__ods.t_order
 
 -- step=1
 -- source=postgres
@@ -28,20 +28,21 @@ select
 	"order_update_time" as "order_update_time",
 	price - discount as "actual"
 from "postgres"."ods"."t_order"
-where "job_id" = '${DATA_RANGE_START}';
+where "job_id" = '${DATA_RANGE_START}'
+AND "user_code" = 'u1';
 
 -- step=2
 -- source=transformation
 --  className=com.github.sharpdata.sharpetl.spark.transformation.JdbcAutoCreateDimTransformer
 --  methodName=transform
 --   createDimMode=once
---   currentAndDimColumnsMapping={"order_create_time":"create_time","user_code":"user_info_code","user_name":"user_name","user_address":"user_address","user_age":"user_age"}
+--   currentAndDimColumnsMapping={"order_create_time":"create_time","user_code":"user_info_code","user_name":"user_name","user_age":"user_age","user_address":"user_address"}
 --   currentAndDimPrimaryMapping={"user_code":"user_info_code"}
 --   currentBusinessCreateTime=order_create_time
 --   dimDb=postgres
 --   dimDbType=postgres
 --   dimTable=dwd.t_dim_user
---   dimTableColumnsAndType={"user_info_code":"varchar(128)","create_time":"timestamp","user_name":"varchar(128)","user_address":"varchar(128)","user_age":"int"}
+--   dimTableColumnsAndType={"create_time":"timestamp","user_info_code":"varchar(128)","user_name":"varchar(128)","user_age":"int","user_address":"varchar(128)"}
 --   updateTable=ods_t_order__extracted
 --  transformerType=object
 -- target=do_nothing
@@ -97,9 +98,10 @@ left join `postgres_dwd_t_dim_user__matched`
 -- source=temp
 --  tableName=ods_t_order__joined
 --  options
---   idColumn=order_sn
+--   column.order_sn.qualityCheckRules=duplicated check, null check
 --   column.product_id.qualityCheckRules=mismatch dim check
---   column.order_sn.qualityCheckRules=duplicated check
+--   idColumn=order_sn
+--   column.user_id.qualityCheckRules=mismatch dim check
 -- target=temp
 --  tableName=ods_t_order__target_selected
 -- writeMode=overwrite
@@ -125,7 +127,7 @@ from `ods_t_order__joined`;
 --   currentDb=postgres
 --   currentDbType=postgres
 --   currentTable=dwd.t_fact_order
---   currentTableColumnsAndType={"order_status":"varchar(128)","actual":"decimal(10,4)","order_create_time":"timestamp","user_id":"varchar(128)","product_count":"int","price":"decimal(10,4)","product_id":"varchar(128)","discount":"decimal(10,4)","order_update_time":"timestamp","order_sn":"varchar(128)"}
+--   currentTableColumnsAndType={"order_sn":"varchar(128)","product_id":"varchar(128)","user_id":"varchar(128)","product_count":"int","price":"decimal(10,4)","discount":"decimal(10,4)","order_status":"varchar(128)","order_create_time":"timestamp","order_update_time":"timestamp","actual":"decimal(10,4)"}
 --   primaryFields=order_sn
 --   slowChanging=false
 --   updateTable=ods_t_order__target_selected

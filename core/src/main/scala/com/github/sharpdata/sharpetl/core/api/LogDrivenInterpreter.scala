@@ -131,15 +131,17 @@ final case class LogDrivenInterpreter(
 
     Seq(
       new JobLog(
-        jobId = 0, jobName = workflowName,
-        jobPeriod = period, jobScheduleId = jobScheduleId,
+        jobId = 0, workflowName = workflowName,
+        period = period, jobName = jobScheduleId,
         dataRangeStart = dataRangeStart, dataRangeEnd = endTimeStr.getOrElse("latest"), // update `dataRangeEnd` in [[BatchKafkaDataSource.read()]]
         jobStartTime = nullDataTime, jobEndTime = nullDataTime,
         status = RUNNING, createTime = nullDataTime,
         lastUpdateTime = nullDataTime,
-        incrementalType = IncrementalType.KAFKA_OFFSET,
-        currentFile = "", applicationId = workflowInterpreter.applicationId(),
-        projectName = workflow.getProjectName()
+        logDrivenType = IncrementalType.KAFKA_OFFSET,
+        file = "", applicationId = workflowInterpreter.applicationId(),
+        projectName = workflow.getProjectName(),
+        loadType = workflow.loadType,
+        runtimeArgs = command.commandStr.toString
       )
     )
   }
@@ -157,15 +159,17 @@ final case class LogDrivenInterpreter(
     val jobScheduleId = s"$workflowName-$startFrom"
     Seq(
       new JobLog(
-        jobId = 0, jobName = workflowName,
-        jobPeriod = period, jobScheduleId = jobScheduleId,
+        jobId = 0, workflowName = workflowName,
+        period = period, jobName = jobScheduleId,
         dataRangeStart = startFrom.padding(), dataRangeEnd = endTimeStr.getOrElse("0").padding(),
         jobStartTime = nullDataTime, jobEndTime = nullDataTime,
         status = RUNNING, createTime = nullDataTime,
         lastUpdateTime = nullDataTime,
-        incrementalType = incrementalType,
-        currentFile = "", applicationId = workflowInterpreter.applicationId(),
-        projectName = workflow.getProjectName()
+        logDrivenType = incrementalType,
+        file = "", applicationId = workflowInterpreter.applicationId(),
+        projectName = workflow.getProjectName(),
+        loadType = workflow.loadType,
+        runtimeArgs = command.commandStr.toString
       )
     )
   }
@@ -211,7 +215,7 @@ final case class LogDrivenInterpreter(
   }
 
   def checkRunningAndExecute(jobLog: JobLog): JobLog = {
-    val runningJob = jobLogAccessor.isAnotherJobRunning(jobLog.jobScheduleId)
+    val runningJob = jobLogAccessor.isAnotherJobRunning(jobLog.jobName)
     if (runningJob == null) {
       executeWorkflow(jobLog)
     } else {
@@ -220,13 +224,13 @@ final case class LogDrivenInterpreter(
         jobLogAccessor.update(runningJob)
         executeWorkflow(jobLog)
       } else {
-        throw AnotherJobIsRunningException(s"Exception thrown when another job(${runningJob.jobId}) jobScheduleId: ${runningJob.jobScheduleId} is running")
+        throw AnotherJobIsRunningException(s"Exception thrown when another job(${runningJob.jobId}) workflowName: ${runningJob.jobName} is running")
       }
     }
   }
 
   private def executeWorkflow(jobLog: JobLog): JobLog = {
-    ETLLogger.info(s"Executing workflow : ${jobLog.jobName}")
+    ETLLogger.info(s"Executing workflow : ${jobLog.workflowName}")
     try {
       jobLogAccessor.create(jobLog)
       val start = jobLog.formatDataRangeStart()
@@ -237,7 +241,7 @@ final case class LogDrivenInterpreter(
           ("${DATA_RANGE_START}", start),
           ("${JOB_ID}", jobLog.jobId.toString),
           ("${JOB_NAME}", jobLog.jobName),
-          ("${WORKFLOW_NAME}", jobLog.jobName)
+          ("${WORKFLOW_NAME}", jobLog.workflowName)
         ) ++ jobLog.defaultTimePartition()
       )
       Option(workflow).foreach(wf =>
@@ -280,15 +284,17 @@ final case class LogDrivenInterpreter(
     val dataRangeEnd = startTime.plus(idx * execPeriod, ChronoUnit.MINUTES).asBigInt().toString
     val jobScheduleId = s"$workflowName-$dataRangeStart"
     new JobLog(
-      jobId = 0, jobName = workflowName,
-      jobPeriod = execPeriod, jobScheduleId = jobScheduleId,
+      jobId = 0, workflowName = workflowName,
+      period = execPeriod, jobName = jobScheduleId,
       dataRangeStart = dataRangeStart, dataRangeEnd = dataRangeEnd,
       jobStartTime = nullDataTime, jobEndTime = nullDataTime,
       status = RUNNING, createTime = nullDataTime,
       lastUpdateTime = nullDataTime,
-      incrementalType = incrementalType,
-      currentFile = "", applicationId = workflowInterpreter.applicationId(),
-      projectName = workflow.getProjectName()
+      logDrivenType = incrementalType,
+      file = "", applicationId = workflowInterpreter.applicationId(),
+      projectName = workflow.getProjectName(),
+      loadType = workflow.loadType,
+      runtimeArgs = command.commandStr.toString
     )
   }
 
@@ -296,15 +302,17 @@ final case class LogDrivenInterpreter(
     val dataRangeStart = upstreamLogId.toString()
     val jobScheduleId = s"$workflowName-$dataRangeStart"
     new JobLog(
-      jobId = 0, jobName = workflowName,
-      jobPeriod = period, jobScheduleId = jobScheduleId,
+      jobId = 0, workflowName = workflowName,
+      period = period, jobName = jobScheduleId,
       dataRangeStart = dataRangeStart, dataRangeEnd = "",
       jobStartTime = nullDataTime, jobEndTime = nullDataTime,
       status = RUNNING, createTime = nullDataTime,
       lastUpdateTime = nullDataTime,
-      incrementalType = incrementalType,
-      currentFile = "", applicationId = workflowInterpreter.applicationId(),
-      projectName = workflow.getProjectName()
+      logDrivenType = incrementalType,
+      file = "", applicationId = workflowInterpreter.applicationId(),
+      projectName = workflow.getProjectName(),
+      loadType = workflow.loadType,
+      runtimeArgs = command.commandStr.toString
     )
   }
 

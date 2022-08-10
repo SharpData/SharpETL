@@ -3,9 +3,9 @@ create table sharp_etl.job_log
     job_id           bigint identity
         constraint PK_JobLog_TransactionID
             primary key,
+    workflow_name    nvarchar(128)              not null,
+    "period"         int                        not null,
     job_name         nvarchar(128)              not null,
-    job_period       int                        not null,
-    job_schedule_id  nvarchar(128)              not null,
     data_range_start nvarchar(128),
     data_range_end   nvarchar(128),
     job_start_time   datetime,
@@ -13,10 +13,12 @@ create table sharp_etl.job_log
     status           nvarchar(32)               not null,
     create_time      datetime default getdate() not null,
     last_update_time datetime default getdate() not null,
-    incremental_type varchar(64),
-    current_file     nvarchar(512),
+    load_type        varchar(32),
+    log_driven_type  varchar(32),
+    "file"           nvarchar(512),
     application_id   nvarchar(64),
-    project_name     nvarchar(64)
+    project_name     nvarchar(64),
+    runtime_args     nvarchar(512)
 )
 go
 
@@ -26,7 +28,7 @@ create table sharp_etl.quality_check_log
         constraint PK_QCLog_TransactionID
             primary key,
     job_id           bigint                     not null,
-    job_schedule_id  nvarchar(64)               not null,
+    job_name         nvarchar(64)               not null,
     [column]         nvarchar(64)               not null,
     data_check_type  nvarchar(64)               not null,
     ids              nvarchar(max)              not null,

@@ -76,7 +76,7 @@ class DataQualityCheckSpec extends ETLSuit with should.Matchers {
 
   val qualityCheckSchema = List(
     StructField("job_id", IntegerType, true),
-    StructField("job_schedule_id", StringType, true),
+    StructField("job_name", StringType, true),
     StructField("column", StringType, true),
     StructField("data_check_type", StringType, true),
     StructField("ids", IntegerType, true),
@@ -134,10 +134,10 @@ class DataQualityCheckSpec extends ETLSuit with should.Matchers {
         .load()
         .drop("id", "create_time", "last_update_time")
     val qualityCheckList =
-      qualityCheckDf.select("job_schedule_id", "column", "data_check_type", "ids", "error_type", "warn_count", "error_count")
+      qualityCheckDf.select("job_name", "column", "data_check_type", "ids", "error_type", "warn_count", "error_count")
         .rdd.toLocalIterator.toSeq.map(_.toString())
     val expectedQualityCheckList =
-      expectedQualityCheckDf.select("job_schedule_id", "column", "data_check_type", "ids", "error_type", "warn_count", "error_count")
+      expectedQualityCheckDf.select("job_name", "column", "data_check_type", "ids", "error_type", "warn_count", "error_count")
         .rdd.toLocalIterator.toSeq.map(_.toString())
     qualityCheckList should contain theSameElementsAs expectedQualityCheckList
   }

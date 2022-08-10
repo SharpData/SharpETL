@@ -26,7 +26,7 @@ class WorkflowStepGenPostgresSpec extends AnyFlatSpec with should.Matchers {
     val factOrder = dwdModelings.head
 
     var steps = genExtractStep(factOrder, 1)
-
+    println(toActualConfig(steps))
     toActualConfig(steps) should be(
       """-- step=1
         |-- source=postgres

@@ -10,67 +10,73 @@ import com.github.sharpdata.sharpetl.core.util.StringUtil
 import scala.beans.BeanProperty
 
 @Evolving(since = "1.0.0")
-class WorkflowStep extends Formatable {
+final case class WorkflowStep(
+                               @BeanProperty
+                               var step: String = null, //scalastyle:ignore
 
-  @BeanProperty
-  var step: String = _
+                               var source: DataSourceConfig = null, //scalastyle:ignore
 
-  var source: DataSourceConfig = _
+                               var target: DataSourceConfig = null, //scalastyle:ignore
 
-  var target: DataSourceConfig = _
+                               @BeanProperty
+                               var sql: String = null, //scalastyle:ignore
 
-  @BeanProperty
-  var sql: String = _
+                               @BeanProperty
+                               var sqlTemplate: String = null, //scalastyle:ignore
 
-  @BeanProperty
-  var sqlTemplate: String = _
+                               // repartition creates new partitions and does a full shuffle. default none.
+                               @BeanProperty
+                               var repartition: String = null, //scalastyle:ignore
 
-  // repartition creates new partitions and does a full shuffle. default none.
-  @BeanProperty
-  var repartition: String = _
+                               // uses existing partitions to minimize the amount of data that's shuffled. default none.
+                               @BeanProperty
+                               var coalesce: String = null, //scalastyle:ignore
 
-  // uses existing partitions to minimize the amount of data that's shuffled. default none.
-  @BeanProperty
-  var coalesce: String = _
+                               /**
+                                * 是否需要缓存本步骤执行结果 需指定缓存级别 可选级别如下：
+                                * NONE
+                                * DISK_ONLY
+                                * DISK_ONLY_2
+                                * MEMORY_ONLY
+                                * MEMORY_ONLY_2
+                                * MEMORY_ONLY_SER
+                                * MEMORY_ONLY_SER_2
+                                * MEMORY_AND_DISK
+                                * MEMORY_AND_DISK_2
+                                * MEMORY_AND_DISK_SER
+                                * MEMORY_AND_DISK_SER_2
+                                */
+                               @BeanProperty
+                               var persist: String = "MEMORY_AND_DISK",
 
-  /**
-   * 是否需要缓存本步骤执行结果 需指定缓存级别 可选级别如下：
-   * NONE
-   * DISK_ONLY
-   * DISK_ONLY_2
-   * MEMORY_ONLY
-   * MEMORY_ONLY_2
-   * MEMORY_ONLY_SER
-   * MEMORY_ONLY_SER_2
-   * MEMORY_AND_DISK
-   * MEMORY_AND_DISK_2
-   * MEMORY_AND_DISK_SER
-   * MEMORY_AND_DISK_SER_2
-   */
-  @BeanProperty
-  var persist: String = "MEMORY_AND_DISK"
+                               // 是否需要对本步骤执行结果保存local checkpoint，默认不进行checkpoint
+                               @BeanProperty
+                               var checkPoint: String = BooleanString.FALSE,
 
-  // 是否需要对本步骤执行结果保存local checkpoint，默认不进行checkpoint
-  @BeanProperty
-  var checkPoint: String = BooleanString.FALSE
+                               /**
+                                * 输出模式，可选类型参照 [[WriteMode]]
+                                */
+                               @BeanProperty
+                               var writeMode: String = null, //scalastyle:ignore
 
-  /**
-   * 输出模式，可选类型参照 [[WriteMode]]
-   */
-  @BeanProperty
-  var writeMode: String = _
+                               // 是否需要在获取到空数据时报错
+                               @BeanProperty
+                               var throwExceptionIfEmpty: String = BooleanString.FALSE,
 
-  // 是否需要在获取到空数据时报错
-  @BeanProperty
-  var throwExceptionIfEmpty: String = BooleanString.FALSE
+                               // 是否使用目标表的schema，简化source表没有显示定义schema时的配置
+                               @BeanProperty
+                               var isUseTargetSchema: String = BooleanString.FALSE,
 
-  // 是否使用目标表的schema，简化source表没有显示定义schema时的配置
-  @BeanProperty
-  var isUseTargetSchema: String = BooleanString.FALSE
+                               // 是否跳过后面步骤当数据或文件为空
+                               @BeanProperty
+                               var skipFollowStepWhenEmpty: String = BooleanString.FALSE,
 
-  // 是否跳过后面步骤当数据或文件为空
-  @BeanProperty
-  var skipFollowStepWhenEmpty: String = BooleanString.FALSE
+                               @BeanProperty
+                               var loopOver: String = null, //scalastyle:ignore
+
+                               @BeanProperty
+                               var conf: Map[String, String] = Map[String, String]()
+                             ) extends Formatable {
 
   def getSourceConfig[T <: DataSourceConfig]: T = source.asInstanceOf[T]
 
@@ -84,9 +90,6 @@ class WorkflowStep extends Formatable {
     this.target = targetConfig
   }
 
-  @BeanProperty
-  var conf: Map[String, String] = Map[String, String]()
-
 
   override def toString: String = {
     val builder = new StringBuilder()
@@ -99,6 +102,7 @@ class WorkflowStep extends Formatable {
     if (!StringUtil.isNullOrEmpty(coalesce)) builder.append(s"-- coalesce=$coalesce$ENTER")
     if (!StringUtil.isNullOrEmpty(persist) && persist != "MEMORY_AND_DISK") builder.append(s"-- writeMode=$persist$ENTER")
     if (!StringUtil.isNullOrEmpty(checkPoint) && checkPoint != "false") builder.append(s"-- checkPoint=$checkPoint$ENTER")
+    if (!StringUtil.isNullOrEmpty(loopOver)) builder.append(s"-- loopOver=$loopOver$ENTER")
     buildOptionsString(builder)
     buildFileOptionString(builder)
     builder.toString()

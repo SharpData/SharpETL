@@ -10,7 +10,7 @@ final case class WFInterpretingResult(workflow: Workflow, jobLogs: Seq[Try[JobLo
 
   def formatString: Seq[String] = {
     if (jobLogs.nonEmpty) {
-      val jobName = jobLogs.head.get.jobName
+      val jobName = jobLogs.head.get.workflowName
       jobLogs.groupBy(_.getClass.getSimpleName)
         .map { case (status, seq) =>
           status match {

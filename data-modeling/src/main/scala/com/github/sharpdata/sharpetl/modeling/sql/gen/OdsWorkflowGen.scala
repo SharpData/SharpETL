@@ -139,4 +139,5 @@ object OdsWorkflowGen {
       s""",\n       $partitionClause""".stripMargin
     }
   }
+
 }

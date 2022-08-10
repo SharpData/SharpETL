@@ -20,12 +20,12 @@ object JobDependencyCheckTransformer extends Transformer {
     if (!isNullOrEmpty(dependencies)) {
       val jobNames = dependencies.split(",").map(_.trim)
 
-      val jobName = args("jobName")
+      val jobName = args("workflowName")
       val dependLogs = jobLogAccessor
         .getLatestSuccessJobLogByNames(jobNames)
         .filter(log => log.dataRangeEnd.asBigInt >= nextDataRangeEnd)
       if (dependLogs.length != jobNames.length) {
-        val diff = jobNames.diff(dependLogs.map(log => log.getJobName))
+        val diff = jobNames.diff(dependLogs.map(log => log.getWorkflowName))
         val errorMessage =
           s"""
              |Dependencies of job $jobName is not completed! Current job will not run.
