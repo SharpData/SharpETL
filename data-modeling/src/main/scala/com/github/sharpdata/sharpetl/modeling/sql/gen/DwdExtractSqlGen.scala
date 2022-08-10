@@ -9,7 +9,6 @@ import com.github.sharpdata.sharpetl.core.util.Constants.{DataSourceType, Increm
 import com.github.sharpdata.sharpetl.core.util.ETLConfig.jobIdColumn
 import com.github.sharpdata.sharpetl.core.util.StringUtil.{getTempName, isNullOrEmpty}
 import SqlDialect.quote
-import com.github.sharpdata.sharpetl.modeling.sql.util.sqlParserTool.getRowFilterAsString
 
 import scala.collection.mutable.ArrayBuffer
 
