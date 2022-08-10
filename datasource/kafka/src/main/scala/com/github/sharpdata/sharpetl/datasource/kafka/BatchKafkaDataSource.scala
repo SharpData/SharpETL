@@ -85,7 +85,7 @@ class BatchKafkaDataSource extends Source[DataFrame, SparkSession] with Sink[Dat
     }
   }
 
-  override def sink(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = {
+  override def write(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = {
     val kafkaDataSourceConfig = step.target.asInstanceOf[BatchKafkaDataSourceConfig]
 
     {

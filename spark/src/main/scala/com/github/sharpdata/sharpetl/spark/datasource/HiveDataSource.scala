@@ -23,7 +23,7 @@ import scala.jdk.CollectionConverters._
 @sink(types = Array("hive"))
 class HiveDataSource extends Sink[DataFrame] with Source[DataFrame, SparkSession] {
 
-  override def sink(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = {
+  override def write(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = {
     save(df, step.target.asInstanceOf[DBDataSourceConfig].getTableName, step, variables)
   }
 
@@ -194,7 +194,7 @@ class HiveDataSource extends Sink[DataFrame] with Source[DataFrame, SparkSession
 @source(types = Array("temp"))
 @sink(types = Array("temp"))
 class TempDataSource extends HiveDataSource {
-  override def sink(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = {
+  override def write(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = {
     df.createOrReplaceTempView(step.target.asInstanceOf[DBDataSourceConfig].getTableName)
   }
 }

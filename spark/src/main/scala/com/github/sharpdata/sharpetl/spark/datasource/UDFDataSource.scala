@@ -35,7 +35,7 @@ class UDFConfigExtension extends Source[DataFrame, SparkSession] with Sink[DataF
     apply(executionContext, step.getSourceConfig)
   }
 
-  override def sink(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = registerUDF(df.sparkSession, step)
+  override def write(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = registerUDF(df.sparkSession, step)
 
   def apply(spark: SparkSession, sourceConfig: ClassDataSourceConfig): DataFrame = {
     val args = getClassArgs(sourceConfig)

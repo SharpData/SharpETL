@@ -12,5 +12,5 @@ import org.apache.spark.sql.{DataFrame, SparkSession}
 class KuduDataSource extends Source[DataFrame, SparkSession] with Sink[DataFrame] {
   override def read(step: WorkflowStep, jobLog: JobLog, executionContext: SparkSession, variables: Variables): DataFrame = ???
 
-  override def sink(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = ???
+  override def write(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = ???
 }

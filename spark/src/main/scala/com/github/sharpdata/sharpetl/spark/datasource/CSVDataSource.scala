@@ -24,7 +24,7 @@ class CSVDataSource extends Source[DataFrame, SparkSession] with Sink[DataFrame]
     loadFromHdfs(executionContext, step.getSourceConfig)
   }
 
-  override def sink(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = {
+  override def write(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = {
     save(df, step.getTargetConfig)
   }
 

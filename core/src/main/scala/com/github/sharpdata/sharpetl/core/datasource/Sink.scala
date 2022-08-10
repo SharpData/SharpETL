@@ -7,6 +7,6 @@ import com.github.sharpdata.sharpetl.core.syntax.WorkflowStep
 // scalastyle:off
 @Stable(since = "1.0.0")
 trait Sink[DataFrame] extends Serializable {
-  def sink(df: DataFrame, step: WorkflowStep, variables: Variables): Unit
+  def write(df: DataFrame, step: WorkflowStep, variables: Variables): Unit
 }
 // scalastyle:on

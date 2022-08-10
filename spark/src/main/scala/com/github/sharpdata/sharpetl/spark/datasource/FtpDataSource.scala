@@ -19,7 +19,7 @@ import java.io._
 @sink(types = Array("ftp"))
 class FtpDataSource extends Sink[DataFrame] {
 
-  override def sink(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = save(step)
+  override def write(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = save(step)
 
   def closeFTPClient(ftpClient: FTPClient): Unit = {
     if (ftpClient != null) {

@@ -42,7 +42,7 @@ object IO {
     val value: Class[Sink[_]] = AnnotationScanner.sinkRegister(targetConfig.dataSourceType)
     assert(value != null)
 
-    value.getMethod("sink", classOf[DataFrame], classOf[WorkflowStep], classOf[Variables])
+    value.getMethod("write", classOf[DataFrame], classOf[WorkflowStep], classOf[Variables])
       .invoke(value.newInstance(), df, step, variables)
   }
 

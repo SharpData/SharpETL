@@ -10,7 +10,7 @@ import org.apache.spark.sql.DataFrame
 @source(types = Array("variables"))
 @sink(types = Array("variables"))
 class VariablesDataSource extends Sink[DataFrame] {
-  override def sink(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = {
+  override def write(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = {
     VariablesUtil.setVariables(df, variables)
   }
 }
