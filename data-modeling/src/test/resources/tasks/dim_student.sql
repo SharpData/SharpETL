@@ -25,7 +25,8 @@ select
 from `ods`.`t_student`
 where `year` = '${YEAR}'
   and `month` = '${MONTH}'
-  and `day` = '${DAY}';
+  and `day` = '${DAY}'
+and student_age<30;
 
 -- step=2
 -- source=temp

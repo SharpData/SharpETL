@@ -7,10 +7,10 @@ class OdsWorkflowGenSpecMoreRowFilter extends SqlUUIDSpec {
     val excelFilePath = this
       .getClass
       .getClassLoader
-      .getResource("ods-template2.xlsx")
+      .getResource("ods-template.xlsx")
       .getPath
     val odsModelings = OdsTableParser.readOdsConfig(excelFilePath)
-    val example = odsModelings.head
+    val example = odsModelings(2)
     val workflow = OdsWorkflowGen.genWorkflow(example, "ods-template2")
     workflow.toString.trim should be(readExpectConfig(s"tasks/ods-template2.sql").trim)
   }

@@ -37,7 +37,8 @@ select
 from `ods`.`t_order`
 where `year` = '${YEAR}'
   and `month` = '${MONTH}'
-  and `day` = '${DAY}';
+  and `day` = '${DAY}'
+and product_version='v1';
 
 -- step=2
 -- source=temp
