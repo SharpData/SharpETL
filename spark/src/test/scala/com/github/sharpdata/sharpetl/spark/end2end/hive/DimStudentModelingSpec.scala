@@ -94,6 +94,7 @@ class DimStudentModelingSpec extends HiveSuit {
       spark.sparkContext.parallelize(newCreatedData),
       StructType(dwdSchema)
     )
+
     assertSmallDataFrameEquality(df.drop("student_id", "job_id"), shouldBe)
   }
 
@@ -115,7 +116,13 @@ class DimStudentModelingSpec extends HiveSuit {
     val newCreatedData = Seq(
       Row("zhang san", "user name", "18", "user address", getTimeStampFromStr("2022-03-13 10:00:00"),
         getTimeStampFromStr("2022-03-13 15:00:00"), getTimeStampFromStr("2022-03-13 10:00:00"),
+        getTimeStampFromStr("2022-03-14 18:00:00"), "0", "0", "0", "2022", "03", "13"
+      ), Row("zhang san", "new user name", "19", "new user address", getTimeStampFromStr("2022-03-13 15:00:00"),
+        getTimeStampFromStr("2022-03-14 18:00:00"), getTimeStampFromStr("2022-03-14 18:00:00"),
         null, "1", "1", "0", "2022", "03", "13"
+      ), Row("li si", "li si si li", "20", "lisi user address", getTimeStampFromStr("2022-03-14 11:00:00"),
+        getTimeStampFromStr("2022-03-14 11:00:00"), getTimeStampFromStr("2022-03-14 11:00:00"),
+        null, "1", "1", "0", "2022", "03", "14"
       )
     )
 
@@ -126,6 +133,8 @@ class DimStudentModelingSpec extends HiveSuit {
 
     assertSmallDataFrameEquality(df.drop("student_id", "job_id"), shouldBe, orderedComparison = false)
 
+    assertSmallDataFrameEquality(spark.sql("select job_id from dim.t_dim_student where year = '2022' and month = '03' and day = '13' limit 1"),
+      spark.sql("select job_id from dim.t_dim_student where year = '2022' and month = '03' and day = '14' limit 1"))
   }
 
   it("[DIM&INC] new data with updated data (should keep old partition unchanged)") {
@@ -146,7 +155,19 @@ class DimStudentModelingSpec extends HiveSuit {
     val newCreatedData = Seq(
       Row("zhang san", "user name", "18", "user address", getTimeStampFromStr("2022-03-13 10:00:00"),
         getTimeStampFromStr("2022-03-13 15:00:00"), getTimeStampFromStr("2022-03-13 10:00:00"),
-         null,"1", "1", "0", "2022", "03", "13"
+        getTimeStampFromStr("2022-03-14 18:00:00"), "0", "0", "0", "2022", "03", "13"
+      ), Row("zhang san", "new user name", "19", "new user address", getTimeStampFromStr("2022-03-13 15:00:00"),
+        getTimeStampFromStr("2022-03-14 18:00:00"), getTimeStampFromStr("2022-03-14 18:00:00"),
+        getTimeStampFromStr("2022-03-15 15:00:00"), "0", "0", "0", "2022", "03", "13"
+      ), Row("zhang san", "another new user name", "19", "new user address", getTimeStampFromStr("2022-03-13 15:00:00"),
+        getTimeStampFromStr("2022-03-15 15:00:00"), getTimeStampFromStr("2022-03-15 15:00:00"),
+        null, "1", "1", "0", "2022", "03", "13"
+      ), Row("li si", "li si si li", "20", "lisi user address", getTimeStampFromStr("2022-03-14 11:00:00"),
+        getTimeStampFromStr("2022-03-14 11:00:00"), getTimeStampFromStr("2022-03-14 11:00:00"),
+        null, "1", "1", "0", "2022", "03", "14"
+      ), Row("wang wu", "li si si li", "20", "lisi user address", getTimeStampFromStr("2022-03-15 11:00:00"),
+        getTimeStampFromStr("2022-03-15 11:00:00"), getTimeStampFromStr("2022-03-15 11:00:00"),
+        null, "1", "1", "0", "2022", "03", "15"
       )
     )
 
@@ -156,7 +177,8 @@ class DimStudentModelingSpec extends HiveSuit {
     )
 
     assertSmallDataFrameEquality(df.drop("student_id", "job_id"), shouldBe, orderedComparison = false)
-  println(spark.sql("select job_id from dim.t_dim_student where year = '2022' and month = '03' and day = '13' limit 1").drop("job_id"))
 
+    assertSmallDataFrameEquality(spark.sql("select job_id from dim.t_dim_student where year = '2022' and month = '03' and day = '13' limit 1"),
+      spark.sql("select job_id from dim.t_dim_student where year = '2022' and month = '03' and day = '15' limit 1"))
   }
 }
