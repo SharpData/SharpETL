@@ -35,7 +35,7 @@ class TransformationDataSource extends Source[DataFrame, SparkSession] with Sink
       .asInstanceOf[DataFrame]
   }
 
-  override def sink(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = {
+  override def write(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = {
     val targetConfig = step.getTargetConfig[TransformationDataSourceConfig]
 
     ReflectUtil

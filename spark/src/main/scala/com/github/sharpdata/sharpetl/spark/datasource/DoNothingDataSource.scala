@@ -15,5 +15,5 @@ class DoNothingDataSource extends Source[DataFrame, SparkSession] with Sink[Data
     executionContext.sparkContext.parallelize(Seq("")).toDF("line")
   }
 
-  override def sink(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = ()
+  override def write(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = ()
 }

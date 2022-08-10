@@ -27,7 +27,7 @@ abstract class AbstractJdbcDataSource(jdbcType: String) extends Serializable wit
     load(executionContext, step, variables)
   }
 
-  override def sink(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = {
+  override def write(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = {
     save(df, step)
   }
 

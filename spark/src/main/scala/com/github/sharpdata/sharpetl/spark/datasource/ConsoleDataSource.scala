@@ -8,7 +8,7 @@ import org.apache.spark.sql.DataFrame
 
 @sink(types = Array("console"))
 class ConsoleDataSource extends Sink[DataFrame] {
-  override def sink(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = {
+  override def write(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = {
     df.printSchema()
     df.show(numRows = 100 * 100, truncate = false)
   }

@@ -10,7 +10,7 @@ import org.elasticsearch.spark.sql.EsSparkSQL
 
 @sink(types = Array("es"))
 class EsDataSource extends Sink[DataFrame] {
-  override def sink(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = {
+  override def write(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = {
     val targetConfig = step.target.asInstanceOf[DBDataSourceConfig]
     val esConfig = EsConfig.buildConfig(targetConfig.getPrimaryKeys).++(targetConfig.getOptions)
     EsSparkSQL.saveToEs(

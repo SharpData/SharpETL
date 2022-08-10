@@ -14,7 +14,7 @@ import org.apache.spark.sql.{DataFrame, Row}
 @sink(types = Array("hdfs"))
 class HdfsDataSource extends Sink[DataFrame] {
 
-  override def sink(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = {
+  override def write(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = {
     save(df, step)
   }
 

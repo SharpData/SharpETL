@@ -46,7 +46,7 @@ class KuduDataSource(executionContext: SparkSession) extends Source[DataFrame, S
 
   }
 
-  override def sink(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = ???
+  override def write(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = ???
 
 
   def tableExists(tableName: String): Boolean = {
