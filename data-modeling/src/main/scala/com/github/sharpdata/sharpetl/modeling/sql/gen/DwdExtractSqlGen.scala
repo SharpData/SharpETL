@@ -17,7 +17,7 @@ object DwdExtractSqlGen {
 
   def genExtractStep(dwdModding: DwdModeling, stepIndex: Int): List[WorkflowStep] = {
     val sourceType: String = dwdModding.dwdTableConfig.sourceType
-
+    val rowFilterExpression = if(isNullOrEmpty(dwdModding.dwdTableConfig.rowFilterExpression)) "" else "and " + dwdModding.dwdTableConfig.rowFilterExpression
     val steps = ArrayBuffer[WorkflowStep]()
 
     val step = new WorkflowStep
@@ -77,6 +77,7 @@ object DwdExtractSqlGen {
          |$selectColumn
          |from ${quote(dwdModding.dwdTableConfig.sourceDb, sourceType)}.${quote(dwdModding.dwdTableConfig.sourceTable, sourceType)}
          |where $whereClause
+         |$rowFilterExpression
          |""".stripMargin
 
     step.setSqlTemplate(selectSql)
