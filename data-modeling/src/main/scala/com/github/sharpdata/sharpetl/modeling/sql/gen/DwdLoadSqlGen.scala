@@ -50,7 +50,7 @@ object DwdLoadSqlGen {
       }
 
     sourceConfig.args = Map(
-      canNotBeEmpty("updateType", if (dwdModding.dwdTableConfig.updateType == "full") LoadType.FULL else LoadType.INCREMENTAL),
+      canNotBeEmpty("updateType", if (dwdModding.dwdTableConfig.loadType == "full") LoadType.FULL else LoadType.INCREMENTAL),
       canNotBeEmpty("slowChanging", isSlowChanging.toString),
       canNotBeEmpty("updateTable", updateTable),
       canNotBeEmpty("currentDb", currentDb),

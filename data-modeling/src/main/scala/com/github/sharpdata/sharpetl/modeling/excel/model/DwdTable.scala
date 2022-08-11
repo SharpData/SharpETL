@@ -17,7 +17,11 @@ object DwdTableConfigSheetHeader {
   val FACT_OR_DIM = "fact_or_dim"
   val SLOW_CHANGING = "slow_changing"
   val ROW_FILTER_EXPRESSION = "row_filter_expression"
-  val UPDATE_TYPE = "update_type"
+  val LOAD_TYPE = "load_type"
+  val LOG_DRIVEN_TYPE = "log_driven_type"
+  val UPSTREAM = "upstream"
+  val DEPENDS_ON = "depends_on"
+  val DEFAULT_START = "default_on"
 }
 
 object DwdModelingSheetHeader {
@@ -71,7 +75,12 @@ final case class DwdTableConfig(sourceConnection: String,
                                 factOrDim: String,
                                 slowChanging: Boolean,
                                 rowFilterExpression: String,
-                                updateType: String)
+                                loadType: String,
+                                logDrivenType: String,
+                                upstream: String,
+                                dependsOn: String,
+                                defaultStart: String
+                               )
 
 
 final case class DwdModelingColumn(sourceTable: String,
