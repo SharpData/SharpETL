@@ -6,19 +6,19 @@ import com.github.sharpdata.sharpetl.core.util.StringUtil
 
 @Evolving(since = "1.0.0")
 final case class Workflow(
-                           name: String,//workflowName
-                           period: String,//, "",
-                           loadType: String,//dwdTableConfig.updateType,
-                           logDrivenType: String,//"upstream", //TODO: update later
-                           upstream: String,//s"ods__${dwdModding.dwdTableConfig.sourceTable}",
-                           dependsOn: String,//null
-                           comment: String,//null
-                           timeout: Int,//0
-                           defaultStart: String,//null
-                           stopScheduleWhenFail: Boolean,//fasle
-                           notifies: Seq[Notify],//null
-                           options: Map[String, String],//map()
-                           var steps: List[WorkflowStep]//steps
+                           name: String,
+                           period: String,
+                           loadType: String,
+                           logDrivenType: String,
+                           upstream: String,
+                           dependsOn: String,
+                           comment: String,
+                           timeout: Int,
+                           defaultStart: String,
+                           stopScheduleWhenFail: Boolean,
+                           notifies: Seq[Notify],
+                           options: Map[String, String],
+                           var steps: List[WorkflowStep]
                          ) extends Formatable {
   def getProjectName(): String = Option(options).map(_.getOrElse("projectName", "default")).getOrElse("default")
 

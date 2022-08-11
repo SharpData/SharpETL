@@ -78,7 +78,7 @@ object OdsWorkflowGen {
     }
     // scalastyle:off
     Workflow(workflowName, odsModeling.odsTableConfig.period, odsModeling.odsTableConfig.loadType,
-      odsModeling.odsTableConfig.logDrivenType, //TODO: update later
+      odsModeling.odsTableConfig.logDrivenType,
       odsModeling.odsTableConfig.upstream, odsModeling.odsTableConfig.dependsOn, null, 0, odsModeling.odsTableConfig.defaultStart, false, null, Map(), steps
     )
     // scalastyle:on

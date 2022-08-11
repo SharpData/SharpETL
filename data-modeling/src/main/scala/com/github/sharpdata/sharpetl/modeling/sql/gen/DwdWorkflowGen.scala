@@ -143,23 +143,8 @@ object DwdWorkflowGen {
     else {
       steps = genLoadStep(steps, dwdModding, index)
     }
-// name: String,
-    //                           period: String,
-    //                           loadType: String,
-    //                           logDrivenType: String,
-    //                           upstream: String,
-    //                           dependsOn: String,
-    //                           comment: String,
-    //                           timeout: Int,
-    //                           defaultStart: String,
-    //                           stopScheduleWhenFail: Boolean,
-    //                           notifies: Seq[Notify],
-    //                           options: Map[String, String],
-    //                           var steps: List[WorkflowStep]
-    // scalastyle:off
-    //s"ods__${dwdModding.dwdTableConfig.sourceTable}"
     Workflow(workflowName, "", dwdTableConfig.loadType,
-      dwdTableConfig.logDrivenType,dwdTableConfig.upstream //TODO: update later
+      dwdTableConfig.logDrivenType,dwdTableConfig.upstream
       ,dwdTableConfig.dependsOn, null, 0, dwdTableConfig.defaultStart, false, null, Map(), steps
     )
     // scalastyle:on
