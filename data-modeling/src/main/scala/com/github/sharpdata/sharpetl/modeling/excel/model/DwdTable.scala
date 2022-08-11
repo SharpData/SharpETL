@@ -79,7 +79,7 @@ final case class DwdTableConfig(sourceConnection: String,
                                 logDrivenType: String,
                                 upstream: String,
                                 dependsOn: String,
-                                defaultStart: String,
+                                defaultStart: String
                                )
 
 

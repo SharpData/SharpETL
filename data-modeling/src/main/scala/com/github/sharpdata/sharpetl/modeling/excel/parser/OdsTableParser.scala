@@ -74,7 +74,7 @@ object OdsTableParser {
         defaultStart = getStringCellOrNull(DEFAULT_START,row),
         partitionFormat = getStringCellOrNull(PARTITION_FORMAT, row),
         timeFormat = getStringCellOrDefault(TIME_FORMAT, row, "YYYY-MM-DD hh:mm:ss"),
-        period = getNumericCell(PERIOD, row).toInt.toString,
+        period = getNumericCell(PERIOD, row).toInt.toString
       )
   }
 
