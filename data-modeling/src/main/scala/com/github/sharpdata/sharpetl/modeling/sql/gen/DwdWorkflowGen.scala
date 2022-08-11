@@ -113,7 +113,7 @@ object DwdWorkflowGen {
     //    5.4 场景：增量+非渐变,及与逻辑主键update入库【创建step，target:xxx】
 
     // HIVE/INCREMENTAL/DIM/slowChanging
-    if (dwdTableConfig.targetType == HIVE && dwdTableConfig.updateType == INCREMENTAL
+    if (dwdTableConfig.targetType == HIVE && dwdTableConfig.loadType == INCREMENTAL
       && dwdTableConfig.factOrDim == FactOrDim.DIM && dwdTableConfig.slowChanging) {
       steps = genDwdPartitionClauseStep(steps, dwdModding, index)
       index += 1
@@ -122,7 +122,7 @@ object DwdWorkflowGen {
       steps = genScdStep(steps, dwdModding, index)
       index += 1
     } // HIVE/INCREMENTAL/FACT/slowChanging
-    else if (dwdTableConfig.targetType == HIVE && dwdTableConfig.updateType == INCREMENTAL
+    else if (dwdTableConfig.targetType == HIVE && dwdTableConfig.loadType == INCREMENTAL
       && dwdTableConfig.factOrDim == FactOrDim.FACT && dwdTableConfig.slowChanging) {
       steps = genDwdPartitionClauseStep(steps, dwdModding, index)
       index += 1
@@ -131,7 +131,7 @@ object DwdWorkflowGen {
       steps = genScdStep(steps, dwdModding, index)
       index += 1
     } // HIVE/INCREMENTAL/FACT/no slowChanging
-    else if (dwdTableConfig.targetType == HIVE && dwdTableConfig.updateType == INCREMENTAL
+    else if (dwdTableConfig.targetType == HIVE && dwdTableConfig.loadType == INCREMENTAL
       && dwdTableConfig.factOrDim == FactOrDim.FACT && !dwdTableConfig.slowChanging) {
       steps = genDwdPartitionClauseStep(steps, dwdModding, index, isSCD = false)
       index += 1
@@ -143,11 +143,24 @@ object DwdWorkflowGen {
     else {
       steps = genLoadStep(steps, dwdModding, index)
     }
-
+// name: String,
+    //                           period: String,
+    //                           loadType: String,
+    //                           logDrivenType: String,
+    //                           upstream: String,
+    //                           dependsOn: String,
+    //                           comment: String,
+    //                           timeout: Int,
+    //                           defaultStart: String,
+    //                           stopScheduleWhenFail: Boolean,
+    //                           notifies: Seq[Notify],
+    //                           options: Map[String, String],
+    //                           var steps: List[WorkflowStep]
     // scalastyle:off
-    Workflow(workflowName, "", dwdTableConfig.updateType,
-      "upstream", //TODO: update later
-      s"ods__${dwdModding.dwdTableConfig.sourceTable}", null, null, 0, null, false, null, Map(), steps
+    //s"ods__${dwdModding.dwdTableConfig.sourceTable}"
+    Workflow(workflowName, "", dwdTableConfig.loadType,
+      dwdTableConfig.logDrivenType,dwdTableConfig.upstream //TODO: update later
+      ,dwdTableConfig.dependsOn, null, 0, dwdTableConfig.defaultStart, false, null, Map(), steps
     )
     // scalastyle:on
 

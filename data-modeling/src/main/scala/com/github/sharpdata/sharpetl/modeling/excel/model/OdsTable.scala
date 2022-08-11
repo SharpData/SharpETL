@@ -44,10 +44,15 @@ object OdsTable {
                                   targetDb: String,
                                   targetType: String,
                                   filterExpression: String,
-                                  updateType: String,
+                                  loadType: String,
+                                  logDrivenType: String,
+                                  upstream: String,
+                                  dependsOn: String,
+                                  defaultStart: String,
                                   partitionFormat: String,
                                   timeFormat: String,
-                                  period: String)
+                                  period: String
+                                 )
 
 
   final case class OdsModelingColumn(sourceTable: String,

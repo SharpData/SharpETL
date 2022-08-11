@@ -4,6 +4,7 @@ import com.github.sharpdata.sharpetl.modeling.excel.model.OdsTableConfigSheetHea
 import com.github.sharpdata.sharpetl.core.util.ETLLogger
 import com.github.sharpdata.sharpetl.core.util.ExcelUtil._
 import com.github.sharpdata.sharpetl.modeling.Exception.TableConfigHasDuplicateSourceAndTargetTableException
+import com.github.sharpdata.sharpetl.modeling.excel.model.DwdTableConfigSheetHeader.{DEFAULT_START, DEPENDS_ON, LOAD_TYPE, LOG_DRIVEN_TYPE, UPSTREAM}
 import com.github.sharpdata.sharpetl.modeling.excel.model.OdsModelingSheetHeader._
 import com.github.sharpdata.sharpetl.modeling.excel.model.OdsTable._
 import com.github.sharpdata.sharpetl.modeling.excel.model.OdsTableConfigSheetHeader._
@@ -65,11 +66,15 @@ object OdsTableParser {
         targetType = getStringCellOrNull(TARGET_TYPE, row),
         targetDb = getStringCellOrNull(OdsTableConfigSheetHeader.TARGET_DB, row),
         targetTable = getStringCellOrNull(OdsTableConfigSheetHeader.TARGET_TABLE, row),
-        updateType = getStringCellOrNull(UPDATE_TYPE, row),
         filterExpression = getStringCellOrNull(FILTER_EXPR, row),
+        loadType = getStringCellOrNull(LOAD_TYPE, row),
+        logDrivenType = getStringCellOrNull(LOG_DRIVEN_TYPE,row),
+        upstream = getStringCellOrNull(UPSTREAM,row),
+        dependsOn = getStringCellOrNull(DEPENDS_ON,row),
+        defaultStart = getStringCellOrNull(DEFAULT_START,row),
         partitionFormat = getStringCellOrNull(PARTITION_FORMAT, row),
         timeFormat = getStringCellOrDefault(TIME_FORMAT, row, "YYYY-MM-DD hh:mm:ss"),
-        period = getNumericCell(PERIOD, row).toInt.toString
+        period = getNumericCell(PERIOD, row).toInt.toString,
       )
   }
 
