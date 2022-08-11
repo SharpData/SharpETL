@@ -34,7 +34,7 @@ object ScdSqlGen {
       canNotBeEmpty("partitionFormat", dwdModding.columns.filter(_.partitionColumn).map(_.targetColumn).mkString("/")),
       canNotBeEmpty("updateTimeField", dwdModding.columns.filter(_.businessUpdateTime).map(_.targetColumn).head),
       canNotBeEmpty("createTimeField", dwdModding.columns.filter(_.businessCreateTime).map(_.targetColumn).head),
-      canNotBeEmpty("dwUpdateType", if (dwdModding.dwdTableConfig.updateType == "full") LoadType.FULL else LoadType.INCREMENTAL),
+      canNotBeEmpty("dwUpdateType", if (dwdModding.dwdTableConfig.loadType == "full") LoadType.FULL else LoadType.INCREMENTAL),
       canNotBeEmpty("timeFormat", "yyyy-MM-dd HH:mm:ss"),
       ("surrogateField", getSurrogateField(dwdModding, dwdModding.dwdTableConfig.targetTable))
     )
@@ -271,7 +271,7 @@ object ScdSqlGen {
       canNotBeEmpty("updateTimeField", dimTable.updateTimeCols.map(_.sourceColumn).head),
       canNotBeEmpty("createTimeField", dimTable.createTimeCols.map(_.sourceColumn).head),
       canNotBeEmpty("dropUpdateTimeField", "true"),
-      canNotBeEmpty("dwUpdateType", if (dwdModding.dwdTableConfig.updateType == "full") LoadType.FULL else LoadType.INCREMENTAL),
+      canNotBeEmpty("dwUpdateType", if (dwdModding.dwdTableConfig.loadType == "full") LoadType.FULL else LoadType.INCREMENTAL),
       canNotBeEmpty("timeFormat", "yyyy-MM-dd HH:mm:ss"),
       ("surrogateField", getSurrogateField(dwdModding, any.joinTable))
     )

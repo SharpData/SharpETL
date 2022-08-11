@@ -26,7 +26,7 @@ object OdsWorkflowGen {
     val sourceDb = quote(odsModeling.odsTableConfig.sourceDb, dataSourceType)
     val sourceTable = quote(odsModeling.odsTableConfig.sourceTable, dataSourceType)
     val rowFilterExpression = if(isNullOrEmpty(odsModeling.odsTableConfig.filterExpression)) "" else "AND " + odsModeling.odsTableConfig.filterExpression
-    val steps = odsModeling.odsTableConfig.updateType match {
+    val steps = odsModeling.odsTableConfig.loadType match {
       case INCREMENTAL =>
         step.writeMode = if (dataSourceType == HIVE) WriteMode.OVER_WRITE else WriteMode.APPEND
         val filterColumnName = quote(incrColumn(odsModeling), dataSourceType)
@@ -77,9 +77,9 @@ object OdsWorkflowGen {
         List(step, stepRead)
     }
     // scalastyle:off
-    Workflow(workflowName, odsModeling.odsTableConfig.period, odsModeling.odsTableConfig.updateType,
-      "timewindow", //TODO: update later
-      null, null, null, 0, null, false, null, Map(), steps
+    Workflow(workflowName, odsModeling.odsTableConfig.period, odsModeling.odsTableConfig.loadType,
+      odsModeling.odsTableConfig.logDrivenType, //TODO: update later
+      odsModeling.odsTableConfig.upstream, odsModeling.odsTableConfig.dependsOn, null, 0, odsModeling.odsTableConfig.defaultStart, false, null, Map(), steps
     )
     // scalastyle:on
   }

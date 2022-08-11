@@ -73,7 +73,11 @@ object DwdTableParser {
         factOrDim = getStringCellOrNull(FACT_OR_DIM, row),
         slowChanging = getBoolCell(SLOW_CHANGING, row),
         rowFilterExpression = getStringCellOrNull(ROW_FILTER_EXPRESSION, row),
-        updateType = getStringCellOrNull(UPDATE_TYPE, row)
+        loadType = getStringCellOrNull(LOAD_TYPE, row),
+        logDrivenType = getStringCellOrNull(LOG_DRIVEN_TYPE,row),
+        upstream = getStringCellOrNull(UPSTREAM,row),
+        dependsOn = getStringCellOrNull(DEPENDS_ON,row),
+        defaultStart = getStringCellOrNull(DEFAULT_START,row)
       )
   }
 
