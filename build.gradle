@@ -56,6 +56,10 @@ allprojects {
     }
 
     tasks.withType(ScalaCompile) {
+        scalaCompileOptions.forkOptions.with {
+            memoryMaximumSize = '1g'
+            jvmArgs = ['-XX:MaxMetaspaceSize=512m', '-Xss10m', '-Xss512M']
+        }
         scalaCompileOptions.additionalParameters = [
                 "-language:postfixOps",
                 "-deprecation",                      // Emit warning and location for usages of deprecated APIs.
