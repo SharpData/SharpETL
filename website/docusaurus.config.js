@@ -1,11 +1,3 @@
-/**
- * Copyright (c) Meta Platforms, Inc. and affiliates.
- *
- * This source code is licensed under the MIT license found in the
- * LICENSE file in the root directory of this source tree.
- *
- * @format
- */
 // @ts-check
 // Note: type annotations allow type checking and IDEs autocompletion
 
@@ -18,7 +10,6 @@ const config = {
   onBrokenLinks: 'ignore',
   onBrokenMarkdownLinks: 'warn',
   favicon: 'img/favicon.ico',
-  //themes: ['@docusaurus/theme-search-algolia'],
 
   organizationName: 'SharpData',
   projectName: 'SharpETL',
@@ -118,26 +109,26 @@ const config = {
       content:
         '⭐️ If you like Sharp ETL, give it a star on <a target="_blank" rel="noopener noreferrer" href="https://github.com/SharpData/SharpETL">GitHub</a>! ⭐',
     },
-    // algolia: {
-    //   // The application ID provided by Algolia
-    //   appId: 'YOUR_APP_ID',
+    algolia: {
+       // The application ID provided by Algolia
+       appId: 'LC78S7LHSQ',
 
-    //   // Public API key: it is safe to commit it
-    //   apiKey: 'YOUR_SEARCH_API_KEY',
+       // Public API key: it is safe to commit it
+       apiKey: '0ebe9ea80f7f9aac056d184401394f79',
 
-    //   indexName: 'YOUR_INDEX_NAME',
+       indexName: 'sharpetl',
 
-    //   // Optional: see doc section below
-    //   contextualSearch: true,
+       // Optional: see doc section below
+       contextualSearch: true,
 
-    //   // Optional: Algolia search parameters
-    //   searchParameters: {},
+       // Optional: Algolia search parameters
+       searchParameters: {},
 
-    //   // Optional: path for search page that enabled by default (`false` to disable it)
-    //   searchPagePath: 'search',
+       // Optional: path for search page that enabled by default (`false` to disable it)
+       searchPagePath: 'search',
 
-    //   //... other Algolia params
-    // },
+       //... other Algolia params
+     },
   },
 };
 
