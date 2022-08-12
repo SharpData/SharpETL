@@ -140,8 +140,8 @@ object ETLConfig {
       .map { case (key, value) => key.substring(prefix.length, key.length) -> value }
   }
 
-  def getSparkProperties(jobName: String): Map[String, String] = {
-    getProperties("spark", "default") ++ getProperties("spark", jobName)
+  def getSparkProperties(wfName: String): Map[String, String] = {
+    getProperties("spark", "default") ++ getProperties("spark", wfName)
   }
 
   def getKafkaProperties: String = {

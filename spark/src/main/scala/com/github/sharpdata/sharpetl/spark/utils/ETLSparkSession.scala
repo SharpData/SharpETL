@@ -13,7 +13,7 @@ import org.apache.spark.sql.SparkSession
 
 object ETLSparkSession {
   var local = false
-  private var jobName = "default"
+  private var wfName = "default"
   private var sparkConf: SparkConf = _
   private var autoCloseSession: Boolean = true
 
@@ -43,7 +43,7 @@ object ETLSparkSession {
 
   private def setSparkConf(sparkConf: SparkConf): Unit = {
     ETLConfig
-      .getSparkProperties(jobName)
+      .getSparkProperties(wfName)
       .foreach {
         case (key, value) =>
           sparkConf.set(key, value)
@@ -54,13 +54,13 @@ object ETLSparkSession {
   @inline def getHiveSparkSession(): SparkSession = sparkSession
 
   def getSparkInterpreter(local: Boolean,
-                          jobName: String,
+                          wfName: String,
                           autoCloseSession: Boolean,
                           etlDatabaseType: String,
                           dataQualityCheckRules: Map[String, QualityCheckRule])
   : SparkWorkflowInterpreter = {
     ETLSparkSession.local = local
-    ETLSparkSession.jobName = jobName
+    ETLSparkSession.wfName = wfName
     ETLSparkSession.autoCloseSession = autoCloseSession
     val spark = ETLSparkSession.sparkSession
     UdfInitializer.init(spark)
