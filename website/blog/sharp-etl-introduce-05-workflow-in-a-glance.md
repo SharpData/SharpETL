@@ -121,12 +121,12 @@ select test_udf('input') as `result`;
 
 ### Transformer
 
-Transformer的相关详细使用可以参考 [Transformer](/docs/transformer-guide)
+Transformer的相关详细使用可以参考 [Transformer](/docs/transformer-guide)。
 
 ### 自定义数据源
 
-自定义数据源的相关详细使用可以参考 [Transformer](/docs/custom-datasource-guide)
+自定义数据源的相关详细使用可以参考 [自定义数据源](/docs/custom-datasource-guide)。
 
 ### 配置项
 
-Sharp ETL配置项、Spark conf配置、系统连接信息配置等可以参考 [Properties file config](/docs/properties-file-config)
+Sharp ETL配置项、Spark conf配置、系统连接信息配置等可以参考 [Properties file config](/docs/properties-file-config)。
