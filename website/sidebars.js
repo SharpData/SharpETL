@@ -19,6 +19,7 @@ module.exports = {
             label: 'Configuration',
             collapsed: false,
             items: [
+                'properties-file-config',
                 'encrypt-in-properties-file',
                 'datasource',
             ],

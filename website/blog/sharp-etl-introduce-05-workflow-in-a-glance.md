@@ -76,7 +76,7 @@ select * from temp_table;
 
 ## 数据源
 
-每个step都有source和target两个配置，具体配置使用可以参考 [datasource](/docs/datasource) 这一节来使用。同一个workflow里面datasource之间可以任意组合使用，没有严格限制，用户也可以很方便的自定义新的数据源。
+每个step都有source和target两个配置，具体配置使用可以参考 [Datasource](/docs/datasource) 这一节来使用。同一个workflow里面datasource之间可以任意组合使用，没有严格限制，用户也可以很方便的自定义新的数据源。
 
 
 ## 扩展
@@ -126,3 +126,7 @@ Transformer的相关详细使用可以参考 [Transformer](/docs/transformer-gui
 ### 自定义数据源
 
 自定义数据源的相关详细使用可以参考 [Transformer](/docs/custom-datasource-guide)
+
+### 配置项
+
+Sharp ETL配置项、Spark conf配置、系统连接信息配置等可以参考 [Properties file config](/docs/properties-file-config)
