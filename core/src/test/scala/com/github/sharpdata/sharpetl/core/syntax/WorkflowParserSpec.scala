@@ -488,7 +488,7 @@ class WorkflowParserSpec extends AnyFunSpec with should.Matchers {
         |
         |-- step=5
         |-- source=transformation
-        |--  className=com.github.sharpdata.sharpetl.spark.transformation.ZipTableTransformer
+        |--  className=com.github.sharpdata.sharpetl.spark.transformation.SCDTransformer
         |--  methodName=transform
         |--   dwDataLoadType=full
         |--   dwViewName=`4e9e6a00`
