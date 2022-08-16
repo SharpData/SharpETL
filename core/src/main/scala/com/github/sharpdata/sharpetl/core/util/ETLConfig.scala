@@ -156,7 +156,7 @@ object ETLConfig {
   }
 
   def setPropertyPath(path: String, env: String = ""): Unit = {
-    Environment.current = env
+    Environment.CURRENT = env
     if (!isNullOrEmpty(path)) {
       propertyPath = path
     } else {

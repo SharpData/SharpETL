@@ -1,18 +1,15 @@
 package com.github.sharpdata.sharpetl.core.quality
 
 import com.github.sharpdata.sharpetl.core.annotation.Annotations.Stable
-import com.github.sharpdata.sharpetl.core.repository.QualityCheckAccessor
-import com.github.sharpdata.sharpetl.core.syntax.WorkflowStep
-import com.github.sharpdata.sharpetl.core.util.ETLLogger
-import com.google.common.base.Strings.isNullOrEmpty
 import com.github.sharpdata.sharpetl.core.exception.Exception.DataQualityCheckRuleMissingException
 import com.github.sharpdata.sharpetl.core.quality.QualityCheck._
 import com.github.sharpdata.sharpetl.core.repository.QualityCheckAccessor
 import com.github.sharpdata.sharpetl.core.repository.model.QualityCheckLog
 import com.github.sharpdata.sharpetl.core.syntax.WorkflowStep
 import com.github.sharpdata.sharpetl.core.util.ReflectUtil.reflectObjectMethod
-import com.github.sharpdata.sharpetl.core.util.StringUtil.uuidName
 import com.github.sharpdata.sharpetl.core.util.{ETLLogger, StringUtil}
+import com.github.sharpdata.sharpetl.core.util.StringUtil.uuidName
+import com.google.common.base.Strings.isNullOrEmpty
 
 // scalastyle:off
 case class CheckResult[DataFrame](warn: Seq[DataQualityCheckResult], error: Seq[DataQualityCheckResult], passed: DataFrame)

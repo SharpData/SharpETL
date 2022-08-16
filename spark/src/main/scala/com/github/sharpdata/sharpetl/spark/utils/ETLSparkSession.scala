@@ -18,7 +18,7 @@ object ETLSparkSession {
   private var autoCloseSession: Boolean = true
 
   lazy val sparkSession: SparkSession = {
-    if (Environment.current == "embedded-hive") {
+    if (Environment.CURRENT == Environment.EMBEDDED_HIVE) {
       sparkWithEmbeddedHive
     } else if (local) {
       SparkSession.builder().config(conf()).getOrCreate()

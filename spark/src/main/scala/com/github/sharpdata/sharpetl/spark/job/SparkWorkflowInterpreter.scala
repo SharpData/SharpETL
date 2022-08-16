@@ -34,31 +34,20 @@ class SparkWorkflowInterpreter(override val spark: SparkSession,
                                override val qualityCheckAccessor: QualityCheckAccessor)
   extends SparkQualityCheck(spark, dataQualityCheckRules, qualityCheckAccessor) with WorkflowInterpreter[DataFrame] {
 
-  override def executeJob(steps: List[WorkflowStep],
-                          jobLog: JobLog,
-                          variables: Variables,
-                          start: String,
-                          end: String): Unit = {
+
+  override def evalSteps(steps: List[WorkflowStep], jobLog: JobLog, variables: Variables, start: String, end: String): Unit = {
     val batchStepNum = countBatchStepNum(steps)
     if (batchStepNum > 0) {
-      executeBatchSteps(steps.take(batchStepNum), jobLog, variables, start, end)
+      super.evalSteps(steps, jobLog, variables, start, end)
+      cleanUpTempTableFromMemory()
     }
     if (batchStepNum < steps.length) {
       executeMicroBatchSteps(steps.slice(batchStepNum, steps.length), jobLog, variables, start, end)
     }
   }
 
-  def executeBatchSteps(batchSteps: List[WorkflowStep],
-                        jobLog: JobLog,
-                        variables: Variables,
-                        start: String,
-                        end: String): Unit = {
-    executeSteps(batchSteps, jobLog, variables, start, end)
-    cleanUpTempTableInMemory()
-  }
-
-  private def cleanUpTempTableInMemory(): Unit = {
-    if (Environment.current != "test") {
+  private def cleanUpTempTableFromMemory(): Unit = {
+    if (Environment.CURRENT != "test") {
       val tempTableNames = spark.catalog.listTables().filter(_.isTemporary)
       tempTableNames.collect().foreach(it => spark.catalog.dropTempView(it.name))
     }
@@ -81,7 +70,7 @@ class SparkWorkflowInterpreter(override val spark: SparkSession,
 
     StreamingStep.executeStreamingStep(streamingDataSourceConfig, stream, (df: DataFrame) => {
       executeWrite(jobLog, df, firstMicroBatchStep, variables)
-      executeSteps(microBatchSteps.tail, jobLog, variables, start, end)
+      evalSteps(microBatchSteps.tail, jobLog, variables, start, end)
 
       jobLog.setLastUpdateTime(LocalDateTime.now())
       jobLogAccessor.update(jobLog)
@@ -97,10 +86,6 @@ class SparkWorkflowInterpreter(override val spark: SparkSession,
       batchStepNum += 1
     }
     batchStepNum
-  }
-
-  override def transformListFiles(filePaths: List[String]): DataFrame = {
-    sparkSession.sql(s"SELECT '${filePaths.mkString(",")}' AS `FILE_PATHS`")
   }
 
   override def listFiles(step: WorkflowStep): List[String] = {
@@ -126,13 +111,11 @@ class SparkWorkflowInterpreter(override val spark: SparkSession,
         case DataSourceType.SCP =>
           ScpDataSource.listFilePath(step)
         case _ =>
-          throw FileDataSourceConfigErrorException(
-            s"Not supported data source type ${conf.dataSourceType}"
-          )
+          throw FileDataSourceConfigErrorException(s"Not supported data source type ${conf.dataSourceType}")
       }
     }
 
-    ETLLogger.info(s"Files need to be processed:\n ${files.mkString(",\n")}")
+    ETLLogger.info(s"Files will to be processed:\n ${files.mkString(",\n")}")
     files
   }
 

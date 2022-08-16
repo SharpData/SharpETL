@@ -15,14 +15,14 @@ object StringUtil {
   }
 
   def environmentSuffix: String = {
-    Option(Environment.current).getOrElse(Environment.LOCAL).toLowerCase match {
+    Option(Environment.CURRENT).getOrElse(Environment.LOCAL).toLowerCase match {
       case "" => ""
       case Environment.LOCAL => ""
       case Environment.DEV => s"-${Environment.DEV}"
       case Environment.QA => s"-${Environment.QA}"
       case Environment.PROD => s"-${Environment.PROD}"
       case Environment.TEST => s"-${Environment.TEST}"
-      case _ => s"-${Environment.current}"
+      case _ => s"-${Environment.CURRENT}"
     }
   }
 

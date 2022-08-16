@@ -33,7 +33,7 @@ final case class LogDrivenInterpreter(
                                        command: CommonCommand
                                      ) {
 
-  @inline def workflowName: String = workflow.name
+  @inline private def workflowName: String = workflow.name
 
   private lazy val period = {
     if (command.period > 0) {
@@ -46,27 +46,27 @@ final case class LogDrivenInterpreter(
   /**
    * 任务执行主入口
    */
-  def interpreting(): WFInterpretingResult = {
-    val logs = command match {
+  def eval(): WFInterpretingResult = {
+    val logQueue = command match {
       case cmd: CommonCommand if cmd.refresh =>
-        executeAndGetResult(unexecutedQueue(Some(cmd.refreshRangeStart), Some(cmd.refreshRangeEnd)), checkRunningAndExecute)
+        logDrivenPlan(Some(cmd.refreshRangeStart), Some(cmd.refreshRangeEnd))
       case _ =>
         if (command.once) {
-          executeAndGetResult(unexecutedQueue().headOption.toSeq, checkRunningAndExecute)
+          logDrivenPlan().headOption.toSeq
         } else if (command.latestOnly) {
-          executeAndGetResult(unexecutedQueue().reverse.headOption.toSeq, checkRunningAndExecute)
+          logDrivenPlan().reverse.headOption.toSeq
         } else {
-          executeAndGetResult(unexecutedQueue(), checkRunningAndExecute)
+          logDrivenPlan()
         }
     }
-    WFInterpretingResult(workflow, logs)
+    WFInterpretingResult(workflow, tailrecApply(logQueue, checkRunningAndEval))
   }
 
   /**
    * 检查上次运行到那里了，来判断这一次从哪里开始执行
    */
   // scalastyle:off
-  def unexecutedQueue(startTimeStr: Option[String] = None, endTimeStr: Option[String] = None): Seq[JobLog] = {
+  def logDrivenPlan(startTimeStr: Option[String] = None, endTimeStr: Option[String] = None): Seq[JobLog] = {
     val lastJob = if (startTimeStr.isDefined && endTimeStr.isDefined) {
       None
     } else {
@@ -214,23 +214,23 @@ final case class LogDrivenInterpreter(
     }.toList
   }
 
-  def checkRunningAndExecute(jobLog: JobLog): JobLog = {
+  def checkRunningAndEval(jobLog: JobLog): JobLog = {
     val runningJob = jobLogAccessor.isAnotherJobRunning(jobLog.jobName)
     if (runningJob == null) {
-      executeWorkflow(jobLog)
+      evalWorkflow(jobLog)
     } else {
       if (!command.skipRunning) {
         runningJob.failed()
         jobLogAccessor.update(runningJob)
-        executeWorkflow(jobLog)
+        evalWorkflow(jobLog)
       } else {
         throw AnotherJobIsRunningException(s"Exception thrown when another job(${runningJob.jobId}) workflowName: ${runningJob.jobName} is running")
       }
     }
   }
 
-  private def executeWorkflow(jobLog: JobLog): JobLog = {
-    ETLLogger.info(s"Executing workflow : ${jobLog.workflowName}")
+  private def evalWorkflow(jobLog: JobLog): JobLog = {
+    ETLLogger.info(s"Start evaluating workflow : ${jobLog.workflowName}... ...")
     try {
       jobLogAccessor.create(jobLog)
       val start = jobLog.formatDataRangeStart()
@@ -245,10 +245,10 @@ final case class LogDrivenInterpreter(
         ) ++ jobLog.defaultTimePartition()
       )
       Option(workflow).foreach(wf =>
-        ETLLogger.info(s"[Workflow]: \n${wf.headerStr}")
+        ETLLogger.info(s"[Workflow Header]: \n${wf.headerStr}")
       )
       workflowInterpreter
-        .executeSteps(
+        .evalSteps(
           dropStep(Option(workflow).map(_.steps).getOrElse(Nil)),
           jobLog,
           variables,
@@ -258,7 +258,7 @@ final case class LogDrivenInterpreter(
       jobLog.success()
     } catch {
       case _: NoFileSkipException =>
-        ETLLogger.warn("Job won't checkRunningAndExecute any files because there are no files to be proceed and `throwExceptionIfEmpty` is false")
+        ETLLogger.warn("Job won't checkRunningAndEval any files because there are no files to be proceed and `throwExceptionIfEmpty` is false")
         jobLog.success()
       case e: NoFileToContinueException =>
         ETLLogger.warn("Job can not get any files!")
@@ -341,7 +341,7 @@ final case class LogDrivenInterpreter(
       .getOrElse(1)
   }
 
-  def executeAndGetResult[A](seq: Seq[A], f: A => A): Seq[Try[A]] = {
+  def tailrecApply[A](seq: Seq[A], f: A => A): Seq[Try[A]] = {
     @tailrec
     def loop(seq: Seq[A], acc: ListBuffer[Try[A]]): Seq[Try[A]] = {
       seq match {

@@ -11,12 +11,13 @@ object Constants {
   }
 
   object Environment {
-    var current: String = _
+    var CURRENT: String = _
     val LOCAL = "local"
     val DEV = "dev"
     val QA = "qa"
     val PROD = "prod"
     val TEST = "test"
+    val EMBEDDED_HIVE = "embedded-hive"
   }
 
   object PathPrefix {
@@ -37,8 +38,8 @@ object Constants {
   }
 
   object BooleanString {
-    val TRUE = "true"
-    val FALSE = "false"
+    val TRUE = true.toString
+    val FALSE = false.toString
   }
 
   object ETLDatabaseType {

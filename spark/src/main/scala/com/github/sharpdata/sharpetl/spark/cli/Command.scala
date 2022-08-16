@@ -30,7 +30,7 @@ class SingleSparkJobCommand extends SingleJobCommand {
         interpreter,
         jobLogAccessor = jobLogAccessor,
         command = this
-      ).interpreting()
+      ).eval()
       new NotificationUtil(jobLogAccessor).notify(Seq(wfInterpretingResult))
       checkSuccessOrThrow(Seq(wfInterpretingResult))
     } finally {
@@ -52,7 +52,7 @@ class BatchSparkJobCommand extends BatchJobCommand {
     val logDrivenInterpreters = getInterpretersFromSqlFile(etlDatabaseType)
     val batchJobResult: Seq[WFInterpretingResult] =
       try {
-        logDrivenInterpreters.map(_.interpreting())
+        logDrivenInterpreters.map(_.eval())
       } finally {
         logDrivenInterpreters.headOption.foreach(_.workflowInterpreter.close())
       }

@@ -21,22 +21,14 @@ import java.lang.reflect.Field
 @Stable(since = "1.0.0")
 trait WorkflowInterpreter[DataFrame] extends Serializable with QualityCheck[DataFrame] with AutoCloseable { // scalastyle:ignore
 
-  def executeJob(steps: List[WorkflowStep],
-                 jobLog: JobLog,
-                 variables: Variables,
-                 start: String,
-                 end: String): Unit = {
-    executeSteps(steps, jobLog, variables, start, end)
-  }
-
-  def executeSteps(steps: List[WorkflowStep],
-                   jobLog: JobLog,
-                   variables: Variables,
-                   start: String,
-                   end: String): Unit = {
+  def evalSteps(steps: List[WorkflowStep],
+                jobLog: JobLog,
+                variables: Variables,
+                start: String,
+                end: String): Unit = {
     try {
       steps
-        .foreach(step => executeStep(step, jobLog, variables, start, end))
+        .foreach(step => evalStep(step, jobLog, variables, start, end))
     } catch {
       case _: EmptyDataException =>
         if (steps.exists(step => step.skipFollowStepWhenEmpty == true.toString)) { // scalastyle:ignore
@@ -47,7 +39,7 @@ trait WorkflowInterpreter[DataFrame] extends Serializable with QualityCheck[Data
   }
 
   // scalastyle:off
-  def executeStep(step: WorkflowStep, jobLog: JobLog, variables: Variables, start: String, end: String): Unit = {
+  def evalStep(step: WorkflowStep, jobLog: JobLog, variables: Variables, start: String, end: String): Unit = {
 
     val stepLog = jobLog.createStepLog(step.step)
     stepLog.setSourceType(step.source.dataSourceType)
@@ -147,45 +139,27 @@ trait WorkflowInterpreter[DataFrame] extends Serializable with QualityCheck[Data
       case DataSourceType.MOUNT =>
         ETLLogger.info("Be run file list: \n%s".format(jobLog.file))
         val hdfsPaths = downloadFileToHDFS(step, jobLog, variables)
-        transformListFiles(hdfsPaths)
+        variables.put("FILE_PATHS", hdfsPaths.mkString(","))
+        null.asInstanceOf[DataFrame] // scalastyle:ignore
       case _ =>
         executeRead(step, jobLog, variables)
     }
   }
 
-  /**
-   * 对sql template进行参数替换
-   */
-  def prepareSql(jobLog: JobLog, variables: Variables, start: String, end: String, step: WorkflowStep): Unit = {
-    if (step.getSqlTemplate != null) {
-      step.setSql(
-        step
-          .getSqlTemplate
-          .replace("${JOB_ID}", jobLog.jobId.toString)
-          .replace("${DATA_RANGE_START}", start)
-          .replace("${DATA_RANGE_END}", end)
-      )
-      replaceVariablesInSql(step, variables.filter(it => it._1.startsWith("$")))
-    }
-    replaceVariablesInOptionsAndArgs(step, variables)
-    replaceTemplateVariables(step.source, variables)
-    replaceTemplateVariables(step.target, variables)
-  }
-
-  def transformListFiles(filePaths: List[String]): DataFrame
-
   def listFiles(step: WorkflowStep): List[String]
 
-  def cleanUpTempFiles(step: WorkflowStep,
+  @deprecated def cleanUpTempFiles(step: WorkflowStep,
                        files: List[String]): Unit = {
     val sourceConfig = step.getSourceConfig[FileDataSourceConfig]
-    files.foreach { filePath =>
-      sourceConfig.setFilePath(filePath)
-      deleteSource(step)
+    if (sourceConfig.deleteSource.toBoolean) {
+      files.foreach { filePath =>
+        sourceConfig.setFilePath(filePath)
+        deleteSource(step)
+      }
     }
   }
 
-  def deleteSource(step: WorkflowStep): Unit
+  @deprecated def deleteSource(step: WorkflowStep): Unit
 
   def readFile(step: WorkflowStep,
                jobLog: JobLog,
@@ -288,5 +262,24 @@ object WorkflowInterpreter {
       variables.foreach { case (k, v) => value = value.replace(k, v) }
       field.set(conf, value)
     }
+  }
+
+  /**
+   * 对sql template进行参数替换
+   */
+  def prepareSql(jobLog: JobLog, variables: Variables, start: String, end: String, step: WorkflowStep): Unit = {
+    if (step.getSqlTemplate != null) {
+      step.setSql(
+        step
+          .getSqlTemplate
+          .replace("${JOB_ID}", jobLog.jobId.toString)
+          .replace("${DATA_RANGE_START}", start)
+          .replace("${DATA_RANGE_END}", end)
+      )
+      replaceVariablesInSql(step, variables.filter(it => it._1.startsWith("$")))
+    }
+    replaceVariablesInOptionsAndArgs(step, variables)
+    replaceTemplateVariables(step.source, variables)
+    replaceTemplateVariables(step.target, variables)
   }
 }

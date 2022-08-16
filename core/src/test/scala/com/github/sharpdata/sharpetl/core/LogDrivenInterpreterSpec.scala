@@ -41,14 +41,14 @@ class LogDrivenInterpreterSpec extends AnyFlatSpec with should.Matchers {
     it should s"not schedule when last run 1 sec ago: $period" in {
       val prevDataEndTime = now.minus(1L * period, ChronoUnit.SECONDS)
       val logDrivenJob: LogDrivenInterpreter = setup(prevDataEndTime, period)
-      val unexecutedQueue = logDrivenJob.unexecutedQueue()
+      val unexecutedQueue = logDrivenJob.logDrivenPlan()
       unexecutedQueue.isEmpty should be(true)
     }
 
     it should s"schedule 1 job: $period" in {
       val prevDataEndTime = now.minus(1L * period, ChronoUnit.MINUTES)
       val logDrivenJob: LogDrivenInterpreter = setup(prevDataEndTime, period)
-      val unexecutedQueue = logDrivenJob.unexecutedQueue()
+      val unexecutedQueue = logDrivenJob.logDrivenPlan()
       unexecutedQueue.size should be(1)
       unexecutedQueue.head.dataRangeStart.asBigInt should be(prevDataEndTime.asBigInt())
       unexecutedQueue.head.dataRangeEnd.asBigInt should be(prevDataEndTime.plus(1L * period, ChronoUnit.MINUTES).asBigInt())
@@ -61,7 +61,7 @@ class LogDrivenInterpreterSpec extends AnyFlatSpec with should.Matchers {
 
       val prevDataEndTime = now.minus(1 * period, ChronoUnit.MINUTES).minus(1, ChronoUnit.SECONDS)
       val logDrivenJob: LogDrivenInterpreter = setup(prevDataEndTime, period)
-      val unexecutedQueue = logDrivenJob.unexecutedQueue()
+      val unexecutedQueue = logDrivenJob.logDrivenPlan()
       unexecutedQueue.size should be(1)
       unexecutedQueue.head.dataRangeStart.asBigInt should be(prevDataEndTime.asBigInt())
       unexecutedQueue.head.dataRangeEnd.asBigInt should be(prevDataEndTime.plus(1L * period, ChronoUnit.MINUTES).asBigInt())
@@ -73,7 +73,7 @@ class LogDrivenInterpreterSpec extends AnyFlatSpec with should.Matchers {
     it should s"schedule 2 job when last job run 2 time unit ago: $period" in {
       val prevDataEndTime = now.minus(2 * period, ChronoUnit.MINUTES)
       val logDrivenJob: LogDrivenInterpreter = setup(prevDataEndTime, period)
-      val unexecutedQueue = logDrivenJob.unexecutedQueue()
+      val unexecutedQueue = logDrivenJob.logDrivenPlan()
       unexecutedQueue.size should be(2)
       unexecutedQueue.head.dataRangeStart.asBigInt should be(prevDataEndTime.asBigInt())
       unexecutedQueue.head.dataRangeEnd.asBigInt should be(prevDataEndTime.plus(1L * period, ChronoUnit.MINUTES).asBigInt())

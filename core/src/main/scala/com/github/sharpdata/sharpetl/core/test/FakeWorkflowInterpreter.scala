@@ -35,8 +35,6 @@ class FakeWorkflowInterpreter extends WorkflowInterpreter[Seq[_]] {
 
   override def applicationId(): String = "fake-app-001"
 
-  override def transformListFiles(filePaths: List[String]): Seq[_] = ???
-
   override def dropUnusedCols(df: Seq[_], cols: String): Seq[_] = ???
 
   override def union(left: Seq[_], right: Seq[_]): Seq[_] = left ++ right

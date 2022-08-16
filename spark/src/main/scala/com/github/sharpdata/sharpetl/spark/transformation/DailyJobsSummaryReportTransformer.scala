@@ -63,7 +63,7 @@ object DailyJobsSummaryReportTransformer extends Transformer {
         new Email(
           Sender(notificationService.emailSender, notificationService.emailSenderPersonalName),
           notificationService.summaryJobReceivers,
-          s"[${Environment.current.toUpperCase}] Daily ETL Job summary report($startTimeText to $endTimeText)",
+          s"[${Environment.CURRENT.toUpperCase}] Daily ETL Job summary report($startTimeText to $endTimeText)",
           s"Attachment is report of all jobs between $startTimeText to $endTimeText",
           Option.apply(new EmailAttachment(csvText, "text/csv", s"attachment-$startTimeText-$endTimeText.csv")))
       )

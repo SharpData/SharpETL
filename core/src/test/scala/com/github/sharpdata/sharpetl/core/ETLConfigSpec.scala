@@ -13,7 +13,7 @@ class ETLConfigSpec extends AnyFunSpec with BeforeAndAfterEach {
 
   ignore("hdfs") {
     it("should read from hdfs") {
-      Environment.current = Constants.Environment.LOCAL
+      Environment.CURRENT = Constants.Environment.LOCAL
       ETLConfig.setPropertyPath("hdfs:///tmp/application.properties")
       val res = ETLConfig.getProperty("from_hdfs_path")
       assert(!StringUtil.isNullOrEmpty(res))
@@ -22,13 +22,13 @@ class ETLConfigSpec extends AnyFunSpec with BeforeAndAfterEach {
   }
 
   it("read from class path") {
-    Constants.Environment.current = Constants.Environment.LOCAL
+    Constants.Environment.CURRENT = Constants.Environment.LOCAL
     val path = ETLConfig.getProperty("etl.workflow.path")
     assert(!StringUtil.isNullOrEmpty(path))
   }
 
   it("read from file path") {
-    Constants.Environment.current = Constants.Environment.LOCAL
+    Constants.Environment.CURRENT = Constants.Environment.LOCAL
     val filePath = getClass.getResource("/application.properties_bak").toString
     ETLConfig.setPropertyPath(filePath)
     val res = ETLConfig.getProperty("from_file_path")

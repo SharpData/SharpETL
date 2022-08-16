@@ -47,7 +47,7 @@ class NotificationUtil(val jobLogAccessor: JobLogAccessor) {
           val notification = it._1.notifyType match {
             case NotificationType.EMAIL =>
               new Email(Sender(emailSender, emailSenderPersonalName),
-                it._1.recipient, s"[${Environment.current.toUpperCase}] ETL job summary report", messages)
+                it._1.recipient, s"[${Environment.CURRENT.toUpperCase}] ETL job summary report", messages)
             case _ => ???
           }
           NotificationFactory.sendNotification(notification)

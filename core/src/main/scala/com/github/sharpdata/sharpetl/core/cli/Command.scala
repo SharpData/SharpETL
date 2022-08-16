@@ -196,8 +196,8 @@ abstract class CommonCommand extends Runnable {
          |Total memory available to JVM:        ${byteCountToDisplaySize(Runtime.getRuntime.totalMemory())}
          |""".stripMargin)
     ETLLogger.info(s"parameters: ${commandStr.toString()}")
-    Environment.current = env
-    ETLLogger.info(s"Job profile: ${Environment.current}")
+    Environment.CURRENT = env
+    ETLLogger.info(s"Job profile: ${Environment.CURRENT}")
   }
 }
 

@@ -67,7 +67,7 @@ object EnsureSinkConnectorFinished extends Transformer {
       case _ => consumedOffsets.asScala.filter(it => it._1.topic == kafkaTopic)
     }
 
-    if (Environment.current == Environment.PROD) {
+    if (Environment.CURRENT == Environment.PROD) {
       assert(consumedOffsetWithTopic.nonEmpty)
     }
 
@@ -79,7 +79,7 @@ object EnsureSinkConnectorFinished extends Transformer {
     val endOffset = endOffsetsWithTopic.values.map(_.toLong).sum
     val consumedOffset = consumedOffsetWithTopic.values.map(_.offset()).sum
 
-    if (Environment.current == Environment.PROD) {
+    if (Environment.CURRENT == Environment.PROD) {
       assert(endOffset > 0, "The end offset can not be 0, which means there are no data in the topic")
       assert(consumedOffset > 0, "The consumed offset can not be 0, which means the consumer never consumed any data from topic")
     }
