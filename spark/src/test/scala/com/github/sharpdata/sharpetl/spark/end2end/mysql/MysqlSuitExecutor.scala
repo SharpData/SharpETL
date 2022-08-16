@@ -11,6 +11,7 @@ import org.testcontainers.containers.MySQLContainer
 // All suite in Suites are run in parallel, need to use Sequential if we want them to run in order
 @DoNotDiscover
 class MysqlSuitExecutor extends Suites(
+  new DataQualityCheckSpec,
   new DailyJobsSummaryReportTransformSpec,
   new HttpDataSourceSpec,
   new DynamicLoadingTransformerSpec,

@@ -23,4 +23,5 @@ case class QualityCheckLog(
                             @BeanProperty
                             var createTime: LocalDateTime = LocalDateTime.now(),
                             @BeanProperty
-                            var lastUpdateTime: LocalDateTime = LocalDateTime.now())
+                            var lastUpdateTime: LocalDateTime = LocalDateTime.now()
+                          )
