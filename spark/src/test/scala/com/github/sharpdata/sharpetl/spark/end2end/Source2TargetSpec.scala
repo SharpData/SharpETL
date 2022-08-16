@@ -2,6 +2,7 @@ package com.github.sharpdata.sharpetl.spark.end2end
 
 import com.github.sharpdata.sharpetl.core.util.DateUtil
 import ETLSuit.runJob
+import com.github.sharpdata.sharpetl.spark.end2end.mysql.MysqlSuit
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 import org.scalatest.DoNotDiscover
@@ -10,7 +11,7 @@ import java.sql.Timestamp
 import java.time.LocalDateTime
 
 @DoNotDiscover
-class Source2TargetSpec extends ETLSuit {
+class Source2TargetSpec extends MysqlSuit {
 
   override val createTableSql: String =
     "CREATE TABLE IF NOT EXISTS target" +
@@ -50,7 +51,7 @@ class Source2TargetSpec extends ETLSuit {
     execute(createTableSql)
     writeDataToSource(sampleDataDf, sourceTableName)
     runJob(jobParameters)
-    val resultDf = readFromTarget("target")
+    val resultDf = readFromSource("target")
     assertSmallDataFrameEquality(resultDf, sampleDataDf, orderedComparison = false)
   }
 }

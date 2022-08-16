@@ -23,28 +23,16 @@ trait ETLSuit extends AnyFunSpec
   val createTableSql: String = ""
   val sourceDbName: String = "int_test"
   val targetDbName: String = "int_test"
-  var migrationPort: Int = 2333
-  var dataPort: Int = 2334
+  var logDbPort: Int = 2333
 
   val wf = workflow("workflowName")
 
   def workflow(name: String) = Workflow(name, "1440", "incremental", "timewindow", null, null, null, -1, null, false, null, Map(), Nil) // scalastyle:off
 
-  def writeDataToSource(sampleDataDf: DataFrame, tableName: String): Unit = {
-    sampleDataDf.write
-      .format("jdbc")
-      .option("url", s"jdbc:mysql://localhost:$dataPort/$sourceDbName")
-      .option("dbtable", tableName)
-      .option("user", "admin")
-      .option("password", "admin")
-      .mode("append")
-      .save()
-  }
-
-  def readFromTarget(targetTable: String, dbType: String = "data"): DataFrame = {
+  def readFromLog(targetTable: String): DataFrame = {
     spark.read
       .format("jdbc")
-      .option("url", s"jdbc:mysql://localhost:${if (dbType == "migration") migrationPort else dataPort}/${if (dbType == "migration") "sharp_etl" else "int_test"}")
+      .option("url", s"jdbc:mysql://localhost:$logDbPort/sharp_etl")
       .option("dbtable", targetTable)
       .option("user", "admin")
       .option("password", "admin")
@@ -52,8 +40,8 @@ trait ETLSuit extends AnyFunSpec
       .drop("job_id", "job_time")
   }
 
-  def execute(sql: String, dbName: String, dbType: String): Boolean = {
-    val url = s"jdbc:mysql://localhost:${if (dbType == "migration") migrationPort else dataPort}/$dbName"
+  def executeInLog(sql: String, dbName: String): Boolean = {
+    val url = s"jdbc:mysql://localhost:$logDbPort/$dbName"
     val connection = DriverManager.getConnection(url, "admin", "admin")
     val statement = connection.createStatement()
     try {
@@ -66,8 +54,8 @@ trait ETLSuit extends AnyFunSpec
     }
   }
 
-  def execute(sql: String): Boolean = {
-    execute(sql, targetDbName, "")
+  def executeMigration(sql: String): Boolean = {
+    executeInLog(sql, "sharp_etl")
   }
 
   def getTimeStampFromStr(str: String): java.sql.Timestamp = {

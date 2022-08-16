@@ -2,6 +2,7 @@ package com.github.sharpdata.sharpetl.spark.end2end
 
 import ETLSuit.runJob
 import com.github.sharpdata.sharpetl.core.util.DateUtil
+import com.github.sharpdata.sharpetl.spark.end2end.mysql.MysqlSuit
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.{DataFrame, Row}
 import org.scalatest.DoNotDiscover
@@ -10,7 +11,7 @@ import java.sql.Timestamp
 import java.time.LocalDateTime
 
 @DoNotDiscover
-class BatchJobSpec extends ETLSuit {
+class BatchJobSpec extends MysqlSuit {
   override val createTableSql: String = ""
   override val targetDbName = "int_test"
   override val sourceDbName: String = "int_test"
@@ -55,7 +56,7 @@ class BatchJobSpec extends ETLSuit {
 
     runJob(jobParameters)
 
-    val df = readFromTarget("job_log", "migration").where("job_name = 'latest-only'")
+    val df = readFromLog("job_log").where("job_name = 'latest-only'")
     df.count() should be(1)
     df.select("data_range_start").head().get(0) should be(dataRangeStart)
   }
@@ -71,7 +72,7 @@ class BatchJobSpec extends ETLSuit {
 
     runJob(jobParameters)
 
-    readFromTarget("job_log", "migration").where("job_name = 'refresh-temp'").count() should be(1)
+    readFromLog("job_log").where("job_name = 'refresh-temp'").count() should be(1)
 
     val newJobParameters: Array[String] = Array("single-job",
       "--name=refresh-temp", "--period=1440", "--refresh", s"--refresh-range-start=${refreshStart}", s"--refresh-range-end=${refreshEnd}",
@@ -79,7 +80,7 @@ class BatchJobSpec extends ETLSuit {
 
     runJob(newJobParameters)
 
-    readFromTarget("job_log", "migration").where("job_name = 'refresh-temp'").count() should be(2)
+    readFromLog("job_log").where("job_name = 'refresh-temp'").count() should be(2)
   }
 
   it("should skip if already done") {
@@ -88,14 +89,14 @@ class BatchJobSpec extends ETLSuit {
       "--local",
       "--env=test", "--parallelism=1"))
 
-    readFromTarget("job_log", "migration").where("job_name = 'refresh-temp'").count() should be(3)
+    readFromLog("job_log").where("job_name = 'refresh-temp'").count() should be(3)
 
     runJob(Array("batch-job",
       s"--names=refresh-temp", "--period=1440",
       "--local",
       "--env=test", "--parallelism=1"))
 
-    readFromTarget("job_log", "migration").where("job_name = 'refresh-temp'").count() should be(3)
+    readFromLog("job_log").where("job_name = 'refresh-temp'").count() should be(3)
   }
 
   it("should from user defined step id") {

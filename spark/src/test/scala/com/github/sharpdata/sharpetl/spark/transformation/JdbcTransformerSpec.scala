@@ -3,15 +3,15 @@ package com.github.sharpdata.sharpetl.spark.transformation
 import com.github.sharpdata.sharpetl.spark.end2end.ETLSuit
 import com.github.sharpdata.sharpetl.core.util.DateUtil
 import ETLSuit.runJob
+import com.github.sharpdata.sharpetl.spark.end2end.mysql.MysqlSuit
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types.{LongType, StructField, StructType}
 import org.scalatest.DoNotDiscover
 
 import java.time.LocalDateTime
-import scala.collection.mutable
 
 @DoNotDiscover
-class JdbcTransformerSpec extends ETLSuit {
+class JdbcTransformerSpec extends MysqlSuit {
 
   val schema = List(
     StructField("number", LongType)
@@ -29,7 +29,7 @@ class JdbcTransformerSpec extends ETLSuit {
       |""".stripMargin
 
   it("should call sp and return result as dataframe") {
-    execute(createTableSql, sourceDbName, "data")
+    execute(createTableSql)
     val df = JdbcResultSetTransformer.transform(
       Map(
         "dbName" -> "int_test",
@@ -40,7 +40,7 @@ class JdbcTransformerSpec extends ETLSuit {
   }
 
   it("should call sp with no return success") {
-    execute("create procedure empty_procedure() begin end", sourceDbName, "data")
+    execute("create procedure empty_procedure() begin end")
     val df = JdbcResultSetTransformer.transform(
       Map(
         "dbName" -> "int_test",
@@ -50,7 +50,7 @@ class JdbcTransformerSpec extends ETLSuit {
   }
 
   it("should read from sp and write to target") {
-    execute("create table sp_test(number bigint)", sourceDbName, "data")
+    execute("create table sp_test(number bigint)")
     val startTime = LocalDateTime.now().minusDays(1L).format(DateUtil.L_YYYY_MM_DD_HH_MM_SS)
 
     val jobParameters: Array[String] = Array("single-job",
@@ -58,7 +58,7 @@ class JdbcTransformerSpec extends ETLSuit {
       "--local", s"--default-start-time=${startTime}", "--env=test")
     runJob(jobParameters)
 
-    val targetDf = readFromTarget("sp_test")
+    val targetDf = readFromSource("sp_test")
     assertSmallDataFrameEquality(targetDf, expDf, orderedComparison = false)
   }
 }
