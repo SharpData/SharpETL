@@ -17,7 +17,6 @@ object StreamingStep {
                           ) : Unit = {
     streamingDataSourceConfig match {
       case _ => KafkaStreamingStep.execute(streamingDataSourceConfig, stream, streamingCallback)
-
     }
   }
 }

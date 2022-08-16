@@ -9,7 +9,6 @@ import com.github.sharpdata.sharpetl.core.util.ReflectUtil.reflectObjectMethod
 import com.github.sharpdata.sharpetl.core.util.ScalaScriptCompiler
 import org.apache.spark.sql.DataFrame
 
-import scala.collection.mutable
 import scala.language.reflectiveCalls
 
 object ReflectUtil {

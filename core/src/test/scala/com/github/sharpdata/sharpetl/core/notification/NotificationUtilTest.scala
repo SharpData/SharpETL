@@ -1,6 +1,6 @@
 package com.github.sharpdata.sharpetl.core.notification
 
-import com.github.sharpdata.sharpetl.core.api.WFInterpretingResult
+import com.github.sharpdata.sharpetl.core.api.WfEvalResult
 import com.github.sharpdata.sharpetl.core.notification.sender.NotificationFactory
 import com.github.sharpdata.sharpetl.core.repository.JobLogAccessor
 import com.github.sharpdata.sharpetl.core.repository.model.{JobLog, JobStatus, StepLog}
@@ -37,8 +37,8 @@ class NotificationUtilTest extends AnyFlatSpec with should.Matchers {
         Seq(Notify("email", "lisi@gmail.com", NotifyTriggerCondition.ALWAYS)), Map(), List())
 
       service.notify(Seq(
-        WFInterpretingResult(wf1, Seq(Failure(job1, new RuntimeException("???")))),
-        WFInterpretingResult(wf2, Seq(Failure(job2, new RuntimeException("???"))))
+        WfEvalResult(wf1, Seq(Failure(job1, new RuntimeException("???")))),
+        WfEvalResult(wf2, Seq(Failure(job2, new RuntimeException("???"))))
       ))
       verify(NotificationFactory, times(2)).sendNotification(any())
     }
@@ -66,8 +66,8 @@ class NotificationUtilTest extends AnyFlatSpec with should.Matchers {
         Seq(Notify("email", "zhangsan@gmail.com", NotifyTriggerCondition.ALWAYS)), Map(), List())
 
       service.notify(Seq(
-        WFInterpretingResult(wf1, Seq(Failure(job1, new RuntimeException("???")))),
-        WFInterpretingResult(wf2, Seq(Failure(job2, new RuntimeException("???"))))
+        WfEvalResult(wf1, Seq(Failure(job1, new RuntimeException("???")))),
+        WfEvalResult(wf2, Seq(Failure(job2, new RuntimeException("???"))))
       ))
       verify(NotificationFactory, times(1)).sendNotification(any())
     }
@@ -87,7 +87,7 @@ class NotificationUtilTest extends AnyFlatSpec with should.Matchers {
       val tempWf = Workflow("test", "1440", "full", "timewindow", null, null, null, -1, null, false,
         Seq(Notify("email", "zhangsan@gmail.com", NotifyTriggerCondition.ALWAYS)), Map(), List())
 
-      service.notify(Seq(WFInterpretingResult(tempWf, Seq(Success(jobLog)))))
+      service.notify(Seq(WfEvalResult(tempWf, Seq(Success(jobLog)))))
       verify(NotificationFactory, times(1)).sendNotification(any())
     }
 
@@ -111,7 +111,7 @@ class NotificationUtilTest extends AnyFlatSpec with should.Matchers {
       val wf = Workflow("test", "1440", "full", "timewindow", null, null, null, -1, null, false,
         Seq(Notify("email", "zhangsan@gmail.com", NotifyTriggerCondition.FAILURE)), Map(), List())
 
-      service.notify(Seq(WFInterpretingResult(wf, Seq(Success(jobLog)))))
+      service.notify(Seq(WfEvalResult(wf, Seq(Success(jobLog)))))
       verify(NotificationFactory, times(1)).sendNotification(any())
     }
 
@@ -135,7 +135,7 @@ class NotificationUtilTest extends AnyFlatSpec with should.Matchers {
       val wf = Workflow("test", "1440", "full", "timewindow", null, null, null, -1, null, false,
         Seq(Notify("email", "zhangsan@gmail.com", NotifyTriggerCondition.FAILURE)), Map(), List())
 
-      service.notify(Seq(WFInterpretingResult(wf, Seq(Success(jobLog)))))
+      service.notify(Seq(WfEvalResult(wf, Seq(Success(jobLog)))))
       verify(NotificationFactory, times(0)).sendNotification(any())
     }
 

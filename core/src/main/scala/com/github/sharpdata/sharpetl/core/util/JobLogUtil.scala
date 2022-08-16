@@ -1,10 +1,8 @@
 package com.github.sharpdata.sharpetl.core.util
 
 import com.github.sharpdata.sharpetl.core.repository.model.{JobLog, JobStatus}
-import com.github.sharpdata.sharpetl.core.util.Constants.{IncrementalType, DataSourceType}
-import com.github.sharpdata.sharpetl.core.repository.model.{JobLog, JobStatus}
 import com.github.sharpdata.sharpetl.core.util.Constants.PeriodType.{DAY, HOUR}
-import com.github.sharpdata.sharpetl.core.util.Constants.{IncrementalType, DataSourceType}
+import com.github.sharpdata.sharpetl.core.util.Constants.{DataSourceType, IncrementalType}
 import com.github.sharpdata.sharpetl.core.util.DateUtil.{L_YYYY_MM_DD_HH_MM_SS, YYYYMMDDHHMMSS}
 
 import java.time.LocalDateTime

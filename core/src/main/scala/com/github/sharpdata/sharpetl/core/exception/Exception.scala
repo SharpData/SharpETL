@@ -46,8 +46,6 @@ object Exception {
 
   final case class DuplicatedSqlScriptException(msg: String) extends RuntimeException(msg)
 
-  final case class BadYamlFileException(msg: String) extends RuntimeException(msg)
-
   final case class WorkFlowSyntaxException(msg: String) extends RuntimeException(msg)
 
   final class CheckFailedException(msg: String) extends RuntimeException(msg)

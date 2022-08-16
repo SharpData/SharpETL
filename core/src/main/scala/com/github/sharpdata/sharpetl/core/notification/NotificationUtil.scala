@@ -1,6 +1,6 @@
 package com.github.sharpdata.sharpetl.core.notification
 
-import com.github.sharpdata.sharpetl.core.api.WFInterpretingResult
+import com.github.sharpdata.sharpetl.core.api.WfEvalResult
 import com.github.sharpdata.sharpetl.core.notification.sender.{NotificationFactory, NotificationType}
 import com.github.sharpdata.sharpetl.core.repository.JobLogAccessor
 import com.github.sharpdata.sharpetl.core.repository.model.{JobLog, JobStatus}
@@ -19,7 +19,7 @@ class NotificationUtil(val jobLogAccessor: JobLogAccessor) {
   lazy val emailSenderPersonalName: String = ETLConfig.getProperty("notification.email.senderPersonalName")
   lazy val summaryJobReceivers: String = ETLConfig.getProperty("notification.email.summaryReceivers")
 
-  def notify(jobResults: Seq[WFInterpretingResult]): Unit = {
+  def notify(jobResults: Seq[WfEvalResult]): Unit = {
     val configToLogs: Seq[(NotifyConfig, Seq[JobLog])] =
       jobResults
         .filterNot(it => it.workflow.notifies == null || it.workflow.notifies.isEmpty)

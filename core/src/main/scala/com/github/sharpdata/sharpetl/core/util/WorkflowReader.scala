@@ -3,7 +3,6 @@ package com.github.sharpdata.sharpetl.core.util
 import com.github.sharpdata.sharpetl.core.util.Constants.PathPrefix
 import com.github.sharpdata.sharpetl.core.exception.Exception.{DuplicatedSqlScriptException, WorkFlowSyntaxException}
 import com.github.sharpdata.sharpetl.core.syntax._
-import com.github.sharpdata.sharpetl.core.util.Constants.PathPrefix
 
 import java.io.{File, FileNotFoundException}
 
@@ -18,22 +17,18 @@ object WorkflowReader {
     }
   }
 
-  def readSteps(jobName: String): List[WorkflowStep] = {
-    readWorkflow(jobName).steps
-  }
-
-  def readLines(jobName: String): List[String] = {
+  def readLines(workflowName: String): List[String] = {
     val configRootDir = ETLConfig.getProperty("etl.workflow.path")
     val pathPrefix = getPathPrefix(configRootDir)
     val (taskPathMapping, duplicatedFileNames) = readTaskPathMapping(pathPrefix, configRootDir)
-    if (duplicatedFileNames.nonEmpty && duplicatedFileNames.keySet.contains(jobName)) {
+    if (duplicatedFileNames.nonEmpty && duplicatedFileNames.keySet.contains(workflowName)) {
       throw DuplicatedSqlScriptException(
-        s"""There are multiple files have the same filename: $jobName, paths ${duplicatedFileNames(jobName).mkString(",\n")}
-           |Please check your sql script folder and delete the duplicated file.""".stripMargin
+        s"""There are multiple files have the same filename: $workflowName, paths ${duplicatedFileNames(workflowName).mkString(",\n")}
+           |Please check your workflow folder and delete the duplicated file.""".stripMargin
       )
     }
-    if (taskPathMapping.isDefinedAt(jobName)) {
-      val taskPath = taskPathMapping(jobName)
+    if (taskPathMapping.isDefinedAt(workflowName)) {
+      val taskPath = taskPathMapping(workflowName)
       val lines = pathPrefix match {
         case PathPrefix.FILE =>
           IOUtil.readLinesFromText(taskPath)
@@ -42,7 +37,7 @@ object WorkflowReader {
       }
       lines
     } else {
-      throw new FileNotFoundException(s"File '$jobName.sql/.scala' not found.")
+      throw new FileNotFoundException(s"Workflow or transformer '$workflowName.sql/.scala' not found.")
     }
   }
 

@@ -46,7 +46,7 @@ final case class LogDrivenInterpreter(
   /**
    * 任务执行主入口
    */
-  def eval(): WFInterpretingResult = {
+  def eval(): WfEvalResult = {
     val logQueue = command match {
       case cmd: CommonCommand if cmd.refresh =>
         logDrivenPlan(Some(cmd.refreshRangeStart), Some(cmd.refreshRangeEnd))
@@ -59,7 +59,7 @@ final case class LogDrivenInterpreter(
           logDrivenPlan()
         }
     }
-    WFInterpretingResult(workflow, tailrecApply(logQueue, checkRunningAndEval))
+    WfEvalResult(workflow, tailrecApply(logQueue, checkRunningAndEval))
   }
 
   /**

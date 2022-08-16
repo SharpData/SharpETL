@@ -16,7 +16,7 @@ class CompressTarDataSourceTest extends AnyFunSpec with SparkSessionTestWrapper 
 
     val files = IOUtil.listFiles("data.tar.gz") ++ IOUtil.listFilesJar("data.tar.gz")
     val rootPath = files.filter(it => it.indexOf("data.tar.gz") != -1).head.replace("/data.tar.gz", "")
-    val steps = WorkflowReader.readSteps("compressTar")
+    val steps = WorkflowReader.readWorkflow("compressTar").steps
     val config = steps.head.getSourceConfig[CompressTarConfig]
     val config2 = steps.last.getSourceConfig[CSVDataSourceConfig]
 

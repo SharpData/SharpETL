@@ -9,7 +9,7 @@ import org.scalatest.matchers.should
 @DoNotDiscover
 class SparkSessionIsolationSpec extends AnyFunSpec with should.Matchers {
   it("it should read spark conf correctly") {
-    val steps = WorkflowReader.readSteps("session_isolation")
+    val steps = WorkflowReader.readWorkflow("session_isolation").steps
 
     steps.length should be(3)
 
