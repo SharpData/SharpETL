@@ -292,6 +292,8 @@ shadowJar {
             include dependency("com.google.cloud.spark:spark-2.4-bigquery:0.26.0-preview")
         } else if (sparkVersion.startsWith("3.1") || sparkVersion.startsWith("3.2")) {
             include dependency("com.google.cloud.spark:spark-3.1-bigquery:0.26.0-preview")
+        } else if (sparkVersion.startsWith("3.0")) {
+            include dependency("com.google.cloud.spark:spark-bigquery-with-dependencies_$scalaVersion:0.26.0")
         }
     }
     relocate("com.google", "com.github.sharpdata.sharpetl.google") {
@@ -392,6 +394,8 @@ task copyDependencies(type: Copy) {
         include("spark-2.4-bigquery-0.26.0-preview.jar")
     } else if (sparkVersion.startsWith("3.1") || sparkVersion.startsWith("3.2")) {
         include("spark-3.1-bigquery-0.26.0-preview.jar")
+    } else if (sparkVersion.startsWith("3.0")) {
+        include("spark-bigquery-with-dependencies_$scalaVersion-0.26.0.jar")
     }
 }
 
