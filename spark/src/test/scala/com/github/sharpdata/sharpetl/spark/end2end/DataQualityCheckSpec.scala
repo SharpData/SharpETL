@@ -1,6 +1,7 @@
 package com.github.sharpdata.sharpetl.spark.end2end
 
 import ETLSuit.runJob
+import com.github.sharpdata.sharpetl.spark.end2end.mysql.MysqlSuit
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 import org.scalatest.DoNotDiscover
@@ -13,7 +14,7 @@ import org.scalatest.matchers.should
  * 4. 没有错误的和warn的应该出现在结果中
  */
 @DoNotDiscover
-class DataQualityCheckSpec extends ETLSuit with should.Matchers {
+class DataQualityCheckSpec extends MysqlSuit with should.Matchers {
 
   override val createTableSql: String =
     "CREATE TABLE IF NOT EXISTS test_ods_for_quality_check" +
@@ -30,7 +31,7 @@ class DataQualityCheckSpec extends ETLSuit with should.Matchers {
     "--local", s"--default-start-time=${firstDay}", "--env=test", "--once")
 
   val ods2dwdParameters: Array[String] = Array("single-job",
-    "--name=test_dwd_with_quality_check", "--period=1440",
+    "--name=quality_check", "--period=1440",
     "--local", s"--default-start-time=${firstDay}", "--env=test", "--once")
 
 
@@ -56,17 +57,13 @@ class DataQualityCheckSpec extends ETLSuit with should.Matchers {
     StructField("order_id", IntegerType, true),
     StructField("phone", StringType, true),
     StructField("value", StringType, true),
-    StructField("bz_time", TimestampType, true),
-    //StructField("effective_start_time", TimestampType, true),
-    //StructField("effective_end_time", TimestampType, true),
-    StructField("is_latest", StringType, true),
-    StructField("is_active", StringType, true)
+    StructField("bz_time", TimestampType, true)
   )
 
   val expectedData = Seq(
-    Row(1, "110", "2333", getTimeStampFromStr("2021-10-07 17:12:59"), "1", "1"), //normal
-    //Row(2, null, "aba aba", getTimeStampFromStr("2021-10-08 17:12:59"), "1", "1"), //error
-    Row(3, "110", "", getTimeStampFromStr("2021-10-08 17:12:59"), "1", "1") //warn
+    Row(1, "110", "2333", getTimeStampFromStr("2021-10-07 17:12:59")), //normal
+    //Row(2, null, "aba aba", getTimeStampFromStr("2021-10-08 17:12:59")), //error
+    Row(3, "110", "", getTimeStampFromStr("2021-10-08 17:12:59")) //warn
   )
 
   val expectedDf = spark.createDataFrame(
@@ -97,35 +94,17 @@ class DataQualityCheckSpec extends ETLSuit with should.Matchers {
 
   it("error data should not sink to dwd, warn & normal data could") {
     execute(createTableSql)
-    execute(
-      """
-        |CREATE TABLE IF NOT EXISTS test_dwd_for_quality_check
-        |(
-        |    order_id             int,
-        |    phone                varchar(64),
-        |    value                varchar(64),
-        |    bz_time              DATETIME NULL DEFAULT NULL,
-        |    job_id               varchar(64),
-        |    job_time             DATETIME NULL DEFAULT NULL,
-        |    effective_start_time DATETIME NULL DEFAULT NULL,
-        |    effective_end_time   DATETIME NULL DEFAULT NULL,
-        |    is_latest            varchar(64),
-        |    is_active            varchar(64),
-        |    idempotent_key       varchar(64),
-        |    dw_insert_date       varchar(64)
-        |)
-        |""".stripMargin)
     writeDataToSource(firstDayDf, sourceTableName)
     //1. source => ods
     runJob(source2odsParameters)
     //2. ods => dwd
     runJob(ods2dwdParameters)
-    val resultDf = readFromTarget("test_ods_for_quality_check").drop("dt")
+    val resultDf = readFromSource("test_ods_for_quality_check").drop("dt")
     assertSmallDataFrameEquality(resultDf, firstDayDf, orderedComparison = false)
 
     // 3. check data
-    val dwdDf = readFromTarget("test_dwd_for_quality_check").drop("idempotent_key", "dw_insert_date", "effective_start_time", "effective_end_time")
-    assertSmallDataFrameEquality(dwdDf, expectedDf, orderedComparison = false)
+    val dwdDf = spark.sql("select * from `643e9314`").drop("idempotent_key", "dw_insert_date", "effective_start_time", "effective_end_time", "is_active", "is_latest")
+    assertSmallDataFrameEquality(dwdDf.drop("job_id"), expectedDf, orderedComparison = false)
     // 4. 检查 quality_check_log table
     val qualityCheckDf =
       spark.read.format("jdbc")

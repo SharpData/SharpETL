@@ -1,23 +1,21 @@
-package com.github.sharpdata.sharpetl.spark.end2end
+package com.github.sharpdata.sharpetl.spark.end2end.mysql
 
-import com.github.sharpdata.sharpetl.spark.transformation._
 import com.github.sharpdata.sharpetl.core.repository.MyBatisSession
 import com.github.sharpdata.sharpetl.core.util.ETLConfig
 import com.github.sharpdata.sharpetl.spark.datasource.HttpDataSourceSpec
+import com.github.sharpdata.sharpetl.spark.end2end._
+import com.github.sharpdata.sharpetl.spark.transformation._
 import org.scalatest.{BeforeAndAfterAll, DoNotDiscover, Suites}
 import org.testcontainers.containers.MySQLContainer
 
 // All suite in Suites are run in parallel, need to use Sequential if we want them to run in order
 @DoNotDiscover
-class ETLSuitExecutor extends Suites(
+class MysqlSuitExecutor extends Suites(
   new DailyJobsSummaryReportTransformSpec,
   new HttpDataSourceSpec,
   new DynamicLoadingTransformerSpec,
   new Source2TargetSpec,
   new BatchJobSpec,
-  new IncrementalDiffModeSpec,
-  new IncrementalDiffModeSplitSpec,
-  new DataQualityCheckSpec,
   new TaskDependenciesSpec,
   new SkipRunningJobSpec,
   new IncrementalAutoIncIDModeSpec,
@@ -25,6 +23,7 @@ class ETLSuitExecutor extends Suites(
   new SparkSessionIsolationSpec,
   new ReplaceTemplateTableNameSpec,
   new DeltaLakeSpec,
+  new DataQualityCheckSpec,
   new UDFSpec
 ) with BeforeAndAfterAll {
 

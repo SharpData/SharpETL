@@ -13,10 +13,10 @@
 --  transaction=true
 -- writeMode=append
 SELECT `order_id`,
-`phone`,
-`value`,
-`bz_time`,
-       '${JOB_ID}' as `job_id`,
- '${DATA_RANGE_START}' AS dt,
-       now() as `job_time`
+       `phone`,
+       `value`,
+       `bz_time`,
+       '${JOB_ID}'           as `job_id`,
+       '${DATA_RANGE_START}' AS dt,
+       now()                 as `job_time`
 FROM `test_source_for_quality_check`;

@@ -1,9 +1,7 @@
 package com.github.sharpdata.sharpetl.spark.end2end
 
-import com.github.sharpdata.sharpetl.core.util.WorkflowReader
-import ETLSuit.runJob
-import org.mockito.ArgumentMatchers.anyString
-import org.mockito.MockitoSugar.{when, withObjectMocked}
+import com.github.sharpdata.sharpetl.spark.end2end.ETLSuit.runJob
+import com.github.sharpdata.sharpetl.spark.end2end.mysql.MysqlSuit
 import org.scalatest.DoNotDiscover
 
 
@@ -13,7 +11,7 @@ import org.scalatest.DoNotDiscover
  * 3. run task (skipRunning = false), no exception thrown
  */
 @DoNotDiscover
-class SkipRunningJobSpec extends ETLSuit {
+class SkipRunningJobSpec extends MysqlSuit {
   override val createTableSql: String = ""
   override val targetDbName = "int_test"
   override val sourceDbName: String = "int_test"
@@ -26,10 +24,10 @@ class SkipRunningJobSpec extends ETLSuit {
 
   it("should kill running job when --skip-running=false") {
     // create a running log in `job_log` table
-    execute(
+    executeMigration(
       """INSERT INTO job_log VALUES(null,'do_nothing',1440,'do_nothing-20211001000000',20211001000000, 20211002000000,
         |'2021-10-30 19:08:47','2021-10-30 19:08:50','RUNNING','2021-10-30 19:08:47','2021-10-30 19:08:50','datetime', '', '', 'local-fake-app', '', '')"""
-        .stripMargin, "sharp_etl", "migration")
+        .stripMargin)
     // run task (skipRunning = true), assert exception thrown
     assertThrows[JobFailedException] {
       runJob(jobParameters("do_nothing"))

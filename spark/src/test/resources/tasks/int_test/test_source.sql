@@ -12,9 +12,9 @@
 --  tableName=test_ods
 -- writeMode=append
 SELECT `order_id`,
-`value`,
-`bz_time`,
-       '${JOB_ID}' as `job_id`,
- '${DATA_RANGE_START}' AS dt,
-       now() as `job_time`
+       `value`,
+       `bz_time`,
+       '${JOB_ID}'           as `job_id`,
+       '${DATA_RANGE_START}' AS dt,
+       now()                 as `job_time`
 FROM int_test.`test_source`;

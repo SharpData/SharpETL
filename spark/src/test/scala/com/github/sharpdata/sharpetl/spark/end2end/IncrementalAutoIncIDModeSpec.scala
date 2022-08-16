@@ -1,6 +1,7 @@
 package com.github.sharpdata.sharpetl.spark.end2end
 
 import ETLSuit.runJob
+import com.github.sharpdata.sharpetl.spark.end2end.mysql.MysqlSuit
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 import org.scalatest.DoNotDiscover
@@ -8,7 +9,7 @@ import org.scalatest.DoNotDiscover
 import java.util.UUID
 
 @DoNotDiscover
-class IncrementalAutoIncIDModeSpec extends ETLSuit {
+class IncrementalAutoIncIDModeSpec extends MysqlSuit {
 
   override val createTableSql: String =
     "CREATE TABLE IF NOT EXISTS ods_inc_id_table" +
@@ -56,7 +57,7 @@ class IncrementalAutoIncIDModeSpec extends ETLSuit {
     runJob(source2odsParametersFirstTime)
     writeDataToSource(secondDayDf, sourceTableName)
     runJob(source2odsParametersSecondTime)
-    val dwdDf = readFromTarget("ods_inc_id_table")
+    val dwdDf = readFromSource("ods_inc_id_table")
     dwdDf.count() should be(200)
   }
 
@@ -65,7 +66,7 @@ class IncrementalAutoIncIDModeSpec extends ETLSuit {
       "--name=auto_inc_id_mode", "--refresh",
       "--local", "--refresh-range-start=10000", "--refresh-range-end=10005", "--env=test", "--once")
     runJob(refresh)
-    val dwdDf = readFromTarget("ods_inc_id_table")
+    val dwdDf = readFromSource("ods_inc_id_table")
     dwdDf.count() should be(205)
   }
 }

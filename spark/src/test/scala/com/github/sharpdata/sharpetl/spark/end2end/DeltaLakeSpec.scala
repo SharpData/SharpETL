@@ -3,12 +3,13 @@ package com.github.sharpdata.sharpetl.spark.end2end
 import com.github.sharpdata.sharpetl.core.util.ETLLogger
 import ETLSuit.runJob
 import com.github.sharpdata.sharpetl.core.util.ETLConfig.deltaLakeBasePath
+import com.github.sharpdata.sharpetl.spark.end2end.mysql.MysqlSuit
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 import org.scalatest.DoNotDiscover
 
 @DoNotDiscover
-class DeltaLakeSpec extends ETLSuit {
+class DeltaLakeSpec extends MysqlSuit {
 
   override val createTableSql: String = ""
   override val sourceDbName: String = "int_test"

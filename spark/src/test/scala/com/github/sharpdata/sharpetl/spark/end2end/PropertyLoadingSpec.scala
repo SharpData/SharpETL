@@ -2,6 +2,7 @@ package com.github.sharpdata.sharpetl.spark.end2end
 
 import com.github.sharpdata.sharpetl.core.util.{DateUtil, ETLConfig, WorkflowReader}
 import ETLSuit.runJob
+import com.github.sharpdata.sharpetl.spark.end2end.mysql.{FixedMySQLContainer, MysqlSuit}
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 import org.mockito.ArgumentMatchers.anyString
@@ -12,7 +13,7 @@ import java.sql.Timestamp
 import java.time.LocalDateTime
 
 @DoNotDiscover
-class PropertyLoadingSpec extends ETLSuit with BeforeAndAfterAll {
+class PropertyLoadingSpec extends MysqlSuit with BeforeAndAfterAll {
 
   val migrationMysql = new FixedMySQLContainer("mysql:5.7")
   val dataMysql = new FixedMySQLContainer("mysql:5.7")
@@ -23,7 +24,7 @@ class PropertyLoadingSpec extends ETLSuit with BeforeAndAfterAll {
 
   override protected def beforeAll(): Unit = {
     ETLConfig.reInitProperties()
-    migrationMysql.configurePort(migrationPort, "sharp_etl")
+    migrationMysql.configurePort(logDbPort, "sharp_etl")
     migrationMysql.start()
 
     dataMysql.configurePort(dataPort, "int_test")

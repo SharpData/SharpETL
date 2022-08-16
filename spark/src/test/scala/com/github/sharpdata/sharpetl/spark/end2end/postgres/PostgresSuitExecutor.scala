@@ -1,8 +1,8 @@
 package com.github.sharpdata.sharpetl.spark.end2end.postgres
 
-import com.github.sharpdata.sharpetl.spark.end2end.FixedMySQLContainer
 import com.github.sharpdata.sharpetl.core.repository.MyBatisSession
 import com.github.sharpdata.sharpetl.core.util.ETLConfig
+import com.github.sharpdata.sharpetl.spark.end2end.mysql.FixedMySQLContainer
 import org.scalatest.{BeforeAndAfterAll, DoNotDiscover, Suites}
 
 @DoNotDiscover
