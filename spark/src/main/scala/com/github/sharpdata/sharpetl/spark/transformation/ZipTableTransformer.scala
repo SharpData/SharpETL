@@ -10,6 +10,7 @@ import org.apache.spark.sql._
 import java.sql.Timestamp
 import java.time.Instant
 
+@deprecated
 object ZipTableTransformer extends Transformer {
   def getAppendSelectClause(args: collection.Map[String, String]): String = {
     val dateEnd = DateUtil.formatDate(
