@@ -286,9 +286,12 @@ shadowJar {
         include dependency("com.crealytics:spark-excel_$scalaVersion:0.13.1")
         include dependency('info.picocli:picocli:4.6.3')
         include dependency("net.liftweb:lift-json_$scalaVersion:3.4.3")
-
-        if (!(scalaVersion.startsWith('2.13') && (sparkVersion.startsWith("3.2") || sparkVersion.startsWith("3.3")))) {
-            include dependency("com.google.cloud.spark:spark-bigquery-with-dependencies_$scalaVersion:0.23.2")
+        if (sparkVersion.startsWith("2.3")) {
+            include dependency("com.google.cloud.spark:spark-bigquery-with-dependencies_$scalaVersion:0.26.0")
+        } else if (sparkVersion.startsWith("2.4")) {
+            include dependency("com.google.cloud.spark:spark-2.4-bigquery:0.26.0-preview")
+        } else if (sparkVersion.startsWith("3.1") || sparkVersion.startsWith("3.2")) {
+            include dependency("com.google.cloud.spark:spark-3.1-bigquery:0.26.0-preview")
         }
     }
     relocate("com.google", "com.github.sharpdata.sharpetl.google") {
@@ -383,8 +386,12 @@ task copyDependencies(type: Copy) {
     // spark-excel end
     include("lift-json_$scalaVersion-3.4.3")
 
-    if (!(scalaVersion.startsWith('2.13') && (sparkVersion.startsWith("3.2") || sparkVersion.startsWith("3.3")))) {
-        include("spark-bigquery-with-dependencies_$scalaVersion-0.23.2.jar")
+    if (sparkVersion.startsWith("2.3")) {
+        include("spark-bigquery-with-dependencies_$scalaVersion-0.26.0.jar")
+    } else if (sparkVersion.startsWith("2.4")) {
+        include("spark-2.4-bigquery-0.26.0-preview.jar")
+    } else if (sparkVersion.startsWith("3.1") || sparkVersion.startsWith("3.2")) {
+        include("spark-3.1-bigquery-0.26.0-preview.jar")
     }
 }
 

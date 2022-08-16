@@ -9,8 +9,12 @@ version '0.1.0'
 dependencies {
     implementation(project(":core"))
     implementation "org.apache.spark:spark-sql_$scalaVersion:$sparkVersion"
-    if (!(scalaVersion.startsWith('2.13') && (sparkVersion.startsWith("3.2") || sparkVersion.startsWith("3.3")))) {
-        implementation "com.google.cloud.spark:spark-bigquery-with-dependencies_$scalaVersion:0.23.2"
+    if (sparkVersion.startsWith("2.3")) {
+        implementation "com.google.cloud.spark:spark-bigquery-with-dependencies_$scalaVersion:0.26.0"
+    } else if (sparkVersion.startsWith("2.4")) {
+        implementation "com.google.cloud.spark:spark-2.4-bigquery:0.26.0-preview"
+    } else if (sparkVersion.startsWith("3.1") || sparkVersion.startsWith("3.2")) {
+        implementation "com.google.cloud.spark:spark-3.1-bigquery:0.26.0-preview"
     }
     implementation "org.scala-lang:scala-library:$scalaCompt"
     implementation "org.scala-lang.modules:scala-collection-compat_$scalaVersion:2.6.0"

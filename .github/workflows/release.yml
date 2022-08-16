@@ -55,7 +55,7 @@ jobs:
         uses: actions/cache@v2.1.6
         with:
           path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-caches--PscalaVersion=${{ matrix.scalaVersion }} -PsparkVersion=${{ matrix.sparkVersion }} -PscalaCompt=${{ matrix.scalaCompt }} # -${{ hashFiles('**/*.gradle', '**/*.gradle.kts') }}
+          key: ${{ runner.os }}-gradle-caches--PscalaVersion=${{ matrix.scalaVersion }} -PsparkVersion=${{ matrix.sparkVersion }} -PscalaCompt=${{ matrix.scalaCompt }} -${{ hashFiles('**/*.gradle', '**/*.gradle.kts') }}
 
       - name: Setup Gradle Wrapper Cache
         uses: actions/cache@v2.1.6
