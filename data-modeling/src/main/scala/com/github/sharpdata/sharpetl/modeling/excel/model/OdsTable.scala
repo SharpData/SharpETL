@@ -28,6 +28,7 @@ object OdsModelingSheetHeader {
   val COLUMN_TYPE = "column_type"
   val INCREMENTAL_COLUMN = "incremental_column"
   val PRIMARY_COLUMN = "is_PK"
+  val IS_NULLABLE = "is_nullable"
 
   val TARGET_COLUMN = "target_column"
 

@@ -1,6 +1,6 @@
 package com.github.sharpdata.sharpetl.spark.cli
 
-import com.github.sharpdata.sharpetl.modeling.cli.{GenerateDwdStepCommand, GenerateSqlFiles}
+import com.github.sharpdata.sharpetl.modeling.cli.{GenerateDwdStepCommand, GenerateSqlAutomateGenerateFiles, GenerateSqlFiles}
 import com.github.sharpdata.sharpetl.spark.utils.JavaVersionChecker
 import com.github.sharpdata.sharpetl.core.api.WfEvalResult.throwFirstException
 import com.github.sharpdata.sharpetl.core.api.{LogDrivenInterpreter, WfEvalResult}
@@ -93,7 +93,8 @@ class BatchSparkJobCommand extends BatchJobCommand {
     classOf[BatchSparkJobCommand],
     classOf[GenerateSqlFiles],
     classOf[EncryptionCommand],
-    classOf[GenerateDwdStepCommand]
+    classOf[GenerateDwdStepCommand],
+    classOf[GenerateSqlAutomateGenerateFiles]
   )
 )
 class Command extends Runnable {

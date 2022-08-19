@@ -4,6 +4,7 @@ import com.github.sharpdata.sharpetl.modeling.excel.parser.DwdTableParser
 import com.github.sharpdata.sharpetl.core.cli.{BatchJobCommand, CommonCommand}
 import com.github.sharpdata.sharpetl.core.util.IOUtil.getFullPath
 import com.github.sharpdata.sharpetl.core.util.{ETLLogger, IOUtil}
+import com.github.sharpdata.sharpetl.modeling.formatConversion.createSqlParser.createTableList
 import com.github.sharpdata.sharpetl.modeling.sql.gen.DwdWorkflowGen.genWorkflow
 import picocli.CommandLine
 
@@ -91,5 +92,55 @@ class GenerateDwdStepCommand extends BatchJobCommand {
           line = workflow.toString
         )
       })
+  }
+}
+
+@CommandLine.Command(name = "generate-ods-sql—automate-generate")
+class GenerateSqlAutomateGenerateFiles extends CommonCommand {
+  @CommandLine.Option(
+    names = Array("-f", "--file"),
+    description = Array("Excel file path"),
+    required = true
+  )
+  var filePath: String = _
+
+  @CommandLine.Option(
+    names = Array("-h", "--help"),
+    usageHelp = true,
+    description = Array("Sample parameters: -f=/path/to/config.xlsx")
+  )
+  var helpRequested = false
+
+  @CommandLine.Option(
+    names = Array("--output"),
+    required = true,
+    description = Array("Write to sql file path")
+  )
+  var output: String = _
+
+  override def formatCommand(): Unit = {
+    commandStr.append(s"--file=$filePath \t")
+    commandStr.append(s"--output=$output \t")
+    commandStr.append(s"--help=$helpRequested \t")
+    super.formatCommand()
+  }
+
+  override def run(): Unit = {
+    loggingJobParameters()
+    val createSql = createTableList(filePath)
+    createSql.foreach(it => {
+      val workflowName = s"create_${it._1._2}"
+      writeFile(workflowName, it._2)
+    })
+  }
+
+
+  def writeFile(filename: String, sqlContent: String): Unit = {
+    val path = getFullPath(output)
+    val file = new File(s"$path/$filename.sql")
+    ETLLogger.info(s"Write sql file to $file")
+    val sqlWriter = new BufferedWriter(new FileWriter(file))
+    sqlWriter.write(sqlContent)
+    sqlWriter.close()
   }
 }
