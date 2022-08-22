@@ -4,7 +4,7 @@ import com.github.sharpdata.sharpetl.modeling.excel.parser.DwdTableParser
 import com.github.sharpdata.sharpetl.core.cli.{BatchJobCommand, CommonCommand}
 import com.github.sharpdata.sharpetl.core.util.IOUtil.getFullPath
 import com.github.sharpdata.sharpetl.core.util.{ETLLogger, IOUtil}
-import com.github.sharpdata.sharpetl.modeling.formatConversion.createSqlParser.createTableList
+import com.github.sharpdata.sharpetl.modeling.formatConversion.createSqlParser.createTableDDLList
 import com.github.sharpdata.sharpetl.modeling.sql.gen.DwdWorkflowGen.genWorkflow
 import picocli.CommandLine
 
@@ -95,8 +95,8 @@ class GenerateDwdStepCommand extends BatchJobCommand {
   }
 }
 
-@CommandLine.Command(name = "generate-ods-sql—automate-generate")
-class GenerateSqlAutomateGenerateFiles extends CommonCommand {
+@CommandLine.Command(name = "generate-ods-ddl")
+class GenerateSqlAutomateGenerateFiles extends Runnable  {
   @CommandLine.Option(
     names = Array("-f", "--file"),
     description = Array("Excel file path"),
@@ -118,18 +118,11 @@ class GenerateSqlAutomateGenerateFiles extends CommonCommand {
   )
   var output: String = _
 
-  override def formatCommand(): Unit = {
-    commandStr.append(s"--file=$filePath \t")
-    commandStr.append(s"--output=$output \t")
-    commandStr.append(s"--help=$helpRequested \t")
-    super.formatCommand()
-  }
 
   override def run(): Unit = {
-    loggingJobParameters()
-    val createSql = createTableList(filePath)
+    val createSql = createTableDDLList(filePath)
     createSql.foreach(it => {
-      val workflowName = s"create_${it._1._2}"
+      val workflowName = s"create_${it._1}"
       writeFile(workflowName, it._2)
     })
   }

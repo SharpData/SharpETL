@@ -85,6 +85,7 @@ object OdsTableParser {
         targetTable = getStringCellOrNull(TARGET_TABLE, row),
         sourceColumn = getStringCellOrNull(SOURCE_COLUMN, row),
         targetColumn = getStringCellOrNull(TARGET_COLUMN, row),
+        sourceType = getStringCellOrNull(COLUMN_TYPE,row),
         extraColumnExpression = getStringCellOrNull(EXTRA_COLUMN_EXPRESSION, row),
         incrementalColumn = getBoolCell(INCREMENTAL_COLUMN, row),
         primaryKeyColumn = getBoolCell(PRIMARY_COLUMN, row)

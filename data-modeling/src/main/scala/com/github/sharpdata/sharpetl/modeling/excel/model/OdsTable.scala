@@ -60,6 +60,7 @@ object OdsTable {
                                      targetTable: String,
                                      sourceColumn: String,
                                      targetColumn: String,
+                                     sourceType: String,
                                      extraColumnExpression: String,
                                      incrementalColumn: Boolean,
                                      primaryKeyColumn: Boolean)

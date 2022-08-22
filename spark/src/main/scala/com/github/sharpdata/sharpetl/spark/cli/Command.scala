@@ -95,6 +95,7 @@ class BatchSparkJobCommand extends BatchJobCommand {
     classOf[EncryptionCommand],
     classOf[GenerateDwdStepCommand],
     classOf[GenerateSqlAutomateGenerateFiles]
+
   )
 )
 class Command extends Runnable {
