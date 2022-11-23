@@ -28,6 +28,7 @@ module.exports = {
             label: 'Excel Template',
             collapsed: false,
             items: [
+                'ods-config-template',
                 'excel-template-ods',
                 'excel-template-dwd',
             ],
