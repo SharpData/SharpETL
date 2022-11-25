@@ -30,6 +30,7 @@ module.exports = {
             items: [
                 'ods-config-template',
                 'excel-template-ods',
+                'dwd-config-template',
                 'excel-template-dwd',
             ],
         }, {
