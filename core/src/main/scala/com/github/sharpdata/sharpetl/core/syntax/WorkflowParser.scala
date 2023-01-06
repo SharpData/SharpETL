@@ -18,7 +18,7 @@ object WorkflowParser {
   def singleLineValue[_: P]: P[String] = Until(newline | End).!
 
   def multiLineValue[_: P](indent: Int): P[String] =
-    (P("|") ~/ newline ~ Until((anyComment ~ otherPart).! | keyValPair(indent) | End))
+    (P("|") ~/ newline ~ Until((anyComment ~ key) | End))
       .map(value => {
         val replace = multiLineStart(indent)
         value.split("\n").map(_.replace(replace, "")).mkString("\n")
