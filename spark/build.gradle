@@ -227,6 +227,7 @@ shadowJar {
         include dependency('org.jasypt:jasypt:1.9.3')
         include dependency("com.lihaoyi:fastparse_$scalaVersion:2.3.3")
         include dependency("io.github.classgraph:classgraph:4.8.149")
+        include dependency("com.aliyun.oss:aliyun-sdk-oss:3.16.0")
 
         include dependency("org.elasticsearch:elasticsearch-spark-20_$scalaVersion:7.7.0")
         include dependency("org.apache.httpcomponents:httpclient:4.5.12")
@@ -336,6 +337,7 @@ task copyDependencies(type: Copy) {
     include("flyway-core-7.14.0.jar")
     include("mysql-connector-java-8.0.19.jar")
     include("ojdbc8-19.3.0.0.jar")
+    include("aliyun-sdk-oss-3.16.0.jar")
     include("spark-sql-kafka-0-10_$scalaVersion-${sparkVersion}.jar")
     if (scalaVersion.startsWith('2.11')) {
         include("kudu-spark2_$scalaVersion-1.9.0.jar")
