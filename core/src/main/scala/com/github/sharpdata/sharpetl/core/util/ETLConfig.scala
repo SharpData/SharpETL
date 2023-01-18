@@ -118,6 +118,8 @@ object ETLConfig {
         Source.fromURL(propertyPath)
       } else if (propertyPath.toLowerCase.startsWith("hdfs")) {
         Source.fromInputStream(HDFSUtil.readFile(propertyPath))
+      } else if (propertyPath.toLowerCase.startsWith("oss")) {
+        Source.fromInputStream(OssUtil.readFile(propertyPath))
       } else {
         Source.fromURL(getClass.getResource(propertyPath))
       }

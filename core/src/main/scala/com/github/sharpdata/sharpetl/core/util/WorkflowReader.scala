@@ -34,6 +34,8 @@ object WorkflowReader {
           IOUtil.readLinesFromText(taskPath)
         case PathPrefix.HDFS | PathPrefix.DBFS =>
           HDFSUtil.readLines(taskPath)
+        case PathPrefix.OSS =>
+          OssUtil.readLines(taskPath)
       }
       lines
     } else {
@@ -60,6 +62,8 @@ object WorkflowReader {
           IOUtil.recursiveListFilesFromResource(configRootDir)
         case PathPrefix.HDFS | PathPrefix.DBFS =>
           HDFSUtil.recursiveListFiles(configRootDir)
+        case PathPrefix.OSS =>
+          OssUtil.recursiveListFiles(configRootDir)
       }
       .map(path => path.substring(path.lastIndexOf(File.separator) + 1, path.lastIndexOf(".")) -> path)
     (fileNameToPath.toMap, duplicatedFileNames(fileNameToPath))

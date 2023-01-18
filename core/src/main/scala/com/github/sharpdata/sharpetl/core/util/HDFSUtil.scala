@@ -95,14 +95,14 @@ object HDFSUtil {
 
   def readLines(path: String): List[String] = {
     val fs = getFileSystem()
-    val lines = readLines(fs, new Path(path))
+    val lines = readInputStreamInToLines(fs.open(new Path(path)), path)
     closeFileSystem(fs)
     lines
   }
 
-  def readLines(fs: FileSystem, path: Path): List[String] = {
+  def readInputStreamInToLines(in: InputStream, path: String): List[String] = {
     val bufferedReader = try {
-      new BufferedReader(new InputStreamReader(fs.open(path)))
+      new BufferedReader(new InputStreamReader(in))
     } catch {
       case e: IOException =>
         ETLLogger.error(s"Open InputStreamReader with path $path failed.", e)

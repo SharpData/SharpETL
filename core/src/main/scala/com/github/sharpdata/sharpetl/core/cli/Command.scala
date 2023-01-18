@@ -104,7 +104,7 @@ abstract class CommonCommand extends Runnable {
 
   @CommandLine.Option(
     names = Array("--property"),
-    description = Array("specify property file location allowed url type [hdfs, file system]"),
+    description = Array("specify property file location allowed url type [hdfs, file system, s3, oss, etc]"),
     required = false
   )
   var propertyPath: String = _

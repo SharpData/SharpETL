@@ -51,6 +51,7 @@ dependencies {
     implementation group: 'javax.mail', name: 'mail', version: '1.4.7'
     // encrypte properties file
     api 'org.jasypt:jasypt:1.9.3'
+    implementation 'com.aliyun.oss:aliyun-sdk-oss:3.16.0'
 
 
     if (sparkVersion.startsWith("3.1") || sparkVersion.startsWith("3.0")) {

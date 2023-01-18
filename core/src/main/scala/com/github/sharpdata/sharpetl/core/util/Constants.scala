@@ -24,6 +24,7 @@ object Constants {
     val FILE = ""
     val HDFS = "hdfs"
     val DBFS = "dbfs"
+    val OSS = "oss"
   }
 
   object Encoding {
