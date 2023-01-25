@@ -3,7 +3,7 @@ plugins {
     id "application"
     id "scala"
     id "com.github.alisiikh.scalastyle"
-    id "com.github.johnrengelman.shadow" version "6.1.0"
+    id "com.github.johnrengelman.shadow" version "7.1.2"
     id "com.github.maiflai.scalatest"
     id "maven-publish"
 }
@@ -112,6 +112,7 @@ dependencies {
     implementation group: 'com.jolbox', name: 'bonecp', version: '0.8.0.RELEASE'
     implementation group: "org.apache.hadoop", name: "hadoop-client", version: "2.7.2"
     implementation "org.apache.httpcomponents:httpclient:4.5.12"
+    implementation "com.aliyun.oss:aliyun-sdk-oss:3.16.0"
     if (sparkVersion.startsWith("3.1") || sparkVersion.startsWith("3.0")) {
         implementation("com.fasterxml.jackson.core:jackson-databind") {
             version {
@@ -187,6 +188,43 @@ application {
     mainClassName = "com.github.sharpdata.sharpetl.spark.Entrypoint"
 }
 
+configurations.implementation.setCanBeResolved(true)
+configurations.api.setCanBeResolved(true)
+
+def addDeps(String dep) {
+    def depSpec = createDepSpec(dep)
+    Set<ResolvedDependency> resolvedDependencies = project.configurations.runtimeClasspath.getResolvedConfiguration().getFirstLevelModuleDependencies(depSpec)
+    getResolvedArtifacts(resolvedDependencies).each { artifact ->
+        println("Adding $artifact into shadow jar...")
+        shadowJar {
+            dependencies {
+                include(dependency(artifact))
+            }
+        }
+    }
+}
+
+def getResolvedArtifacts(Set<ResolvedDependency> artifacts) {
+    Set<String> resolvedArtifacts = [] as Set
+    artifacts.each {
+        // add current artifact
+        resolvedArtifacts << "${it.moduleGroup}:${it.moduleName}:${it.moduleVersion}"
+
+        // recursion to add children
+        resolvedArtifacts += getResolvedArtifacts(it.children)
+    }
+    return resolvedArtifacts
+}
+
+def createDepSpec(String dep) {
+    return new Spec<Dependency>() {
+        @Override
+        boolean isSatisfiedBy(Dependency dependency) {
+            return dependency == project.dependencies.create(dep)
+        }
+    }
+}
+
 task slimJar(type: ShadowJar) {
     from(
             sourceSets.main.output,
@@ -227,7 +265,7 @@ shadowJar {
         include dependency('org.jasypt:jasypt:1.9.3')
         include dependency("com.lihaoyi:fastparse_$scalaVersion:2.3.3")
         include dependency("io.github.classgraph:classgraph:4.8.149")
-        include dependency("com.aliyun.oss:aliyun-sdk-oss:3.16.0")
+        addDeps("com.aliyun.oss:aliyun-sdk-oss:3.16.0")
 
         include dependency("org.elasticsearch:elasticsearch-spark-20_$scalaVersion:7.7.0")
         include dependency("org.apache.httpcomponents:httpclient:4.5.12")
