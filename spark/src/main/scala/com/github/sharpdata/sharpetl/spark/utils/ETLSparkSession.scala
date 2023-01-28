@@ -35,8 +35,8 @@ object ETLSparkSession {
       if (!sparkConf.contains("spark.master")) {
         sparkConf.setMaster("local[*]")
       }
-      setSparkConf(sparkConf)
       sparkConf.set("spark.sql.legacy.timeParserPolicy", "LEGACY")
+      setSparkConf(sparkConf)
     }
     sparkConf
   }

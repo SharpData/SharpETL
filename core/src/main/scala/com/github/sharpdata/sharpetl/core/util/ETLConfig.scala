@@ -190,6 +190,5 @@ object ETLConfig {
   lazy val jobTimeColumn: String = ETLConfig.getProperty("etl.default.jobTime.column", "job_time")
   lazy val partitionColumn: String = ETLConfig.getProperty("etl.default.partition.column", "dt")
   lazy val incrementalDiffModeDataLimit: String = ETLConfig.getProperty("etl.default.incrementalDiff.limit", "5000000")
-  lazy val deltaLakeBasePath: String = ETLConfig.getProperty("etl.default.delta.base.path", "/mnt/delta/")
   lazy val purgeHiveTable: String = ETLConfig.getProperty("etl.default.purgeHiveTable", "none")
 }

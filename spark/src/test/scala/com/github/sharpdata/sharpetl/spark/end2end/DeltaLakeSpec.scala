@@ -2,14 +2,13 @@ package com.github.sharpdata.sharpetl.spark.end2end
 
 import com.github.sharpdata.sharpetl.core.util.ETLLogger
 import ETLSuit.runJob
-import com.github.sharpdata.sharpetl.core.util.ETLConfig.deltaLakeBasePath
-import com.github.sharpdata.sharpetl.spark.end2end.mysql.MysqlSuit
+import com.github.sharpdata.sharpetl.spark.end2end.delta.DeltaSuit
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 import org.scalatest.DoNotDiscover
 
 @DoNotDiscover
-class DeltaLakeSpec extends MysqlSuit {
+class DeltaLakeSpec extends DeltaSuit {
 
   override val createTableSql: String = ""
   override val sourceDbName: String = "int_test"
@@ -30,29 +29,25 @@ class DeltaLakeSpec extends MysqlSuit {
 
   val firstDayData = Seq(
     Row("1",
-      getTimeStampFromStr("2021-10-07 17:12:59")
-    ),
-    Row("2",
-      getTimeStampFromStr("2021-10-07 17:12:59")
-    ),
-    Row("3",
-      getTimeStampFromStr("2021-10-07 17:12:59")
+      getTimeStampFromStr("2022-02-02 17:12:59")
     )
   )
 
-  val firstDayDf = spark.createDataFrame(
+  lazy val firstDayDf = spark.createDataFrame(
     spark.sparkContext.parallelize(firstDayData),
     StructType(sourceSchema)
   )
 
   it("delta should works") {
-    if (spark.version.startsWith("2.3") || spark.version.startsWith("3.3")) {
-      ETLLogger.error("Delta Lake does NOT support Spark 2.3.x or 3.3.x")
+    if (spark.version.startsWith("2.3")) {
+      ETLLogger.error("Delta Lake does NOT support Spark 2.3.x")
+    } else if (spark.version.startsWith("2.4") || spark.version.startsWith("3.0") || spark.version.startsWith("3.1")) {
+      ETLLogger.error("Delta Lake does not works well on Spark 2.4.x, " +
+        "CREATE TABLE USING delta is not supported by Spark before 3.0.0 and Delta Lake before 0.7.0.")
     } else {
-      writeDataToSource(firstDayDf, sourceTableName)
       runJob(source2odsParameters)
 
-      val result = spark.read.format("delta").load(s"$deltaLakeBasePath/test_fact").drop("job_id", "job_time")
+      val result = spark.sql("select * from delta_db.test_fact")
       assertSmallDataFrameEquality(result, firstDayDf, orderedComparison = false)
     }
   }

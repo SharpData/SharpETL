@@ -34,3 +34,4 @@ spark/bin
 metastore_db
 *.jar
 ~$*.xlsx
+spark-warehouse
