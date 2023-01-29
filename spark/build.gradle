@@ -495,7 +495,7 @@ task hiveSuit(type: Test) {
 }
 
 task deltaSuit(type: Test) {
-    suite 'com.github.sharpdata.sharpetl.spark.end2end.hive.DeltaSuitExecutor'
+    suite 'com.github.sharpdata.sharpetl.spark.end2end.delta.DeltaSuitExecutor'
 }
 
 tasks.named('test') {
