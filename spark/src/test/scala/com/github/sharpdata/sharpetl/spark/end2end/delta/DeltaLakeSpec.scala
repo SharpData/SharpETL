@@ -1,8 +1,7 @@
-package com.github.sharpdata.sharpetl.spark.end2end
+package com.github.sharpdata.sharpetl.spark.end2end.delta
 
 import com.github.sharpdata.sharpetl.core.util.ETLLogger
-import ETLSuit.runJob
-import com.github.sharpdata.sharpetl.spark.end2end.delta.DeltaSuit
+import com.github.sharpdata.sharpetl.spark.end2end.ETLSuit.runJob
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.types._
 import org.scalatest.DoNotDiscover

@@ -494,7 +494,12 @@ task hiveSuit(type: Test) {
     suite 'com.github.sharpdata.sharpetl.spark.end2end.hive.HiveSuitExecutor'
 }
 
+task deltaSuit(type: Test) {
+    suite 'com.github.sharpdata.sharpetl.spark.end2end.hive.DeltaSuitExecutor'
+}
+
 tasks.named('test') {
+    dependsOn(deltaSuit)
     dependsOn(hiveSuit)
 }
 

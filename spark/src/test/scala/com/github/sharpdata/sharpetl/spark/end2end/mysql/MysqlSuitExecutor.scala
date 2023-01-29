@@ -22,7 +22,6 @@ class MysqlSuitExecutor extends Suites(
   new JdbcTransformerSpec,
   new SparkSessionIsolationSpec,
   new ReplaceTemplateTableNameSpec,
-  new DeltaLakeSpec,
   new DataQualityCheckSpec,
   new UDFSpec
 ) with BeforeAndAfterAll {
