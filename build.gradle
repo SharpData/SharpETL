@@ -5,7 +5,7 @@ plugins {
     id "com.github.alisiikh.scalastyle" version "3.4.1"
     id "com.github.maiflai.scalatest" version "0.32"
     id "maven-publish"
-    id "org.scoverage" version "7.0.0"
+    //id "org.scoverage" version "7.0.0"
 }
 
 group = 'com.github.sharpdata.sharpetl'
@@ -26,7 +26,7 @@ allprojects {
     apply plugin: "java"
     apply plugin: "scala"
     apply plugin: "idea"
-    apply plugin: "org.scoverage"
+    //apply plugin: "org.scoverage"
 
     sourceCompatibility = 1.8
 
@@ -45,14 +45,14 @@ allprojects {
         zincVersion = "1.7.1"
     }
 
-    scoverage {
+    /*scoverage {
         if (scalaVersion.startsWith("2.11")) {
             scoverageVersion = "1.4.11"
         } else {
             scoverageVersion = "2.0.8"
         }
         excludedFiles = [".*datasource.*", ".*Config", ".*Exception", ".*Accessor"]
-    }
+    }*/
 
     dependencies {
         implementation "org.scala-lang:scala-library:$scalaCompt"

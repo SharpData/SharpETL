@@ -57,13 +57,13 @@ dependencies {
     implementation(project(":datasource:elasticsearch"))
     implementation(project(":datasource:bigquery"))
 
-    scoverage project(':core').sourceSets.scoverage.output
-    scoverage project(':data-modeling').sourceSets.scoverage.output
-    scoverage project(':datasource:hive3').sourceSets.scoverage.output
-    scoverage project(':datasource:hive2').sourceSets.scoverage.output
-    scoverage project(':datasource:kafka').sourceSets.scoverage.output
-    scoverage project(':datasource:elasticsearch').sourceSets.scoverage.output
-    scoverage project(':datasource:bigquery').sourceSets.scoverage.output
+//    scoverage project(':core').sourceSets.scoverage.output
+//    scoverage project(':data-modeling').sourceSets.scoverage.output
+//    scoverage project(':datasource:hive3').sourceSets.scoverage.output
+//    scoverage project(':datasource:hive2').sourceSets.scoverage.output
+//    scoverage project(':datasource:kafka').sourceSets.scoverage.output
+//    scoverage project(':datasource:elasticsearch').sourceSets.scoverage.output
+//    scoverage project(':datasource:bigquery').sourceSets.scoverage.output
 
     implementation "net.liftweb:lift-json_$scalaVersion:3.4.3"
     implementation "org.scala-lang:scala-compiler:$scalaCompt"
