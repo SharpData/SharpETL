@@ -46,7 +46,11 @@ allprojects {
     }
 
     scoverage {
-        scoverageVersion = "1.4.11"
+        if (scalaVersion.startsWith("2.11")) {
+            scoverageVersion = "1.4.11"
+        } else {
+            scoverageVersion = "2.0.8"
+        }
         excludedFiles = [".*datasource.*", ".*Config", ".*Exception", ".*Accessor"]
     }
 
