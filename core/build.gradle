@@ -14,7 +14,7 @@ dependencies {
     implementation "org.scala-lang:scala-library:$scalaCompt"
     implementation "org.scala-lang:scala-reflect:$scalaCompt"
     implementation "org.scala-lang.modules:scala-collection-compat_$scalaVersion:2.6.0"
-    implementation "com.lihaoyi:fastparse_$scalaVersion:2.3.3"
+    implementation "com.lihaoyi:fastparse_$scalaVersion:3.0.0"
     implementation 'io.github.classgraph:classgraph:4.8.149'
     implementation group: "log4j", name: "log4j", version: "1.2.17"
     if (sparkVersion.startsWith("3")) {
