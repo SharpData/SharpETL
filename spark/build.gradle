@@ -57,13 +57,13 @@ dependencies {
     implementation(project(":datasource:elasticsearch"))
     implementation(project(":datasource:bigquery"))
 
-    scoverage project(':core').sourceSets.scoverage.output
-    scoverage project(':data-modeling').sourceSets.scoverage.output
-    scoverage project(':datasource:hive3').sourceSets.scoverage.output
-    scoverage project(':datasource:hive2').sourceSets.scoverage.output
-    scoverage project(':datasource:kafka').sourceSets.scoverage.output
-    scoverage project(':datasource:elasticsearch').sourceSets.scoverage.output
-    scoverage project(':datasource:bigquery').sourceSets.scoverage.output
+//    scoverage project(':core').sourceSets.scoverage.output
+//    scoverage project(':data-modeling').sourceSets.scoverage.output
+//    scoverage project(':datasource:hive3').sourceSets.scoverage.output
+//    scoverage project(':datasource:hive2').sourceSets.scoverage.output
+//    scoverage project(':datasource:kafka').sourceSets.scoverage.output
+//    scoverage project(':datasource:elasticsearch').sourceSets.scoverage.output
+//    scoverage project(':datasource:bigquery').sourceSets.scoverage.output
 
     implementation "net.liftweb:lift-json_$scalaVersion:3.4.3"
     implementation "org.scala-lang:scala-compiler:$scalaCompt"
@@ -278,7 +278,7 @@ shadowJar {
         include dependency("org.scala-lang.modules:scala-collection-compat_$scalaVersion:2.6.0")
         include dependency("org.mvel:mvel2:2.4.13.Final")
         include dependency('org.jasypt:jasypt:1.9.3')
-        include dependency("com.lihaoyi:fastparse_$scalaVersion:2.3.3")
+        include dependency("com.lihaoyi:fastparse_$scalaVersion:3.0.0")
         include dependency("io.github.classgraph:classgraph:4.8.149")
         addDeps("com.aliyun.oss:aliyun-sdk-oss:3.16.0")
 
@@ -372,7 +372,7 @@ task copyDependencies(type: Copy) {
     into('build/libs/lib')
     include("scala-collection-compat_$scalaVersion-2.6.0.jar")
     include("mvel2-2.4.13.Final.jar")
-    include("fastparse_$scalaVersion-2.3.3.jar")
+    include("fastparse_$scalaVersion-3.0.0.jar")
     include("classgraph-4.8.149.jar")
     if (sparkVersion.startsWith("2.3")) {
         include("elasticsearch-spark-20_$scalaVersion-7.7.0.jar")

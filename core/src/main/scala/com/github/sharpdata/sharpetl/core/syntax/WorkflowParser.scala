@@ -12,11 +12,11 @@ import com.github.sharpdata.sharpetl.core.syntax.ParserUtils.{Until, objectMappe
 
 object WorkflowParser {
 
-  def key[_p: P]: P0 = P(CharIn("a-z", "A-Z", "0-9", "_", "."))
+  def key[$: P]: P0 = P(CharIn("a-z", "A-Z", "0-9", "_", "."))
 
-  def singleLineValue[_p: P]: P[String] = Until(newline | End).!
+  def singleLineValue[$: P]: P[String] = Until(newline | End).!
 
-  def multiLineValue[_p: P](indent: Int): P[String] =
+  def multiLineValue[$: P](indent: Int): P[String] =
     (P("|") ~/ newline ~ Until((anyComment ~ key) | End))
       .map(value => {
         val replace = multiLineStart(indent)
@@ -27,43 +27,43 @@ object WorkflowParser {
     "--" + Range.apply(0, indent).map(_ => " ").mkString + "|"
   }
 
-  def newline[_p: P]: P0 = P("\n" | "\r\n" | "\r" | "\f")
+  def newline[$: P]: P0 = P("\n" | "\r\n" | "\r" | "\f")
 
-  def newlines[_p: P]: P0 = newline.rep
+  def newlines[$: P]: P0 = newline.rep
 
-  def whitespace[_p: P]: P0 = P(" " | "\t" | newline)
+  def whitespace[$: P]: P0 = P(" " | "\t" | newline)
 
-  def comment[_p: P](indent: Int): P0 = P("--" ~ " ".rep(exactly = indent)) ~ !" "
+  def comment[$: P](indent: Int): P0 = P("--" ~ " ".rep(exactly = indent)) ~ !" "
 
-  def anyComment[_p: P]: P0 = P("--" ~ " ".rep)
+  def anyComment[$: P]: P0 = P("--" ~ " ".rep)
 
-  def otherPart[_p: P]: P0 = P("step=" | "source=" | "target=" | "args" ~ newline | "options" ~ newline | "conf" ~ newline | "loopOver=")
+  def otherPart[$: P]: P0 = P("step=" | "source=" | "target=" | "args" ~ newline | "options" ~ newline | "conf" ~ newline | "loopOver=")
 
-  def keyValPair[_p: P](indent: Int): P[(String, String)] =
+  def keyValPair[$: P](indent: Int): P[(String, String)] =
     comment(indent) ~ !otherPart ~ P(key.rep(1).!) ~ "=" ~ P(multiLineValue(indent) | singleLineValue)
 
-  def keyValPairs[_p: P](indent: Int): P[Seq[(String, String)]] = keyValPair(indent).rep(sep = newlines)
+  def keyValPairs[$: P](indent: Int): P[Seq[(String, String)]] = keyValPair(indent).rep(sep = newlines)
 
-  def stepHeader[_p: P]: P0 = P("-- step=")
+  def stepHeader[$: P]: P0 = P("-- step=")
 
-  def sql[_p: P]: P[String] = Until(stepHeader | End)
+  def sql[$: P]: P[String] = Until(stepHeader | End)
 
-  def nestedObj[_p: P](objName: String, indent: Int): P[Map[String, String]] = P(
+  def nestedObj[$: P](objName: String, indent: Int): P[Map[String, String]] = P(
     comment(indent) ~ P(objName) ~ newlines
       ~ keyValPairs(indent + 1)
   ).map(_.toMap)
 
-  def notifies[_p: P](indent: Int): P[Seq[Map[String, String]]] = notify(indent).rep(sep = newlines)
+  def notifies[$: P](indent: Int): P[Seq[Map[String, String]]] = notify(indent).rep(sep = newlines)
 
-  def notify[_p: P](indent: Int): P[Map[String, String]] = nestedObj("notify", indent)
+  def notify[$: P](indent: Int): P[Map[String, String]] = nestedObj("notify", indent)
 
-  def options[_p: P](indent: Int): P[Map[String, String]] = nestedObj("options", indent)
+  def options[$: P](indent: Int): P[Map[String, String]] = nestedObj("options", indent)
 
-  def conf[_p: P](indent: Int): P[Map[String, String]] = nestedObj("conf", indent)
+  def conf[$: P](indent: Int): P[Map[String, String]] = nestedObj("conf", indent)
 
-  def loopOver[_p: P]: P[String] = P("-- loopOver=") ~ singleLineValue.!
+  def loopOver[$: P]: P[String] = P("-- loopOver=") ~ singleLineValue.!
 
-  def dataSource[_p: P](`type`: String): P[DataSourceConfig] = P(
+  def dataSource[$: P](`type`: String): P[DataSourceConfig] = P(
     s"-- ${`type`}=" ~/ key.rep.! ~ newlines
       ~ keyValPairs(2) ~ newlines
       ~ options(2).?
@@ -77,9 +77,9 @@ object WorkflowParser {
       objectMapper.readValue(json, clazz)
   }
 
-  def args[_p: P]: P[(String, String)] = P("--" ~ " ".rep(min = 2, max = 3)) ~ !otherPart ~ P(key.rep(1).!) ~ "=" ~ singleLineValue.!
+  def args[$: P]: P[(String, String)] = P("--" ~ " ".rep(min = 2, max = 3)) ~ !otherPart ~ P(key.rep(1).!) ~ "=" ~ singleLineValue.!
 
-  def transformer[_p: P](`type`: String): P[DataSourceConfig] = P(
+  def transformer[$: P](`type`: String): P[DataSourceConfig] = P(
     s"-- ${`type`}=transformation" ~/ newlines
       ~ args.rep(sep = newlines)
   ).map { kv =>
@@ -94,9 +94,9 @@ object WorkflowParser {
     objectMapper.readValue(json, classOf[TransformationDataSourceConfig])
   }
 
-  def steps[_p: P]: P[Seq[WorkflowStep]] = step.rep(sep = newlines, min = 1)
+  def steps[$: P]: P[Seq[WorkflowStep]] = step.rep(sep = newlines, min = 1)
 
-  def step[_p: P]: P[WorkflowStep] = P(
+  def step[$: P]: P[WorkflowStep] = P(
     newlines ~ stepHeader ~ singleLineValue ~ newlines
       ~ P(transformer("source") | dataSource("source")).? ~ newlines
       ~ P(transformer("target") | dataSource("target")) ~ newlines
@@ -128,7 +128,7 @@ object WorkflowParser {
   }
 
 
-  def workflow[_p: P]: P[Workflow]
+  def workflow[$: P]: P[Workflow]
   = P(
     Start
       ~ whitespace.rep
