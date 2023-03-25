@@ -79,7 +79,7 @@ dependencies {
     implementation "org.apache.spark:spark-streaming-kafka-0-10_$scalaVersion:$sparkVersion"
     implementation "org.apache.kafka:kafka-clients:2.0.0"
     if (sparkVersion.startsWith("3.3")) {
-        implementation "io.delta:delta-core_$scalaVersion:2.2.0"
+        implementation "io.delta:delta-core_$scalaVersion:2.3.0"
     } else if (sparkVersion.startsWith("3.2")) {
         implementation "io.delta:delta-core_$scalaVersion:2.0.2"
     } else if (sparkVersion.startsWith("3.1")) {
