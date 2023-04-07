@@ -34,10 +34,10 @@ allprojects {
     repositories {
         mavenLocal()
         mavenCentral()
+        maven { url 'https://maven.aliyun.com/repository/public' }
         maven { url 'https://jitpack.io' }
         google()
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
-        maven { url "https://conjars.org/repo" }
         maven { url "https://repository.cloudera.com/artifactory/cloudera-repos/" }
     }
 
