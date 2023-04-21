@@ -115,8 +115,12 @@ dependencies {
     implementation group: 'com.jolbox', name: 'bonecp', version: '0.8.0.RELEASE'
     implementation group: "org.apache.hadoop", name: "hadoop-client", version: "2.7.2"
     implementation "org.apache.httpcomponents:httpclient:4.5.12"
-    implementation "com.aliyun.oss:aliyun-sdk-oss:3.16.0"
-    implementation "com.aliyun.datalake:metastore-client-hive2:0.2.14"
+
+    if (profiles.contains("aliyun")) {
+        implementation "com.aliyun.oss:aliyun-sdk-oss:3.16.0"
+        implementation "com.aliyun.datalake:metastore-client-hive2:0.2.14"
+    }
+
     if (sparkVersion.startsWith("3.1") || sparkVersion.startsWith("3.0")) {
         implementation("com.fasterxml.jackson.core:jackson-databind") {
             version {
@@ -270,7 +274,6 @@ shadowJar {
         include(project(":data-modeling"))
         //include(project(":datasource:hive3"))
         include(project(":datasource:hive2"))
-        addDeps("com.aliyun.datalake:metastore-client-hive2:0.2.14")
         include(project(":datasource:kafka"))
         include(project(":datasource:elasticsearch"))
         include(project(":datasource:bigquery"))
@@ -280,7 +283,11 @@ shadowJar {
         include dependency('org.jasypt:jasypt:1.9.3')
         include dependency("com.lihaoyi:fastparse_$scalaVersion:3.0.0")
         include dependency("io.github.classgraph:classgraph:4.8.149")
-        addDeps("com.aliyun.oss:aliyun-sdk-oss:3.16.0")
+
+        if (profiles.contains("aliyun")) {
+            addDeps("com.aliyun.oss:aliyun-sdk-oss:3.16.0")
+            addDeps("com.aliyun.datalake:metastore-client-hive2:0.2.14")
+        }
 
         include dependency("org.elasticsearch:elasticsearch-spark-20_$scalaVersion:7.7.0")
         include dependency("org.apache.httpcomponents:httpclient:4.5.12")
@@ -340,14 +347,17 @@ shadowJar {
         include dependency("com.crealytics:spark-excel_$scalaVersion:0.13.1")
         include dependency('info.picocli:picocli:4.6.3')
         include dependency("net.liftweb:lift-json_$scalaVersion:3.4.3")
-        if (sparkVersion.startsWith("2.3")) {
-            include dependency("com.google.cloud.spark:spark-bigquery-with-dependencies_$scalaVersion:0.26.0")
-        } else if (sparkVersion.startsWith("2.4")) {
-            include dependency("com.google.cloud.spark:spark-2.4-bigquery:0.26.0-preview")
-        } else if (sparkVersion.startsWith("3.1") || sparkVersion.startsWith("3.2")) {
-            include dependency("com.google.cloud.spark:spark-3.1-bigquery:0.26.0-preview")
-        } else if (sparkVersion.startsWith("3.0")) {
-            include dependency("com.google.cloud.spark:spark-bigquery-with-dependencies_$scalaVersion:0.26.0")
+
+        if (profiles.contains("GCP")) {
+            if (sparkVersion.startsWith("2.3")) {
+                include dependency("com.google.cloud.spark:spark-bigquery-with-dependencies_$scalaVersion:0.26.0")
+            } else if (sparkVersion.startsWith("2.4")) {
+                include dependency("com.google.cloud.spark:spark-2.4-bigquery:0.26.0-preview")
+            } else if (sparkVersion.startsWith("3.1") || sparkVersion.startsWith("3.2")) {
+                include dependency("com.google.cloud.spark:spark-3.1-bigquery:0.26.0-preview")
+            } else if (sparkVersion.startsWith("3.0")) {
+                include dependency("com.google.cloud.spark:spark-bigquery-with-dependencies_$scalaVersion:0.26.0")
+            }
         }
     }
     relocate("com.google", "com.github.sharpdata.sharpetl.google") {

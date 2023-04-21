@@ -1,7 +1,6 @@
 package com.github.sharpdata.sharpetl.core.repository
 
 import com.github.sharpdata.sharpetl.core.util.ETLConfig
-import com.github.sharpdata.sharpetl.core.util.ETLConfig
 import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
 import org.apache.ibatis.datasource.DataSourceFactory
 
