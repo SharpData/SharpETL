@@ -1,3 +1,5 @@
+create database if not exists `sharp_etl`;
+
 create table `sharp_etl`.job_log
 (
     job_id           string,

@@ -84,27 +84,30 @@ public class HiveDatabase extends Database<HiveConnection> {
                 "    `installed_on` TIMESTAMP NOT NULL,\n" +
                 "    `execution_time` INT NOT NULL,\n" +
                 "    `success` BOOLEAN NOT NULL\n" +
-                ");\n" +
-                (baseline ? getInsertStatement(table) + ";\n" : "");
+                ");\n";
+                //+ (baseline ? baselineStatement(table) + ";\n" : "");
     }
 
     @Override
     public String getInsertStatement(Table table) {
         // Explicitly set installed_on to CURRENT_TIMESTAMP().
-        return String.format("INSERT INTO " + table
-                        + " (" + quote("installed_rank")
-                        + ", " + quote("version")
-                        + ", " + quote("description")
-                        + ", " + quote("type")
-                        + ", " + quote("script")
-                        + ", " + quote("checksum")
-                        + ", " + quote("installed_by")
-                        + ", " + quote("installed_on")
-                        + ", " + quote("execution_time")
-                        + ", " + quote("success")
-                        + ")"
-                        + " VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP(), ?, ?)"
-                        .replace("?", "%s"),
+        return "INSERT INTO " + table
+                + " (" + quote("installed_rank")
+                + ", " + quote("version")
+                + ", " + quote("description")
+                + ", " + quote("type")
+                + ", " + quote("script")
+                + ", " + quote("checksum")
+                + ", " + quote("installed_by")
+                + ", " + quote("installed_on")
+                + ", " + quote("execution_time")
+                + ", " + quote("success")
+                + ")"
+                + " VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP(), ?, ?)";
+    }
+
+    public String baselineStatement(Table table) {
+        return String.format(getInsertStatement(table).replace("?", "%s"),
                 1,
                 "'" + configuration.getBaselineVersion() + "'",
                 "'" + AbbreviationUtils.abbreviateDescription(configuration.getBaselineDescription()) + "'",
