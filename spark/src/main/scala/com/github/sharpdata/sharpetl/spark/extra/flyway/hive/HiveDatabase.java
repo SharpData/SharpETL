@@ -1,10 +1,12 @@
 package com.github.sharpdata.sharpetl.spark.extra.flyway.hive;
 
+import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
 import org.flywaydb.core.internal.database.base.Table;
 import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
+import org.flywaydb.core.internal.util.AbbreviationUtils;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -83,24 +85,35 @@ public class HiveDatabase extends Database<HiveConnection> {
                 "    `execution_time` INT NOT NULL,\n" +
                 "    `success` BOOLEAN NOT NULL\n" +
                 ");\n" +
-                (baseline ? getBaselineStatement(table) + ";\n" : "");
+                (baseline ? getInsertStatement(table) + ";\n" : "");
     }
 
     @Override
     public String getInsertStatement(Table table) {
         // Explicitly set installed_on to CURRENT_TIMESTAMP().
-        return "INSERT INTO " + table
-                + " (" + quote("installed_rank")
-                + ", " + quote("version")
-                + ", " + quote("description")
-                + ", " + quote("type")
-                + ", " + quote("script")
-                + ", " + quote("checksum")
-                + ", " + quote("installed_by")
-                + ", " + quote("installed_on")
-                + ", " + quote("execution_time")
-                + ", " + quote("success")
-                + ")"
-                + " VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP(), ?, ?)";
+        return String.format("INSERT INTO " + table
+                        + " (" + quote("installed_rank")
+                        + ", " + quote("version")
+                        + ", " + quote("description")
+                        + ", " + quote("type")
+                        + ", " + quote("script")
+                        + ", " + quote("checksum")
+                        + ", " + quote("installed_by")
+                        + ", " + quote("installed_on")
+                        + ", " + quote("execution_time")
+                        + ", " + quote("success")
+                        + ")"
+                        + " VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP(), ?, ?)"
+                        .replace("?", "%s"),
+                1,
+                "'" + configuration.getBaselineVersion() + "'",
+                "'" + AbbreviationUtils.abbreviateDescription(configuration.getBaselineDescription()) + "'",
+                "'" + CoreMigrationType.BASELINE + "'",
+                "'" + AbbreviationUtils.abbreviateScript(configuration.getBaselineDescription()) + "'",
+                "NULL",
+                "'" + getInstalledBy() + "'",
+                0,
+                getBooleanTrue()
+        );
     }
 }

@@ -36,7 +36,13 @@ class SparkJdbcResultSet(val data: DataFrame, val statement: Statement) extends 
 
   override def getShort(columnIndex: Int): Short = currentData.getShort(columnIndex - 1)
 
-  override def getInt(columnIndex: Int): Int = currentData.getInt(columnIndex - 1)
+  override def getInt(columnIndex: Int): Int = {
+    try {
+      currentData.getInt(columnIndex - 1)
+    } catch {
+      case _: Exception => 0
+    }
+  }
 
   override def getLong(columnIndex: Int): Long = currentData.getLong(columnIndex - 1)
 
