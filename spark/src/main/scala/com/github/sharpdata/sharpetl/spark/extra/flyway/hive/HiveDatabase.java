@@ -7,10 +7,16 @@ import org.flywaydb.core.internal.jdbc.JdbcConnectionFactory;
 import org.flywaydb.core.internal.jdbc.StatementInterceptor;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 
 public class HiveDatabase extends Database<HiveConnection> {
     public HiveDatabase(Configuration configuration, JdbcConnectionFactory jdbcConnectionFactory, StatementInterceptor statementInterceptor) {
         super(configuration, jdbcConnectionFactory, statementInterceptor);
+    }
+
+    @Override
+    protected String doGetCatalog() throws SQLException {
+        return "sharp_etl";
     }
 
     @Override

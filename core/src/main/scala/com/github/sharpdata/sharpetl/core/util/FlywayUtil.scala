@@ -24,6 +24,7 @@ object FlywayUtil {
         .locations("db/spark/migration")
         .defaultSchema("sharp_etl")
         .createSchemas(true)
+        //.baselineVersion("12")
         //.baselineOnMigrate(true)
         .dataSource(
           ETLConfig.getProperty("flyway.url"),
