@@ -154,7 +154,7 @@ dependencies {
     implementation group: "com.ibm.informix", name: "jdbc", version: "4.10.14"
     implementation group: "org.apache.spark", name: "spark-sql-kafka-0-10_$scalaVersion", version: "$sparkVersion"
     implementation group: "org.postgresql", name: "postgresql", version: "42.2.14"
-    implementation 'org.apache.hive:hive-jdbc:2.3.7'
+    //implementation 'org.apache.hive:hive-jdbc:2.3.7'
     implementation('io.github.coolbeevip:flyway-core:9.15.2.2') {
         exclude group: 'com.fasterxml.jackson.dataformat', module: 'jackson-dataformat-toml'
     }

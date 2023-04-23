@@ -76,7 +76,7 @@ trait JobLogMapper extends Serializable {
     "#{dataRangeStart}, #{dataRangeEnd}, #{jobStartTime}, #{jobEndTime}, " +
     "#{status}, #{createTime}, #{lastUpdateTime}, #{file}, #{applicationId}, #{projectName}, #{loadType}, #{logDrivenType}, #{runtimeArgs})"
   ))
-  @Options(useGeneratedKeys = true, keyProperty = "jobId")
+  //@Options(useGeneratedKeys = true, keyProperty = "jobId")
   def createJobLog(jobLog: JobLog): Unit
 
   @Update(Array(
