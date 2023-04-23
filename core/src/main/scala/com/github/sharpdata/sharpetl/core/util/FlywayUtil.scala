@@ -23,7 +23,7 @@ object FlywayUtil {
         .configure
         .locations("db/spark/migration")
         .defaultSchema("sharp_etl")
-        //.createSchemas(true)
+        .createSchemas(false)
         //.baselineVersion("0")
         //.baselineOnMigrate(true)
         .dataSource(

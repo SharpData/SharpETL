@@ -1,5 +1,6 @@
 package com.github.sharpdata.sharpetl.spark.extra.flyway.hive;
 
+import com.github.sharpdata.sharpetl.spark.utils.ETLSparkSession;
 import org.flywaydb.core.api.CoreMigrationType;
 import org.flywaydb.core.api.configuration.Configuration;
 import org.flywaydb.core.internal.database.base.Database;
@@ -73,6 +74,7 @@ public class HiveDatabase extends Database<HiveConnection> {
 
     @Override
     public String getRawCreateScript(Table table, boolean baseline) {
+        ETLSparkSession.getHiveSparkSession().sql("create database if not exists `sharp_etl`;");
         return "CREATE TABLE " + table + " (\n" +
                 "    `installed_rank` INT NOT NULL,\n" +
                 "    `version` STRING,\n" +
@@ -84,8 +86,7 @@ public class HiveDatabase extends Database<HiveConnection> {
                 "    `installed_on` TIMESTAMP NOT NULL,\n" +
                 "    `execution_time` INT NOT NULL,\n" +
                 "    `success` BOOLEAN NOT NULL\n" +
-                ");\n";
-                //+ (baseline ? baselineStatement(table) + ";\n" : "");
+                ");\n" + baselineStatement(table) + ";\n";
     }
 
     @Override
@@ -109,7 +110,7 @@ public class HiveDatabase extends Database<HiveConnection> {
     public String baselineStatement(Table table) {
         return String.format(getInsertStatement(table).replace("?", "%s"),
                 1,
-                "'" + configuration.getBaselineVersion() + "'",
+                "'0'",
                 "'" + AbbreviationUtils.abbreviateDescription(configuration.getBaselineDescription()) + "'",
                 "'" + CoreMigrationType.BASELINE + "'",
                 "'" + AbbreviationUtils.abbreviateScript(configuration.getBaselineDescription()) + "'",
