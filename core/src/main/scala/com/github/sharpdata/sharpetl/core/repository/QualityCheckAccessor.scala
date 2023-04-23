@@ -16,6 +16,7 @@ object QualityCheckAccessor {
       case ETLDatabaseType.MSSQL => new com.github.sharpdata.sharpetl.core.repository.mssql.QualityCheckAccessor()
       case Constants.ETLDatabaseType.H2 => new com.github.sharpdata.sharpetl.core.repository.mysql.QualityCheckAccessor()
       case Constants.ETLDatabaseType.MYSQL => new com.github.sharpdata.sharpetl.core.repository.mysql.QualityCheckAccessor()
+      case Constants.ETLDatabaseType.SPARK_SHARP_ETL => new com.github.sharpdata.sharpetl.core.repository.spark.QualityCheckAccessor()
     }
   }
 }

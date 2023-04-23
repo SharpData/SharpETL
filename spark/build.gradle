@@ -154,6 +154,13 @@ dependencies {
     implementation group: "com.ibm.informix", name: "jdbc", version: "4.10.14"
     implementation group: "org.apache.spark", name: "spark-sql-kafka-0-10_$scalaVersion", version: "$sparkVersion"
     implementation group: "org.postgresql", name: "postgresql", version: "42.2.14"
+    implementation 'org.apache.hive:hive-jdbc:2.3.7'
+    implementation('io.github.coolbeevip:flyway-core:9.15.2.2') {
+        exclude group: 'com.fasterxml.jackson.dataformat', module: 'jackson-dataformat-toml'
+    }
+    implementation('io.github.coolbeevip:flyway-mysql:9.15.2.2') {
+        exclude group: 'com.fasterxml.jackson.dataformat', module: 'jackson-dataformat-toml'
+    }
     implementation group: "org.mybatis", name: "mybatis", version: "3.5.4"
     implementation 'info.picocli:picocli:4.6.3'
 
@@ -293,7 +300,8 @@ shadowJar {
         include dependency("org.apache.httpcomponents:httpclient:4.5.12")
         include dependency("org.mybatis:mybatis:3.5.9")
         include dependency('com.zaxxer:HikariCP:2.6.1')
-        include dependency('org.flywaydb:flyway-core:7.14.0')
+        include dependency('io.github.coolbeevip:flyway-core:9.15.2.2')
+        include dependency('io.github.coolbeevip:flyway-mysql:9.15.2.2')
         include dependency("mysql:mysql-connector-java:8.0.19")
         include dependency("com.oracle.ojdbc:ojdbc8:19.3.0.0")
         include dependency("org.apache.spark:spark-sql-kafka-0-10_$scalaVersion:$sparkVersion")
@@ -397,7 +405,8 @@ task copyDependencies(type: Copy) {
     include("httpclient-4.5.12.jar")
     include("mybatis-3.5.9.jar")
     include("HikariCP-2.6.1.jar")
-    include("flyway-core-7.14.0.jar")
+    include("flyway-core-9.15.2.2.jar")
+    include("flyway-core-9.15.2.2.jar")
     include("mysql-connector-java-8.0.19.jar")
     include("ojdbc8-19.3.0.0.jar")
     include("aliyun-sdk-oss-3.16.0.jar")

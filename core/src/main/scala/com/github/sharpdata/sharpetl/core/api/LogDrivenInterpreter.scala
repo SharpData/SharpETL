@@ -16,7 +16,7 @@ import com.github.sharpdata.sharpetl.core.util.Constants.Job.nullDataTime
 import com.github.sharpdata.sharpetl.core.util.DateUtil.{BigIntToLocalDateTime, LocalDateTimeToBigInt}
 import com.github.sharpdata.sharpetl.core.util.IncIdUtil.NumberStringPadding
 import com.github.sharpdata.sharpetl.core.util.JobLogUtil.JobLogFormatter
-import com.github.sharpdata.sharpetl.core.util.StringUtil.{BigIntConverter, isNullOrEmpty}
+import com.github.sharpdata.sharpetl.core.util.StringUtil.{BigIntConverter, isNullOrEmpty, uuid}
 import com.github.sharpdata.sharpetl.core.util._
 
 import java.math.BigInteger
@@ -131,7 +131,7 @@ final case class LogDrivenInterpreter(
 
     Seq(
       new JobLog(
-        jobId = 0, workflowName = workflowName,
+        jobId = uuid, workflowName = workflowName,
         period = period, jobName = jobScheduleId,
         dataRangeStart = dataRangeStart, dataRangeEnd = endTimeStr.getOrElse("latest"), // update `dataRangeEnd` in [[BatchKafkaDataSource.read()]]
         jobStartTime = nullDataTime, jobEndTime = nullDataTime,
@@ -159,7 +159,7 @@ final case class LogDrivenInterpreter(
     val jobScheduleId = s"$workflowName-$startFrom"
     Seq(
       new JobLog(
-        jobId = 0, workflowName = workflowName,
+        jobId = uuid, workflowName = workflowName,
         period = period, jobName = jobScheduleId,
         dataRangeStart = startFrom.padding(), dataRangeEnd = endTimeStr.getOrElse("0").padding(),
         jobStartTime = nullDataTime, jobEndTime = nullDataTime,
@@ -284,7 +284,7 @@ final case class LogDrivenInterpreter(
     val dataRangeEnd = startTime.plus(idx * execPeriod, ChronoUnit.MINUTES).asBigInt().toString
     val jobScheduleId = s"$workflowName-$dataRangeStart"
     new JobLog(
-      jobId = 0, workflowName = workflowName,
+      jobId = uuid, workflowName = workflowName,
       period = execPeriod, jobName = jobScheduleId,
       dataRangeStart = dataRangeStart, dataRangeEnd = dataRangeEnd,
       jobStartTime = nullDataTime, jobEndTime = nullDataTime,
@@ -298,11 +298,11 @@ final case class LogDrivenInterpreter(
     )
   }
 
-  private def dependOnUpstreamScheduleJob(upstreamLogId: BigInt, incrementalType: String): JobLog = {
+  private def dependOnUpstreamScheduleJob(upstreamLogId: String, incrementalType: String): JobLog = {
     val dataRangeStart = upstreamLogId.toString()
     val jobScheduleId = s"$workflowName-$dataRangeStart"
     new JobLog(
-      jobId = 0, workflowName = workflowName,
+      jobId = uuid, workflowName = workflowName,
       period = period, jobName = jobScheduleId,
       dataRangeStart = dataRangeStart, dataRangeEnd = "",
       jobStartTime = nullDataTime, jobEndTime = nullDataTime,

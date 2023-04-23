@@ -96,7 +96,7 @@ class TextDataSource extends Source[DataFrame, SparkSession] {
                             fieldLengthConfig: String,
                             strictColumnNum: Boolean,
                             columnsCount: Int,
-                            publicFields: Array[Any]): RDD[Row] = {
+                            publicFields: Array[String]): RDD[Row] = {
     val fieldLengthArray = fieldLengthConfig
       .split(",")
       .take(columnsCount)
@@ -111,7 +111,7 @@ class TextDataSource extends Source[DataFrame, SparkSession] {
     rdd
       .filter(filterFunction)
       .map(str => {
-        val arr = new Array[Any](fieldLengthArray.length)
+        val arr = new Array[String](fieldLengthArray.length)
         val bytes = str.getBytes(encoding)
         for (i <- arr.indices) {
           arr(i) = new String(
@@ -133,7 +133,7 @@ class TextDataSource extends Source[DataFrame, SparkSession] {
                            separator: String,
                            columnsCount: Int,
                            strictColumnNum: Boolean,
-                           publicFields: Array[Any]): RDD[Row] = {
+                           publicFields: Array[String]): RDD[Row] = {
     rdd
       .filter(s => {
         if (strictColumnNum) {
@@ -145,7 +145,7 @@ class TextDataSource extends Source[DataFrame, SparkSession] {
       .map(str => {
         Row.fromSeq(
           Array.concat(
-            str.split(separator).take(columnsCount).asInstanceOf[Array[Any]],
+            str.split(separator).take(columnsCount).asInstanceOf[Array[String]],
             publicFields
           )
         )

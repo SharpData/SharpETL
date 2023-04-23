@@ -69,7 +69,7 @@ class DailyJobsSummaryReportTransformSpec extends ETLSuit {
 
   private def mockJobLog(wfName: String, jobStartTime: LocalDateTime): JobLog = {
     new JobLog(
-      jobId = 1,
+      jobId = "1",
       workflowName = wfName,
       period = 1440,
       jobName = "111",
@@ -89,7 +89,7 @@ class DailyJobsSummaryReportTransformSpec extends ETLSuit {
     )
   }
 
-  private def mockStepLog(jobId: Long, stepId: String, targetType: String, targetCount: Int, startTime: LocalDateTime): StepLog = {
+  private def mockStepLog(jobId: String, stepId: String, targetType: String, targetCount: Int, startTime: LocalDateTime): StepLog = {
     new StepLog(
       jobId = jobId,
       stepId = stepId,

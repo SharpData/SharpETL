@@ -1,8 +1,8 @@
 create table job_log
 (
-    job_id           bigint auto_increment primary key,
+    job_id           varchar(128) primary key,
     workflow_name    varchar(128) charset utf8 not null,
-    `period`         int                                not null,
+    `period`         int not null,
     job_name         varchar(128) charset utf8 not null,
     data_range_start varchar(128) charset utf8 null,
     data_range_end   varchar(128) charset utf8 null,
@@ -13,21 +13,21 @@ create table job_log
     last_update_time datetime default CURRENT_TIMESTAMP not null comment 'log update time',
     load_type        varchar(32) null,
     log_driven_type  varchar(32) null,
-    file             text charset utf8 null,
+    file text charset utf8 null,
     application_id   varchar(64) charset utf8 null,
     project_name     varchar(64) charset utf8 null,
-    runtime_args     text charset utf8 null
+    runtime_args text charset utf8 null
 ) charset = utf8;
 
 create table quality_check_log
 (
     id               bigint auto_increment
         primary key,
-    job_id           bigint                             not null,
+    job_id           varchar(128) not null,
     job_name         varchar(64) charset utf8 not null comment 'job name(workflow_name + period)',
     `column`         varchar(64) charset utf8 not null comment 'issue column name',
     data_check_type  varchar(64) charset utf8 not null,
-    ids              text charset utf8 not null comment 'issue data primary key, concat by `, `, multiple primary key will be concat by `__`',
+    ids text charset utf8 not null comment 'issue data primary key, concat by `, `, multiple primary key will be concat by `__`',
     error_type       varchar(16) charset utf8 not null comment 'warn/error',
     warn_count       bigint null,
     error_count      bigint null,
@@ -37,18 +37,18 @@ create table quality_check_log
 
 create table step_log
 (
-    job_id        bigint      not null,
-    step_id       varchar(64) not null,
-    status        varchar(32) not null,
-    start_time    datetime    not null,
+    job_id        varchar(128) not null,
+    step_id       varchar(64)  not null,
+    status        varchar(32)  not null,
+    start_time    datetime     not null,
     end_time      datetime null,
     duration      int(11) unsigned not null,
-    output        text        not null,
+    output text not null,
     source_count  bigint null,
     target_count  bigint null,
     success_count bigint null comment 'success data count',
     failure_count bigint null comment 'failure data count',
-    error         text null,
+    error text null,
     source_type   varchar(32) null,
     target_type   varchar(32) null,
     primary key (job_id, step_id)

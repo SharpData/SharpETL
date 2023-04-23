@@ -32,7 +32,7 @@ trait QualityCheck[DataFrame] extends Serializable {
   val dataQualityCheckRules: Map[String, QualityCheckRule]
   val qualityCheckAccessor: QualityCheckAccessor
 
-  def qualityCheck(step: WorkflowStep, jobId: Long, jobScheduleId: String,
+  def qualityCheck(step: WorkflowStep, jobId: String, jobScheduleId: String,
                    df: DataFrame): CheckResult[DataFrame] = {
     val idColumn = step.source.options.getOrElse("idColumn", "id")
     val sortColumn = step.source.options.getOrElse("sortColumn", "")
@@ -99,7 +99,7 @@ trait QualityCheck[DataFrame] extends Serializable {
       .toSeq
 
 
-  def recordCheckResult(jobId: Long, jobScheduleId: String, results: Seq[DataQualityCheckResult]): Unit = {
+  def recordCheckResult(jobId: String, jobScheduleId: String, results: Seq[DataQualityCheckResult]): Unit = {
     results
       .filter(it => it.warnCount > 0 || it.errorCount > 0)
       .map(it =>

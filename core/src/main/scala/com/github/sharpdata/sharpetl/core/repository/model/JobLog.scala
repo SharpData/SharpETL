@@ -20,7 +20,7 @@ object Constants {
 
 class JobLog(
               @BeanProperty
-              var jobId: Long,
+              var jobId: String,
               @BeanProperty
               var workflowName: String,
               @BeanProperty

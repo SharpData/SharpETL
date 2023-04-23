@@ -45,6 +45,7 @@ object JobLogAccessor {
       case Constants.ETLDatabaseType.MSSQL => new com.github.sharpdata.sharpetl.core.repository.mssql.JobLogAccessor()
       case Constants.ETLDatabaseType.H2 => new com.github.sharpdata.sharpetl.core.repository.mysql.JobLogAccessor()
       case Constants.ETLDatabaseType.MYSQL => new com.github.sharpdata.sharpetl.core.repository.mysql.JobLogAccessor()
+      case Constants.ETLDatabaseType.SPARK_SHARP_ETL => new com.github.sharpdata.sharpetl.core.repository.spark.JobLogAccessor()
     }
   }
 }

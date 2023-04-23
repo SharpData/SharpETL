@@ -69,11 +69,12 @@ trait JobLogMapper extends Serializable {
   ))
   def isAnotherJobRunning(jobName: String): JobLog
 
-  @Insert(Array("insert into sharp_etl.job_log(job_name, [period], workflow_name," +
+  @Insert(Array("insert into sharp_etl.job_log(job_id, job_name, [period], workflow_name," +
     "data_range_start, data_range_end," +
     "job_start_time, job_end_time, " +
     "status, create_time," +
-    "last_update_time, file, application_id, project_name, load_type, log_driven_type, runtime_args) values (#{jobName}, #{period}, #{workflowName}, " +
+    "last_update_time, file, application_id, project_name, load_type, log_driven_type, runtime_args) values " +
+    "(#{jobId}, #{jobName}, #{period}, #{workflowName}, " +
     "#{dataRangeStart}, #{dataRangeEnd}, #{jobStartTime}, #{jobEndTime}, " +
     "#{status}, #{createTime}, #{lastUpdateTime}, #{file}, #{applicationId}, #{projectName}, #{loadType}, #{logDrivenType}, #{runtimeArgs})"
   ))

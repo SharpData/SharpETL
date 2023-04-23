@@ -24,11 +24,11 @@ class NotificationUtilTest extends AnyFlatSpec with should.Matchers {
       val jobLogAccessor = mock(classOf[JobLogAccessor])
       val service = new NotificationUtil(jobLogAccessor)
 
-      val job1 = mockJobLog("job1", 1, JobStatus.FAILURE)
-      job1.setStepLogs(Array(mockStepLog(1, "1", JobStatus.FAILURE)))
+      val job1 = mockJobLog("job1", "1", JobStatus.FAILURE)
+      job1.setStepLogs(Array(mockStepLog("1", "1", JobStatus.FAILURE)))
 
-      val job2 = mockJobLog("job2", 2, JobStatus.FAILURE)
-      job2.setStepLogs(Array(mockStepLog(2, "1", JobStatus.SUCCESS), mockStepLog(2, "2", JobStatus.FAILURE)))
+      val job2 = mockJobLog("job2", "2", JobStatus.FAILURE)
+      job2.setStepLogs(Array(mockStepLog("2", "1", JobStatus.SUCCESS), mockStepLog("2", "2", JobStatus.FAILURE)))
 
       val wf1 = Workflow("job1", "1440", "full", "timewindow", null, null, null, -1, null, false,
         Seq(Notify("email", "zhangsan@gmail.com", NotifyTriggerCondition.ALWAYS)), Map(), List())
@@ -53,11 +53,11 @@ class NotificationUtilTest extends AnyFlatSpec with should.Matchers {
       val jobLogAccessor = mock(classOf[JobLogAccessor])
       val service = new NotificationUtil(jobLogAccessor)
 
-      val job1 = mockJobLog("job1", 1, JobStatus.FAILURE)
-      job1.setStepLogs(Array(mockStepLog(1, "1", JobStatus.FAILURE)))
+      val job1 = mockJobLog("job1", "1", JobStatus.FAILURE)
+      job1.setStepLogs(Array(mockStepLog("1", "1", JobStatus.FAILURE)))
 
-      val job2 = mockJobLog("job2", 2, JobStatus.FAILURE)
-      job2.setStepLogs(Array(mockStepLog(2, "1", JobStatus.SUCCESS), mockStepLog(2, "2", JobStatus.FAILURE)))
+      val job2 = mockJobLog("job2", "2", JobStatus.FAILURE)
+      job2.setStepLogs(Array(mockStepLog("2", "1", JobStatus.SUCCESS), mockStepLog("2", "2", JobStatus.FAILURE)))
 
       val wf1 = Workflow("job1", "1440", "full", "timewindow", null, null, null, -1, null, false,
         Seq(Notify("email", "zhangsan@gmail.com", NotifyTriggerCondition.ALWAYS)), Map(), List())
@@ -81,8 +81,8 @@ class NotificationUtilTest extends AnyFlatSpec with should.Matchers {
       val jobLogAccessor = mock(classOf[JobLogAccessor])
       val service = new NotificationUtil(jobLogAccessor)
 
-      val jobLog = mockJobLog("job2", 2, JobStatus.FAILURE)
-      jobLog.setStepLogs(Array(mockStepLog(2, "1", JobStatus.FAILURE)))
+      val jobLog = mockJobLog("job2", "2", JobStatus.FAILURE)
+      jobLog.setStepLogs(Array(mockStepLog("2", "1", JobStatus.FAILURE)))
 
       val tempWf = Workflow("test", "1440", "full", "timewindow", null, null, null, -1, null, false,
         Seq(Notify("email", "zhangsan@gmail.com", NotifyTriggerCondition.ALWAYS)), Map(), List())
@@ -101,9 +101,9 @@ class NotificationUtilTest extends AnyFlatSpec with should.Matchers {
       val jobLogAccessor = mock(classOf[JobLogAccessor])
       val service = new NotificationUtil(jobLogAccessor)
 
-      val jobLog = mockJobLog("job2", 2, JobStatus.FAILURE)
-      jobLog.setStepLogs(Array(mockStepLog(2, "1", JobStatus.FAILURE)))
-      val previousJobLog = mockJobLog("job2", 1, JobStatus.SUCCESS)
+      val jobLog = mockJobLog("job2", "2", JobStatus.FAILURE)
+      jobLog.setStepLogs(Array(mockStepLog("2", "1", JobStatus.FAILURE)))
+      val previousJobLog = mockJobLog("job2", "1", JobStatus.SUCCESS)
 
       when(jobLogAccessor.getPreviousJobLog(jobLog))
         .thenReturn(previousJobLog)
@@ -125,9 +125,9 @@ class NotificationUtilTest extends AnyFlatSpec with should.Matchers {
       val jobLogAccessor = mock(classOf[JobLogAccessor])
       val service = new NotificationUtil(jobLogAccessor)
 
-      val jobLog = mockJobLog("job2", 2, JobStatus.FAILURE)
-      jobLog.setStepLogs(Array(mockStepLog(2, "1", JobStatus.FAILURE)))
-      val previousJobLog = mockJobLog("job2", 1, JobStatus.FAILURE)
+      val jobLog = mockJobLog("job2", "2", JobStatus.FAILURE)
+      jobLog.setStepLogs(Array(mockStepLog("2", "1", JobStatus.FAILURE)))
+      val previousJobLog = mockJobLog("job2", "1", JobStatus.FAILURE)
 
       when(jobLogAccessor.getPreviousJobLog(jobLog))
         .thenReturn(previousJobLog)
@@ -141,7 +141,7 @@ class NotificationUtilTest extends AnyFlatSpec with should.Matchers {
 
   }
 
-  private def mockJobLog(wfName: String, jobId: Long, status: String): JobLog = {
+  private def mockJobLog(wfName: String, jobId: String, status: String): JobLog = {
     new JobLog(
       jobId = jobId,
       workflowName = wfName,
@@ -163,7 +163,7 @@ class NotificationUtilTest extends AnyFlatSpec with should.Matchers {
     )
   }
 
-  private def mockStepLog(jobId: Long, stepId: String, status: String): StepLog = {
+  private def mockStepLog(jobId: String, stepId: String, status: String): StepLog = {
     new StepLog(
       jobId = jobId,
       stepId = stepId,

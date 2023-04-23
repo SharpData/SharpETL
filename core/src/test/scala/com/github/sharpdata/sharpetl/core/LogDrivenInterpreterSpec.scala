@@ -10,7 +10,7 @@ import com.github.sharpdata.sharpetl.core.test.FakeWorkflowInterpreter
 import com.github.sharpdata.sharpetl.core.util.Constants.IncrementalType
 import com.github.sharpdata.sharpetl.core.util.Constants.Job.nullDataTime
 import com.github.sharpdata.sharpetl.core.util.DateUtil.LocalDateTimeToBigInt
-import com.github.sharpdata.sharpetl.core.util.StringUtil.BigIntConverter
+import com.github.sharpdata.sharpetl.core.util.StringUtil.{BigIntConverter, uuid}
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.MockitoSugar.{mock, when}
 import org.scalatest.flatspec._
@@ -114,7 +114,7 @@ class LogDrivenInterpreterSpec extends AnyFlatSpec with should.Matchers {
   private def mockJobLogAccessor(jobLogAccessor: JobLogAccessor, prevDataEndTime: LocalDateTime, execPeriod: Int): Any = {
     when(jobLogAccessor.lastSuccessExecuted("workflowName")).thenReturn(
       new JobLog(
-        jobId = 0, workflowName = "workflowName",
+        jobId = uuid, workflowName = "workflowName",
         period = execPeriod, jobName = "workflowName",
         dataRangeStart = "0", dataRangeEnd = prevDataEndTime.asBigInt().toString,
         jobStartTime = nullDataTime, jobEndTime = nullDataTime,

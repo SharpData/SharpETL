@@ -15,10 +15,15 @@
   </environments>
   <mappers>
     <mapper class="com.github.sharpdata.sharpetl.core.repository.mapper.mysql.JobLogMapper"/>
-    <mapper class="com.github.sharpdata.sharpetl.core.repository.mapper.mssql.JobLogMapper"/>
     <mapper class="com.github.sharpdata.sharpetl.core.repository.mapper.mysql.StepLogMapper"/>
-    <mapper class="com.github.sharpdata.sharpetl.core.repository.mapper.mssql.StepLogMapper"/>
     <mapper class="com.github.sharpdata.sharpetl.core.repository.mapper.mysql.QualityCheckLogMapper"/>
+
+    <mapper class="com.github.sharpdata.sharpetl.core.repository.mapper.mssql.JobLogMapper"/>
+    <mapper class="com.github.sharpdata.sharpetl.core.repository.mapper.mssql.StepLogMapper"/>
     <mapper class="com.github.sharpdata.sharpetl.core.repository.mapper.mssql.QualityCheckLogMapper"/>
+
+    <mapper class="com.github.sharpdata.sharpetl.core.repository.mapper.spark.JobLogMapper"/>
+    <mapper class="com.github.sharpdata.sharpetl.core.repository.mapper.spark.StepLogMapper"/>
+    <mapper class="com.github.sharpdata.sharpetl.core.repository.mapper.spark.QualityCheckLogMapper"/>
   </mappers>
 </configuration>

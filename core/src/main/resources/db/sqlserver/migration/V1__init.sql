@@ -1,8 +1,6 @@
 create table sharp_etl.job_log
 (
-    job_id           bigint identity
-        constraint PK_JobLog_TransactionID
-            primary key,
+    job_id           nvarchar(128) identity primary key,
     workflow_name    nvarchar(128)              not null,
     "period"         int                        not null,
     job_name         nvarchar(128)              not null,
@@ -27,7 +25,7 @@ create table sharp_etl.quality_check_log
     id               bigint identity
         constraint PK_QCLog_TransactionID
             primary key,
-    job_id           bigint                     not null,
+    job_id           nvarchar(128)              not null,
     job_name         nvarchar(64)               not null,
     [column]         nvarchar(64)               not null,
     data_check_type  nvarchar(64)               not null,
@@ -42,13 +40,13 @@ go
 
 create table sharp_etl.step_log
 (
-    job_id        bigint       not null,
-    step_id       varchar(64)  not null,
-    status        varchar(32)  not null,
-    start_time    datetime     not null,
+    job_id        nvarchar(128) not null,
+    step_id       varchar(64)   not null,
+    status        varchar(32)   not null,
+    start_time    datetime      not null,
     end_time      datetime,
-    duration      int          not null,
-    output        varchar(max) not null,
+    duration      int           not null,
+    output        varchar(max)  not null,
     source_count  bigint,
     target_count  bigint,
     success_count bigint,

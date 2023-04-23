@@ -91,7 +91,7 @@ class NotificationUtil(val jobLogAccessor: JobLogAccessor) {
   }
 }
 
-final case class JobMessage(jobId: Long,
+final case class JobMessage(jobId: String,
                             jobName: String,
                             jobRangeStart: String,
                             jobRangeEnd: String,
