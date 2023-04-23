@@ -35,7 +35,7 @@ SELECT order_no AS order_no,
        created_at AS created_at,
        updated_at AS updated_at,
        deleted_at AS deleted_at,
-       ${JOB_ID} AS job_id,
+       '${JOB_ID}' AS job_id,
        CURRENT YEAR TO SECOND AS job_time
 FROM online_order
 WHERE business_date >= TO_DATE('${DATA_RANGE_START}') AND business_date < TO_DATE('${DATA_RANGE_END}');

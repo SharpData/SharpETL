@@ -25,7 +25,7 @@ class SkipRunningJobSpec extends MysqlSuit {
   it("should kill running job when --skip-running=false") {
     // create a running log in `job_log` table
     executeMigration(
-      """INSERT INTO job_log VALUES(null,'do_nothing',1440,'do_nothing-20211001000000',20211001000000, 20211002000000,
+      """INSERT INTO job_log VALUES('uuid-job','do_nothing',1440,'do_nothing-20211001000000',20211001000000, 20211002000000,
         |'2021-10-30 19:08:47','2021-10-30 19:08:50','RUNNING','2021-10-30 19:08:47','2021-10-30 19:08:50','datetime', '', '', 'local-fake-app', '', '')"""
         .stripMargin)
     // run task (skipRunning = true), assert exception thrown

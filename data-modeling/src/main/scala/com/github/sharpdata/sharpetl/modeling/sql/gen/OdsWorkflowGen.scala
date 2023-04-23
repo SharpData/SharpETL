@@ -21,7 +21,7 @@ object OdsWorkflowGen {
 
 
     val dataSourceType = odsModeling.odsTableConfig.sourceType
-    val additionalCols = List(s"$${JOB_ID} AS ${quote("job_id", dataSourceType)}")
+    val additionalCols = List(s"'$${JOB_ID}' AS ${quote("job_id", dataSourceType)}")
     val columns = buildColumnString(odsModeling, additionalCols)
     val sourceDb = quote(odsModeling.odsTableConfig.sourceDb, dataSourceType)
     val sourceTable = quote(odsModeling.odsTableConfig.sourceTable, dataSourceType)

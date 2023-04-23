@@ -26,7 +26,7 @@ FROM `int_test`.`test_inc_id_table`;
 -- writeMode=upsert
 SELECT `id` AS `id`,
        `value` AS `value`,
-       ${JOB_ID} AS `job_id`,
+       '${JOB_ID}' AS `job_id`,
        now() AS `job_time`
 FROM `int_test`.`test_inc_id_table`
 WHERE `id` > ${lowerBound}

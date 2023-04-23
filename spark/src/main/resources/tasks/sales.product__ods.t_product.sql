@@ -17,6 +17,6 @@ SELECT "mid" AS "product_code",
        "status" AS "product_status",
        "create_time" AS "create_time",
        "update_time" AS "update_time",
-       ${JOB_ID} AS "job_id"
+       '${JOB_ID}' AS "job_id"
 FROM "postgres"."sales"."product"
 WHERE "update_time" >= '${DATA_RANGE_START}' AND "update_time" < '${DATA_RANGE_END}';

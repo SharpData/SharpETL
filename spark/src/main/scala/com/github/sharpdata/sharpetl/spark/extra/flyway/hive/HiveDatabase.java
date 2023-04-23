@@ -76,7 +76,7 @@ public class HiveDatabase extends Database<HiveConnection> {
                 "    `installed_on` TIMESTAMP NOT NULL,\n" +
                 "    `execution_time` INT NOT NULL,\n" +
                 "    `success` BOOLEAN NOT NULL\n" +
-                ") using delta;\n" +
+                ");\n" +
                 (baseline ? getBaselineStatement(table) + ";\n" : "");
     }
 

@@ -35,7 +35,7 @@ SELECT "order_no" AS "order_no",
 "created_at" AS "created_at",
 "updated_at" AS "updated_at",
 "deleted_at" AS "deleted_at",
-${JOB_ID} AS "job_id",
+'${JOB_ID}' AS "job_id",
 now() AS "job_time"
 FROM "postgres"."sales"."online_order"
 WHERE "business_date" >= '${DATA_RANGE_START}' AND "business_date" < '${DATA_RANGE_END}';
