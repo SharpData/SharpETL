@@ -2,7 +2,6 @@ package com.github.sharpdata.sharpetl.spark.extra.driver
 
 import com.github.sharpdata.sharpetl.core.util.DateUtil.L_YYYY_MM_DD_HH_MM_SS
 import com.github.sharpdata.sharpetl.spark.utils.ETLSparkSession.sparkSession
-import org.apache.commons.lang.StringEscapeUtils
 
 import java.io.{InputStream, Reader}
 import java.net.URL
@@ -11,7 +10,7 @@ import java.time.LocalDateTime
 import java.util.Calendar
 import scala.collection.mutable
 
-//noinspection ScalaStyle
+// scalastyle:off
 class SparkJdbcPreparedStatement(val sql: String) extends PreparedStatement {
   private var resultSet: SparkJdbcResultSet = null
 
@@ -263,3 +262,5 @@ class SparkJdbcPreparedStatement(val sql: String) extends PreparedStatement {
 
   override def isWrapperFor(iface: Class[_]): Boolean = false
 }
+
+// scalastyle:on

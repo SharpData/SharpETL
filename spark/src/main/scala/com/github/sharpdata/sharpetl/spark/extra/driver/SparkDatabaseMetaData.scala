@@ -4,6 +4,7 @@ import com.github.sharpdata.sharpetl.spark.utils.ETLSparkSession.sparkSession
 
 import java.sql.{Connection, DatabaseMetaData, ResultSet, RowIdLifetime}
 
+// scalastyle:off
 class SparkDatabaseMetaData extends DatabaseMetaData {
   override def allProceduresAreCallable(): Boolean = true
 
@@ -357,3 +358,5 @@ class SparkDatabaseMetaData extends DatabaseMetaData {
 
   override def isWrapperFor(iface: Class[_]): Boolean = true
 }
+
+// scalastyle:on

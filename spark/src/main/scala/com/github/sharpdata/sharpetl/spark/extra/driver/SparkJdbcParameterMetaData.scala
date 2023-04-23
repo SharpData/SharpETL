@@ -4,6 +4,8 @@ import org.apache.spark.sql.DataFrame
 
 import java.sql.ParameterMetaData
 
+// scalastyle:off
+
 class SparkJdbcParameterMetaData(val data: DataFrame) extends ParameterMetaData{
   override def getParameterCount: Int = data.columns.length
 
@@ -27,3 +29,5 @@ class SparkJdbcParameterMetaData(val data: DataFrame) extends ParameterMetaData{
 
   override def isWrapperFor(iface: Class[_]): Boolean = ???
 }
+
+// scalastyle:on

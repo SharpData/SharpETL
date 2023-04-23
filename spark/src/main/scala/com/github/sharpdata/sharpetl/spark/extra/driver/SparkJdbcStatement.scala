@@ -4,6 +4,7 @@ import com.github.sharpdata.sharpetl.spark.utils.ETLSparkSession.sparkSession
 
 import java.sql.{Connection, ResultSet, SQLWarning, Statement}
 
+// scalastyle:off
 class SparkJdbcStatement extends Statement {
 
   private var resultSet: SparkJdbcResultSet = null
@@ -106,3 +107,5 @@ class SparkJdbcStatement extends Statement {
 
   override def isWrapperFor(iface: Class[_]): Boolean = false
 }
+
+// scalastyle:on

@@ -8,7 +8,7 @@ import java.util.logging.Logger
 import java.sql.DriverManager
 import java.sql.SQLException
 
-
+// scalastyle:off
 class SparkJdbcDriver extends Driver {
 
   private var registered = false
@@ -44,3 +44,5 @@ object SparkJdbcDriver {
   val INSTANCE = new SparkJdbcDriver()
   INSTANCE.load()
 }
+
+// scalastyle:on

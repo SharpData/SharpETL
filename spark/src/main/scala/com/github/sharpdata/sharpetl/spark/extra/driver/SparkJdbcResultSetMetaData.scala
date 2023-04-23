@@ -4,6 +4,7 @@ import org.apache.spark.sql.DataFrame
 
 import java.sql.ResultSetMetaData
 
+// scalastyle:off
 class SparkJdbcResultSetMetaData(val data: DataFrame) extends ResultSetMetaData{
   override def getColumnCount: Int = data.columns.length
 
@@ -51,3 +52,5 @@ class SparkJdbcResultSetMetaData(val data: DataFrame) extends ResultSetMetaData{
 
   override def isWrapperFor(iface: Class[_]): Boolean = ???
 }
+
+// scalastyle:on

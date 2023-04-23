@@ -8,6 +8,7 @@ import java.{sql, util}
 import java.sql.{Blob, Clob, Date, NClob, Ref, ResultSet, ResultSetMetaData, RowId, SQLWarning, SQLXML, Statement, Time, Timestamp}
 import java.util.Calendar
 
+// scalastyle:off
 class SparkJdbcResultSet(val data: DataFrame, val statement: Statement) extends ResultSet {
 
   private val datas = data.toLocalIterator()
@@ -403,3 +404,5 @@ class SparkJdbcResultSet(val data: DataFrame, val statement: Statement) extends 
 
   override def isWrapperFor(iface: Class[_]): Boolean = ???
 }
+
+// scalastyle:on

@@ -6,7 +6,7 @@ import java.util.Properties
 import java.util.concurrent.Executor
 import scala.jdk.CollectionConverters._
 
-
+// scalastyle:off
 class SparkJdbcConnection extends Connection {
 
   override def createStatement(): Statement = new SparkJdbcStatement()
@@ -117,3 +117,4 @@ class SparkJdbcConnection extends Connection {
 
   override def isWrapperFor(iface: Class[_]): Boolean = false
 }
+// scalastyle:on
