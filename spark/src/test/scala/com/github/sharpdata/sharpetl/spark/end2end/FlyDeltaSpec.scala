@@ -1,9 +1,8 @@
 package com.github.sharpdata.sharpetl.spark.end2end
 
+import com.github.sharpdata.sharpetl.core.util.ETLLogger
 import com.github.sharpdata.sharpetl.spark.end2end.ETLSuit.runJob
 import com.github.sharpdata.sharpetl.spark.end2end.delta.DeltaSuit
-import com.github.sharpdata.sharpetl.spark.end2end.hive.HiveSuit
-import com.github.sharpdata.sharpetl.spark.job.SparkSessionTestWrapper
 import com.github.sharpdata.sharpetl.spark.test.DataFrameComparer
 import org.apache.spark.sql.{DataFrame, Row}
 import org.apache.spark.sql.types._
@@ -16,7 +15,7 @@ import java.sql.Timestamp
 class FlyDeltaSpec extends AnyFunSpec
   with should.Matchers
   with DeltaSuit
-//  with HiveSuit
+  //  with HiveSuit
   with DataFrameComparer
   with BeforeAndAfterEach {
 
@@ -50,12 +49,19 @@ class FlyDeltaSpec extends AnyFunSpec
   )
 
   it("should just run with delta") {
-    val filePath = getClass.getResource("/application-delta.properties").toString
+    if (spark.version.startsWith("2.3")) {
+      ETLLogger.error("Delta Lake does NOT support Spark 2.3.x")
+    } else if (spark.version.startsWith("2.4") || spark.version.startsWith("3.0") || spark.version.startsWith("3.1")) {
+      ETLLogger.error("Delta Lake does not works well on Spark 2.4.x, " +
+        "CREATE TABLE USING delta is not supported by Spark before 3.0.0 and Delta Lake before 0.7.0.")
+    } else {
+      val filePath = getClass.getResource("/application-delta.properties").toString
 
-    val jobParameters: Array[String] = Array("single-job",
-      "--name=latest-only",
-      "--local", "--env=test", "--once", s"--property=$filePath")
+      val jobParameters: Array[String] = Array("single-job",
+        "--name=latest-only",
+        "--local", "--env=test", "--once", s"--property=$filePath")
 
-    runJob(jobParameters)
+      runJob(jobParameters)
+    }
   }
 }
