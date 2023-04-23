@@ -25,7 +25,7 @@ object FlywayUtil {
         .defaultSchema("sharp_etl")
         .createSchemas(true)
         .baselineVersion("0")
-        //.baselineOnMigrate(true)
+        .baselineOnMigrate(true)
         .dataSource(
           ETLConfig.getProperty("flyway.url"),
           ETLConfig.getProperty("flyway.username"),
