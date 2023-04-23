@@ -3,8 +3,11 @@ package com.github.sharpdata.sharpetl.spark.end2end
 import com.github.sharpdata.sharpetl.core.util.ETLLogger
 import com.github.sharpdata.sharpetl.spark.end2end.ETLSuit.runJob
 import com.github.sharpdata.sharpetl.spark.end2end.delta.DeltaSuit
+import com.github.sharpdata.sharpetl.spark.end2end.hive.HiveSuit
+import com.github.sharpdata.sharpetl.spark.extension.UdfInitializer
 import com.github.sharpdata.sharpetl.spark.test.DataFrameComparer
-import org.apache.spark.sql.{DataFrame, Row}
+import com.github.sharpdata.sharpetl.spark.utils.ETLSparkSession
+import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.apache.spark.sql.types._
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.funspec.AnyFunSpec
@@ -14,10 +17,28 @@ import java.sql.Timestamp
 
 class FlyDeltaSpec extends AnyFunSpec
   with should.Matchers
-  with DeltaSuit
+  with ETLSuit
+  //  with DeltaSuit
   //  with HiveSuit
   with DataFrameComparer
   with BeforeAndAfterEach {
+
+  override lazy val spark: SparkSession = {
+    ETLSparkSession.local = true
+    val session = SparkSession
+      .builder()
+      .master("local")
+      .appName("spark session")
+      .config("spark.sql.shuffle.partitions", "1")
+      .config("spark.sql.legacy.timeParserPolicy", "LEGACY")
+      .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
+      .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
+      .config("spark.sql.sources.partitionOverwriteMode", "dynamic")
+      .config("spark.sql.catalogImplementation", "hive")
+      .getOrCreate()
+    UdfInitializer.init(session)
+    session
+  }
 
   val data = Seq(
     Row("qqq", Timestamp.valueOf("2021-01-01 08:00:00")),
