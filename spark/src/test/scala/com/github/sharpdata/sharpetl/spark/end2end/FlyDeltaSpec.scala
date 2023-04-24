@@ -24,7 +24,6 @@ class FlyDeltaSpec extends AnyFunSpec
   with BeforeAndAfterEach {
 
   override lazy val spark: SparkSession = {
-    ETLSparkSession.local = true
     val session = SparkSession
       .builder()
       .master("local")
