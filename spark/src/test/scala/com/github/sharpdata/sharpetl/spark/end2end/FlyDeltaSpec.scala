@@ -17,13 +17,13 @@ import java.sql.Timestamp
 
 class FlyDeltaSpec extends AnyFunSpec
   with should.Matchers
-  with ETLSuit
+  // with ETLSuit
   //  with DeltaSuit
   //  with HiveSuit
   with DataFrameComparer
   with BeforeAndAfterEach {
 
-  override lazy val spark: SparkSession = {
+  val spark: SparkSession = {
     ETLSparkSession.local = false
     val session = SparkSession
       .builder()
