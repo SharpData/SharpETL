@@ -78,7 +78,7 @@ dependencies {
     implementation "org.apache.spark:spark-streaming_$scalaVersion:$sparkVersion"
     implementation "org.apache.spark:spark-streaming-kafka-0-10_$scalaVersion:$sparkVersion"
     implementation "org.apache.kafka:kafka-clients:2.0.0"
-    if (sparkVersion.startsWith("3.3")) {
+    if (sparkVersion.startsWith("3.3") || sparkVersion.startsWith("3.4")) {
         implementation "io.delta:delta-core_$scalaVersion:2.3.0"
     } else if (sparkVersion.startsWith("3.2")) {
         implementation "io.delta:delta-core_$scalaVersion:2.0.2"
@@ -137,6 +137,12 @@ dependencies {
         implementation("com.fasterxml.jackson.core:jackson-databind") {
             version {
                 strictly '2.13.3'
+            }
+        }
+    } else if (sparkVersion.startsWith("3.4")) {
+        implementation("com.fasterxml.jackson.core:jackson-databind") {
+            version {
+                strictly '2.14.2'
             }
         }
     } else {
@@ -356,7 +362,7 @@ shadowJar {
         include dependency('info.picocli:picocli:4.6.3')
         include dependency("net.liftweb:lift-json_$scalaVersion:3.4.3")
 
-        if (sparkVersion.startsWith("3.3")) {
+        if (sparkVersion.startsWith("3.3") || sparkVersion.startsWith("3.4")) {
             addDeps("io.delta:delta-core_$scalaVersion:2.3.0")
         } else if (sparkVersion.startsWith("3.2")) {
             addDeps("io.delta:delta-core_$scalaVersion:2.0.2")
@@ -593,7 +599,7 @@ if (scalaVersion.startsWith('2.11')) {
                 }
             }
         }
-    } else if (sparkVersion.startsWith("3.2") || sparkVersion.startsWith("3.3")) {
+    } else if (sparkVersion.startsWith("3.2") || sparkVersion.startsWith("3.3") || sparkVersion.startsWith("3.4")) {
         sourceSets {
             main {
                 scala {

@@ -38,6 +38,9 @@ jobs:
           - scalaVersion: 2.13
             sparkVersion: 3.3.0
             scalaCompt: 2.13.7
+          - scalaVersion: 2.13
+            sparkVersion: 3.4.0
+            scalaCompt: 2.13.10
     steps:
       - uses: actions/checkout@v2
 

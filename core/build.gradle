@@ -77,6 +77,12 @@ dependencies {
                 strictly '2.13.3'
             }
         }
+    }  else if (sparkVersion.startsWith("3.4")) {
+        implementation("com.fasterxml.jackson.module:jackson-module-scala_$scalaVersion") {
+            version {
+                strictly '2.14.2'
+            }
+        }
     } else {
         implementation("com.fasterxml.jackson.module:jackson-module-scala_$scalaVersion") {
             version {
