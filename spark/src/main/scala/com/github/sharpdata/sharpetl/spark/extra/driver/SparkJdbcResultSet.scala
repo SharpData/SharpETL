@@ -6,6 +6,7 @@ import java.io.{InputStream, Reader}
 import java.net.URL
 import java.{sql, util}
 import java.sql.{Blob, Clob, Date, NClob, Ref, ResultSet, ResultSetMetaData, RowId, SQLWarning, SQLXML, Statement, Time, Timestamp}
+import java.time.LocalDateTime
 import java.util.Calendar
 
 // scalastyle:off
@@ -404,7 +405,18 @@ class SparkJdbcResultSet(val data: DataFrame, val statement: Statement) extends 
 
   override def getObject[T](columnIndex: Int, `type`: Class[T]): T = ???
 
-  override def getObject[T](columnLabel: String, `type`: Class[T]): T = ???
+  override def getObject[T](columnLabel: String, `type`: Class[T]): T = {
+    val value: Any = currentData.getAs(columnLabel)
+
+    val ldtCls = classOf[LocalDateTime]
+
+    `type` match {
+      case ldtCls =>
+        // from timestamp => localdatetime
+        value.asInstanceOf[Timestamp].toLocalDateTime.asInstanceOf[T]
+      case _ => value.asInstanceOf[T]
+    }
+  }
 
   override def unwrap[T](iface: Class[T]): T = ???
 
