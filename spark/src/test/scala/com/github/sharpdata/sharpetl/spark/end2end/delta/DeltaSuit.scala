@@ -17,6 +17,7 @@ trait DeltaSuit extends ETLSuit {
       .config("spark.sql.extensions", "io.delta.sql.DeltaSparkSessionExtension")
       .config("spark.sql.catalog.spark_catalog", "org.apache.spark.sql.delta.catalog.DeltaCatalog")
       .config("spark.sql.sources.partitionOverwriteMode", "dynamic")
+      .config("spark.sql.catalogImplementation", "hive")
       .getOrCreate()
     UdfInitializer.init(session)
     session

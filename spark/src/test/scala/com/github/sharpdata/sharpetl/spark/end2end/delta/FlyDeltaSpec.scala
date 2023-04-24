@@ -1,30 +1,29 @@
-package com.github.sharpdata.sharpetl.spark.end2end
+package com.github.sharpdata.sharpetl.spark.end2end.delta
 
 import com.github.sharpdata.sharpetl.core.util.ETLLogger
 import com.github.sharpdata.sharpetl.spark.end2end.ETLSuit.runJob
-import com.github.sharpdata.sharpetl.spark.end2end.delta.DeltaSuit
-import com.github.sharpdata.sharpetl.spark.end2end.hive.HiveSuit
 import com.github.sharpdata.sharpetl.spark.extension.UdfInitializer
 import com.github.sharpdata.sharpetl.spark.test.DataFrameComparer
 import com.github.sharpdata.sharpetl.spark.utils.ETLSparkSession
-import org.apache.spark.sql.{DataFrame, Row, SparkSession}
 import org.apache.spark.sql.types._
-import org.scalatest.BeforeAndAfterEach
+import org.apache.spark.sql.{DataFrame, Row, SparkSession}
+import org.scalatest.{BeforeAndAfterEach, DoNotDiscover}
 import org.scalatest.funspec.AnyFunSpec
 import org.scalatest.matchers.should
 
 import java.sql.Timestamp
 
+@DoNotDiscover
 class FlyDeltaSpec extends AnyFunSpec
   with should.Matchers
   // with ETLSuit
-  //  with DeltaSuit
+    with DeltaSuit
   //  with HiveSuit
   with DataFrameComparer
   with BeforeAndAfterEach {
 
-  val spark: SparkSession = {
-    ETLSparkSession.local = false
+  /*val spark: SparkSession = {
+    //ETLSparkSession.local = false
     val session = SparkSession
       .builder()
       .master("local")
@@ -38,7 +37,7 @@ class FlyDeltaSpec extends AnyFunSpec
       .getOrCreate()
     UdfInitializer.init(session)
     session
-  }
+  }*/
 
   val data = Seq(
     Row("qqq", Timestamp.valueOf("2021-01-01 08:00:00")),

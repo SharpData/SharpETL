@@ -7,7 +7,8 @@ import org.scalatest.{BeforeAndAfterAll, DoNotDiscover, Sequential}
 
 @DoNotDiscover
 class DeltaSuitExecutor extends Sequential(
-  new DeltaLakeSpec
+  new DeltaLakeSpec,
+  new FlyDeltaSpec
 ) with BeforeAndAfterAll {
   val logMysql = new FixedMySQLContainer("mysql:5.7")
 
