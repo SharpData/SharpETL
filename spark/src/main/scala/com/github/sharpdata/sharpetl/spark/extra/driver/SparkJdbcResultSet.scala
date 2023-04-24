@@ -18,7 +18,7 @@ class SparkJdbcResultSet(val data: DataFrame, val statement: Statement) extends 
 
   override def next(): Boolean = {
     val hasNext = datas.hasNext
-    if (hasNext == true) {
+    if (hasNext) {
       currentData = datas.next
     }
     hasNext
@@ -28,7 +28,7 @@ class SparkJdbcResultSet(val data: DataFrame, val statement: Statement) extends 
 
   override def wasNull(): Boolean = false
 
-  override def getString(columnIndex: Int): String = currentData.getString(columnIndex - 1)
+  override def getString(columnIndex: Int): String = currentData.get(columnIndex - 1).toString
 
   override def getBoolean(columnIndex: Int): Boolean = currentData.getBoolean(columnIndex - 1)
 

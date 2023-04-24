@@ -18,6 +18,7 @@ create or replace table delta_db.delta_tbl
 
 -- step=insert some sample data
 -- target=delta_lake
+-- writeMode=execute
 insert into delta_db.delta_tbl
 values (1, "a1"),
        (2, "a2");
