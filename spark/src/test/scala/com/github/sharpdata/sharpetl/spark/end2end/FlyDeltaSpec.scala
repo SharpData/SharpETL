@@ -1,5 +1,7 @@
 package com.github.sharpdata.sharpetl.spark.end2end
 
+import com.github.sharpdata.sharpetl.core.util.Constants.Environment
+import com.github.sharpdata.sharpetl.core.util.Constants.Environment.TEST_DELTA
 import com.github.sharpdata.sharpetl.core.util.ETLLogger
 import com.github.sharpdata.sharpetl.spark.end2end.ETLSuit.runJob
 import com.github.sharpdata.sharpetl.spark.end2end.delta.DeltaSuit
@@ -24,6 +26,7 @@ class FlyDeltaSpec extends AnyFunSpec
   with BeforeAndAfterEach {
 
   override lazy val spark: SparkSession = {
+    ETLSparkSession.local = false
     val session = SparkSession
       .builder()
       .master("local")
