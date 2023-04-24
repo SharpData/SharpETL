@@ -34,21 +34,26 @@ class DeltaLakeDataSource extends Source[DataFrame, SparkSession] with Sink[Data
     val tableName = config.tableName
     if (!df.isEmpty) {
       try {
-        df.createTempView(resultTempTable)
-        ETLLogger.info(s"Saved data to temp table $resultTempTable")
-        val saveMode = writeMode match {
-          case WriteMode.OVER_WRITE | MERGE_WRITE =>
-            "overwrite"
-          case WriteMode.APPEND =>
-            "into"
+        if (writeMode == WriteMode.EXECUTE) {
+          sparkSession.sql(step.sql)
+        } else {
+          df.createTempView(resultTempTable)
+          ETLLogger.info(s"Saved data to temp table $resultTempTable")
+
+          val saveMode = writeMode match {
+            case WriteMode.OVER_WRITE | MERGE_WRITE =>
+              "overwrite"
+            case WriteMode.APPEND =>
+              "into"
+          }
+          val insertSql =
+            s"""
+               |insert $saveMode table $dbName.$tableName
+               |select * from $resultTempTable
+               |""".stripMargin
+          ETLLogger.info(s"""[$tableName] Insert Sql: $insertSql""")
+          sparkSession.sql(insertSql)
         }
-        val insertSql =
-          s"""
-             |insert $saveMode table $dbName.$tableName
-             |select * from $resultTempTable
-             |""".stripMargin
-        ETLLogger.info(s"""[$tableName] Insert Sql: $insertSql""")
-        sparkSession.sql(insertSql)
       } finally {
         sparkSession.sql(s"drop table if exists $resultTempTable")
       }

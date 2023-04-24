@@ -374,7 +374,7 @@ class DataQualityCheckSpec extends AnyFlatSpec with should.Matchers with SparkSe
 
     val interpreter = new SparkWorkflowInterpreterStub(spark, rules)
 
-    val result = interpreter.qualityCheck(step, 1, "???", testDf)
+    val result = interpreter.qualityCheck(step, "1", "???", testDf)
 
 
     val errors = result.error

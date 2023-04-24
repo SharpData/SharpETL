@@ -34,7 +34,12 @@ dependencies {
     implementation "joda-time:joda-time:2.9.9"
     implementation "org.mybatis:mybatis:3.5.9"
     implementation 'com.zaxxer:HikariCP:2.6.1'
-    implementation 'org.flywaydb:flyway-core:7.14.0'
+    implementation('io.github.coolbeevip:flyway-core:9.15.2.2') {
+        exclude group: 'com.fasterxml.jackson.dataformat', module: 'jackson-dataformat-toml'
+    }
+    implementation('io.github.coolbeevip:flyway-mysql:9.15.2.2') {
+        exclude group: 'com.fasterxml.jackson.dataformat', module: 'jackson-dataformat-toml'
+    }
     implementation group: 'org.apache.poi', name: 'poi', version: '4.1.0'
     implementation group: 'org.apache.poi', name: 'poi-ooxml', version: '4.1.0'
     implementation 'org.apache.commons:commons-lang3:3.10'

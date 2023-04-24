@@ -47,6 +47,7 @@ object Constants {
     val MYSQL = "mysql"
     val MSSQL = "mssql"
     val H2 = "h2"
+    val SPARK_SHARP_ETL = "spark_sharp_etl"
   }
 
   object DataSourceType extends Serializable {

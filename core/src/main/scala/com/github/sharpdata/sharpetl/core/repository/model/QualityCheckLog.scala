@@ -5,7 +5,7 @@ import scala.beans.BeanProperty
 
 case class QualityCheckLog(
                             @BeanProperty
-                            var jobId: Long,
+                            var jobId: String,
                             @BeanProperty
                             var jobName: String,
                             @BeanProperty

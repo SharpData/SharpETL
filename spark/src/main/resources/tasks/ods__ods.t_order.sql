@@ -26,7 +26,7 @@ SELECT "order_sn" AS "order_sn",
        "order_status" AS "order_status",
        "order_create_time" AS "order_create_time",
        "order_update_time" AS "order_update_time",
-       ${JOB_ID} AS "job_id"
+       '${JOB_ID}' AS "job_id"
 FROM "postgres"."sales"."order"
 WHERE "order_update_time" >= '${DATA_RANGE_START}' AND "order_update_time" < '${DATA_RANGE_END}'
 AND "order_sn" = 'AAA';

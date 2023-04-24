@@ -17,7 +17,7 @@ object StepStatus {
 
 class StepLog(
                @BeanProperty
-               var jobId: Long,
+               var jobId: String,
                @BeanProperty
                var stepId: String,
                @BeanProperty

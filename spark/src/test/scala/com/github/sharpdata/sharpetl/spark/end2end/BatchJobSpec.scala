@@ -56,7 +56,7 @@ class BatchJobSpec extends MysqlSuit {
 
     runJob(jobParameters)
 
-    val df = readFromLog("job_log").where("job_name = 'latest-only'")
+    val df = readFromLog("job_log").where("workflow_name = 'latest-only'")
     df.count() should be(1)
     df.select("data_range_start").head().get(0) should be(dataRangeStart)
   }
@@ -72,7 +72,7 @@ class BatchJobSpec extends MysqlSuit {
 
     runJob(jobParameters)
 
-    readFromLog("job_log").where("job_name = 'refresh-temp'").count() should be(1)
+    readFromLog("job_log").where("workflow_name = 'refresh-temp'").count() should be(1)
 
     val newJobParameters: Array[String] = Array("single-job",
       "--name=refresh-temp", "--period=1440", "--refresh", s"--refresh-range-start=${refreshStart}", s"--refresh-range-end=${refreshEnd}",
@@ -80,7 +80,7 @@ class BatchJobSpec extends MysqlSuit {
 
     runJob(newJobParameters)
 
-    readFromLog("job_log").where("job_name = 'refresh-temp'").count() should be(2)
+    readFromLog("job_log").where("workflow_name = 'refresh-temp'").count() should be(2)
   }
 
   it("should skip if already done") {
@@ -89,14 +89,14 @@ class BatchJobSpec extends MysqlSuit {
       "--local",
       "--env=test", "--parallelism=1"))
 
-    readFromLog("job_log").where("job_name = 'refresh-temp'").count() should be(3)
+    readFromLog("job_log").where("workflow_name = 'refresh-temp'").count() should be(3)
 
     runJob(Array("batch-job",
       s"--names=refresh-temp", "--period=1440",
       "--local",
       "--env=test", "--parallelism=1"))
 
-    readFromLog("job_log").where("job_name = 'refresh-temp'").count() should be(3)
+    readFromLog("job_log").where("workflow_name = 'refresh-temp'").count() should be(3)
   }
 
   it("should from user defined step id") {

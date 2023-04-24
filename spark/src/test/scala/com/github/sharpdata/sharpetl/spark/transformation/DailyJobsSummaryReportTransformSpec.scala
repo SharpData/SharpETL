@@ -10,6 +10,7 @@ import com.github.sharpdata.sharpetl.core.util.Constants.DataSourceType
 import com.github.sharpdata.sharpetl.core.util.DateUtil.L_YYYY_MM_DD_HH_MM_SS
 import com.github.sharpdata.sharpetl.core.util.FlywayUtil
 import ETLSuit.runJob
+import com.github.sharpdata.sharpetl.core.util.StringUtil.uuid
 import org.mockito.ArgumentCaptor
 import org.mockito.Mockito.{times, verify}
 import org.mockito.MockitoSugar.withObjectMocked
@@ -29,8 +30,8 @@ class DailyJobsSummaryReportTransformSpec extends ETLSuit {
     val startTimeText = startTime.format(L_YYYY_MM_DD_HH_MM_SS)
 
     FlywayUtil.migrate()
-    prepareData("job1", startTime.plusHours(10))
-    prepareData("job2", startTime.plusHours(10))
+    val job1Id = prepareData("job1", startTime.plusHours(10))
+    val job2Id = prepareData("job2", startTime.plusHours(10))
 
     withObjectMocked[NotificationFactory.type] {
 
@@ -46,14 +47,14 @@ class DailyJobsSummaryReportTransformSpec extends ETLSuit {
 
       assert(email.attachment.get.content ==
         s"""projectName,workflowName,jobId,dataRangeStart,dataRangeEnd,jobStartTime,jobStatus,duration(seconds),dataFlow,to-hive,to-postgres,failStep,errorMessage
-          |projectName,job1,1,2022-02-09 00:00:00,2022-02-10 00:00:00,2022-01-01 20:00:00,SUCCESS,20,hive(10) -> postgres(10),10,10,,""
-          |projectName,job2,2,2022-02-09 00:00:00,2022-02-10 00:00:00,2022-01-01 20:00:00,SUCCESS,20,hive(10) -> postgres(10),10,10,,""$emptyStr""".stripMargin
+          |projectName,job1,${job1Id},2022-02-09 00:00:00,2022-02-10 00:00:00,2022-01-01 20:00:00,SUCCESS,20,hive(10) -> postgres(10),10,10,,""
+          |projectName,job2,${job2Id},2022-02-09 00:00:00,2022-02-10 00:00:00,2022-01-01 20:00:00,SUCCESS,20,hive(10) -> postgres(10),10,10,,""$emptyStr""".stripMargin
       )
     }
     TimeZone.setDefault(TimeZone.getTimeZone(timeZone))
   }
 
-  private def prepareData(jobName: String, jobStartTime: LocalDateTime): Unit = {
+  private def prepareData(jobName: String, jobStartTime: LocalDateTime): String = {
     val jobLog = mockJobLog(jobName, jobStartTime)
     jobLogAccessor.create(jobLog) // create time will converted to now, so let's do update
     jobLog.jobStartTime = jobStartTime
@@ -65,11 +66,13 @@ class DailyJobsSummaryReportTransformSpec extends ETLSuit {
     stepLogAccessor.create(
       mockStepLog(jobLog.jobId, "2", DataSourceType.POSTGRES, 5, jobStartTime)
     )
+
+    jobLog.jobId
   }
 
   private def mockJobLog(wfName: String, jobStartTime: LocalDateTime): JobLog = {
     new JobLog(
-      jobId = 1,
+      jobId = uuid,
       workflowName = wfName,
       period = 1440,
       jobName = "111",
@@ -89,7 +92,7 @@ class DailyJobsSummaryReportTransformSpec extends ETLSuit {
     )
   }
 
-  private def mockStepLog(jobId: Long, stepId: String, targetType: String, targetCount: Int, startTime: LocalDateTime): StepLog = {
+  private def mockStepLog(jobId: String, stepId: String, targetType: String, targetCount: Int, startTime: LocalDateTime): StepLog = {
     new StepLog(
       jobId = jobId,
       stepId = stepId,

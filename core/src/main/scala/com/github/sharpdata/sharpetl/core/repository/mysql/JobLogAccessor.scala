@@ -4,8 +4,6 @@ import com.github.sharpdata.sharpetl.core.repository.mapper.mysql.JobLogMapper
 import com.github.sharpdata.sharpetl.core.repository.model.JobLog
 import com.github.sharpdata.sharpetl.core.repository
 import com.github.sharpdata.sharpetl.core.repository.MyBatisSession.execute
-import com.github.sharpdata.sharpetl.core.repository.mapper.mysql
-import com.github.sharpdata.sharpetl.core.repository.model.JobLog
 import com.github.sharpdata.sharpetl.core.util.DateUtil.L_YYYY_MM_DD_HH_MM_SS
 
 import java.time.LocalDateTime

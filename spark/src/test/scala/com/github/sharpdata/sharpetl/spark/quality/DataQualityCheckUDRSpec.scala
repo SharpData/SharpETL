@@ -63,7 +63,7 @@ class DataQualityCheckUDRSpec extends AnyFlatSpec with should.Matchers with Spar
     //val udrResult = interpreter.checkUDR(testDf, viewName, interpreter.parseQualityConfig(step), "id, phone", 2)
     //val result = sqlResult union udrResult
 
-    val result = interpreter.qualityCheck(step, 1, "???", testDf)
+    val result = interpreter.qualityCheck(step, "1", "???", testDf)
 
     val errors = result.error
     val warns = result.warn
@@ -106,6 +106,6 @@ class DataQualityCheckUDRSpec extends AnyFlatSpec with should.Matchers with Spar
 final class SparkWorkflowInterpreterStub(override val spark: SparkSession,
                                          override val dataQualityCheckRules: Map[String, QualityCheckRule])
   extends SparkWorkflowInterpreter(spark, dataQualityCheckRules, new QualityCheckAccessor()) {
-  override def recordCheckResult(jobId: Long, jobScheduleId: String, results: Seq[DataQualityCheckResult]): Unit = ()
+  override def recordCheckResult(jobId: String, jobScheduleId: String, results: Seq[DataQualityCheckResult]): Unit = ()
 }
 

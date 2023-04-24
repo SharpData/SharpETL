@@ -18,6 +18,7 @@ create or replace table delta_db.delta_tbl
 
 -- step=insert some sample data
 -- target=delta_lake
+-- writeMode=execute
 insert into delta_db.delta_tbl
 values (1, "a1"),
        (2, "a2");
@@ -31,10 +32,12 @@ select * from delta_db.delta_tbl;
 
 -- step=update sample data
 -- target=delta_lake
+-- writeMode=execute
 update delta_db.delta_tbl set name = 'a1_new' where id = 1;
 
 -- step=delete sample data
 -- target=delta_lake
+-- writeMode=execute
 delete from delta_db.delta_tbl where id = 2;
 
 -- step=print updated data to console

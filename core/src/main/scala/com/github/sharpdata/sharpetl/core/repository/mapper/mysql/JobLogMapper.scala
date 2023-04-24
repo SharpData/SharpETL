@@ -67,22 +67,23 @@ trait JobLogMapper extends Serializable {
   ))
   def isAnotherJobRunning(jobName: String): JobLog
 
-  @Insert(Array("insert into job_log(job_name, `period`, workflow_name," +
+  @Insert(Array("insert into job_log(job_id, job_name, `period`, workflow_name," +
     "data_range_start, data_range_end," +
     "job_start_time, job_end_time, " +
     "status, create_time," +
-    "last_update_time, file, application_id, project_name, load_type, log_driven_type, runtime_args) values (#{workflowName}, #{period}, #{workflowName}, " +
+    "last_update_time, file, application_id, project_name, load_type, log_driven_type, runtime_args) values " +
+    "(#{jobId}, #{jobName}, #{period}, #{workflowName}, " +
     "#{dataRangeStart}, #{dataRangeEnd}, #{jobStartTime}, #{jobEndTime}, " +
     "#{status}, #{createTime}, #{lastUpdateTime}, #{file}, #{applicationId}, #{projectName}, #{loadType}, #{logDrivenType}, #{runtimeArgs})"
   ))
-  @Options(useGeneratedKeys = true, keyProperty = "jobId")
+  //@Options(useGeneratedKeys = true, keyProperty = "jobId")
   def createJobLog(jobLog: JobLog): Unit
 
   @Update(Array(
     "update job_log set " +
       "workflow_name = #{workflowName}, " +
       "`period` = #{period}, " +
-      "job_name = #{workflowName}, " +
+      "job_name = #{jobName}, " +
       "data_range_start = #{dataRangeStart}, " +
       "data_range_end = #{dataRangeEnd}, " +
       "job_start_time = #{jobStartTime}, " +

@@ -21,8 +21,8 @@ class SingleSparkJobCommand extends SingleJobCommand {
     ETLConfig.extraParam = extraParams
     ETLConfig.setPropertyPath(propertyPath, env)
     val etlDatabaseType = JDBCUtil.dbType
-    migrate()
     val interpreter = getSparkInterpreter(local, wfName, releaseResource, etlDatabaseType, readQualityCheckRules())
+    migrate()
     JavaVersionChecker.checkJavaVersion()
     try {
       val wfInterpretingResult: WfEvalResult = LogDrivenInterpreter(
