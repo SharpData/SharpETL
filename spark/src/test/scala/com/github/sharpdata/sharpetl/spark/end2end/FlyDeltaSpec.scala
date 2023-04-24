@@ -79,7 +79,7 @@ class FlyDeltaSpec extends AnyFunSpec
       val filePath = getClass.getResource("/application-delta.properties").toString
 
       val jobParameters: Array[String] = Array("single-job",
-        "--name=latest-only",
+        "--name=hello_delta",
         "--local", "--env=test", "--once", s"--property=$filePath")
 
       runJob(jobParameters)

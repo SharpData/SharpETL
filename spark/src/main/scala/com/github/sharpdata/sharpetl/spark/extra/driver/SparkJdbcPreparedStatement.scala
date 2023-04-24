@@ -42,7 +42,7 @@ class SparkJdbcPreparedStatement(val sql: String) extends PreparedStatement {
     0
   }
 
-  override def setNull(parameterIndex: Int, sqlType: Int): Unit = parameterMetaData.put(parameterIndex, sqlType)
+  override def setNull(parameterIndex: Int, sqlType: Int): Unit = parameterMetaData.put(parameterIndex, 0)
 
   override def setBoolean(parameterIndex: Int, x: Boolean): Unit = parameterMetaData.put(parameterIndex, x)
 
