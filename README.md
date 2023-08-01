@@ -13,12 +13,12 @@
 <a href="https://app.fossa.com/projects/git%2Bgithub.com%2FSharpData%2FSharpETL?ref=badge_shield"><img src="https://app.fossa.com/api/projects/git%2Bgithub.com%2FSharpData%2FSharpETL.svg?type=shield"></a>
 </p> 
 
-Sharp ETL is a ETL framework that simplifies writing and executing ETLs by simply writing SQL workflow files.
-The SQL workflow file format is combined your favourite SQL dialects with just a little bit of configurations.
+Sharp ETL is an ETL framework that simplifies writing and executing ETLs by simply writing SQL workflow files.
+The SQL workflow file format is combined your favorite SQL dialects with just a little bit of configuration.
 
 ## Getting started
 
-### Let's run a sharp etl mysql db first
+### Let's start a sharp ETL system db first
 
 ```shell
 docker run --name sharp_etl_db -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=sharp_etl mysql:5.7
@@ -30,7 +30,7 @@ docker run --name sharp_etl_db -d -p 3306:3306 -e MYSQL_ROOT_PASSWORD=root -e MY
 ./gradlew buildJars -PscalaVersion=2.12 -PsparkVersion=3.3.0 -PscalaCompt=2.12.15
 ```
 
-### take a look at `hello_world.sql`
+### Take a look at `hello_world.sql`
 
 ```shell
 cat spark/src/main/resources/tasks/hello_world.sql
@@ -56,7 +56,7 @@ SELECT 'RESULT' AS `OUTPUT_COL`;
 SELECT 'SUCCESS' AS `${OUTPUT_COL}`;
 ```
 
-### run and check the console output
+### Run and check the console output
 
 ```shell
 spark-submit --master local --class com.github.sharpdata.sharpetl.spark.Entrypoint spark/build/libs/sharp-etl-spark-standalone-3.3.0_2.12-0.1.0.jar single-job --name=hello_world --period=1440 --default-start-time="2022-07-01 00:00:00" --once --local
@@ -91,6 +91,7 @@ The compatible versions of [Spark](http://spark.apache.org/) are as follows:
 | 3.1.x | 2.12
 | 3.2.x | 2.12 / 2.13
 | 3.3.x | 2.12 / 2.13
+| 3.4.x | 2.12 / 2.13
 
 
 
