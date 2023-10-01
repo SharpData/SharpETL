@@ -45,9 +45,15 @@ dependencies {
     implementation 'org.apache.commons:commons-lang3:3.10'
     implementation 'info.picocli:picocli:4.6.3'
 
-    implementation "io.circe:circe-yaml_$scalaVersion:0.11.0-M1"
-    implementation "io.circe:circe-generic_$scalaVersion:0.12.0-M3"
-    implementation "io.circe:circe-generic-extras_$scalaVersion:0.12.0-M3"
+    if (sparkVersion.startsWith("3.5")) {
+        implementation "io.circe:circe-yaml_$scalaVersion:0.15.0-RC1"
+        implementation "io.circe:circe-generic_$scalaVersion:0.15.0-M1"
+        implementation "io.circe:circe-generic-extras_$scalaVersion:0.14.3"
+    } else {
+        implementation "io.circe:circe-yaml_$scalaVersion:0.11.0-M1"
+        implementation "io.circe:circe-generic_$scalaVersion:0.12.0-M3"
+        implementation "io.circe:circe-generic-extras_$scalaVersion:0.12.0-M3"
+    }
     compileOnly 'org.projectlombok:lombok:1.18.22'
     annotationProcessor 'org.projectlombok:lombok:1.18.22'
     // https://mvnrepository.com/artifact/com.jcraft/jsch
@@ -81,6 +87,12 @@ dependencies {
         implementation("com.fasterxml.jackson.module:jackson-module-scala_$scalaVersion") {
             version {
                 strictly '2.14.2'
+            }
+        }
+    } else if (sparkVersion.startsWith("3.5")) {
+        implementation("com.fasterxml.jackson.module:jackson-module-scala_$scalaVersion") {
+            version {
+                strictly '2.15.2'
             }
         }
     } else {
