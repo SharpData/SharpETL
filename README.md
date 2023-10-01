@@ -92,6 +92,7 @@ The compatible versions of [Spark](http://spark.apache.org/) are as follows:
 | 3.2.x | 2.12 / 2.13
 | 3.3.x | 2.12 / 2.13
 | 3.4.x | 2.12 / 2.13
+| 3.5.x | 2.13
 
 
 

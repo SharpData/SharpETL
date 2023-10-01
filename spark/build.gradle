@@ -78,7 +78,9 @@ dependencies {
     implementation "org.apache.spark:spark-streaming_$scalaVersion:$sparkVersion"
     implementation "org.apache.spark:spark-streaming-kafka-0-10_$scalaVersion:$sparkVersion"
     implementation "org.apache.kafka:kafka-clients:2.0.0"
-    if (sparkVersion.startsWith("3.4")) {
+    if (sparkVersion.startsWith("3.5")) {
+        implementation "io.delta:delta-core_$scalaVersion:2.4.0"
+    } else if (sparkVersion.startsWith("3.4")) {
         implementation "io.delta:delta-core_$scalaVersion:2.4.0"
     } else if (sparkVersion.startsWith("3.3")) {
         implementation "io.delta:delta-core_$scalaVersion:2.3.0"
@@ -145,6 +147,12 @@ dependencies {
         implementation("com.fasterxml.jackson.core:jackson-databind") {
             version {
                 strictly '2.14.2'
+            }
+        }
+    } else if (sparkVersion.startsWith("3.5")) {
+        implementation("com.fasterxml.jackson.core:jackson-databind") {
+            version {
+                strictly '2.15.2'
             }
         }
     } else {
@@ -318,12 +326,16 @@ shadowJar {
         } else if (sparkVersion.startsWith("3")) {
             include dependency("org.apache.kudu:kudu-spark3_$scalaVersion:1.15.0")
         }
-        include dependency("io.circe:circe-yaml_$scalaVersion:0.11.0-M1")
-        include dependency("io.circe:circe-core_$scalaVersion:0.12.0-M3")
-        include dependency("io.circe:circe-generic_$scalaVersion:0.12.0-M3")
-        include dependency("io.circe:circe-generic-extras_$scalaVersion:0.12.0-M3")
-        include dependency("org.typelevel:cats-core_$scalaVersion:2.0.0-M4")
-        include dependency("org.typelevel:cats-kernel_$scalaVersion:2.0.0-M4")
+        if (sparkVersion.startsWith("3.5")) {
+            addDeps("io.circe:circe-yaml_$scalaVersion:0.15.0-RC1")
+            addDeps("io.circe:circe-generic_$scalaVersion:0.15.0-M1")
+            addDeps("io.circe:circe-generic-extras_$scalaVersion:0.14.3")
+        } else {
+            addDeps("io.circe:circe-yaml_$scalaVersion:0.11.0-M1")
+            addDeps("io.circe:circe-generic_$scalaVersion:0.12.0-M3")
+            addDeps("io.circe:circe-generic-extras_$scalaVersion:0.12.0-M3")
+        }
+
         include dependency("org.postgresql:postgresql:42.2.14")
         include dependency("com.jcraft:jsch:0.1.55")
         include dependency("com.cloudera:ImpalaJDBC41:2.6.3")
@@ -364,7 +376,9 @@ shadowJar {
         include dependency('info.picocli:picocli:4.6.3')
         include dependency("net.liftweb:lift-json_$scalaVersion:3.4.3")
 
-        if (sparkVersion.startsWith("3.4")) {
+        if (sparkVersion.startsWith("3.5")) {
+            addDeps("io.delta:delta-core_$scalaVersion:2.4.0")
+        } else if (sparkVersion.startsWith("3.4")) {
             addDeps("io.delta:delta-core_$scalaVersion:2.4.0")
         } else if (sparkVersion.startsWith("3.3")) {
             addDeps("io.delta:delta-core_$scalaVersion:2.3.0")
@@ -603,7 +617,7 @@ if (scalaVersion.startsWith('2.11')) {
                 }
             }
         }
-    } else if (sparkVersion.startsWith("3.2") || sparkVersion.startsWith("3.3") || sparkVersion.startsWith("3.4")) {
+    } else if (sparkVersion.startsWith("3.2") || sparkVersion.startsWith("3.3") || sparkVersion.startsWith("3.4")|| sparkVersion.startsWith("3.5")) {
         sourceSets {
             main {
                 scala {

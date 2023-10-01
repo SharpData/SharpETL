@@ -57,7 +57,7 @@ object UDFExtension {
     }))
 
     //TODO: 可能不工作
-    val inputEncoders = Seq(Option(RowEncoder.apply(schema).resolveAndBind()))
+    //val inputEncoders = Seq(Option(RowEncoder.apply(schema).resolveAndBind()))
 
     val returnType = ScalaReflection.schemaFor(methodSymbol.returnType).dataType
     val fun = generateFunction(
