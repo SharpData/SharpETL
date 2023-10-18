@@ -38,8 +38,8 @@ class DeltaLakeSpec extends DeltaSuit {
   )
 
   it("delta should works") {
-    if (spark.version.startsWith("2.3") || spark.version.startsWith("3.5")) {
-      ETLLogger.error("Delta Lake does NOT support Spark 2.3.x and Spark 3.5.x")
+    if (spark.version.startsWith("2.3")) {
+      ETLLogger.error("Delta Lake does NOT support Spark 2.3.x")
     } else if (spark.version.startsWith("2.4") || spark.version.startsWith("3.0") || spark.version.startsWith("3.1")) {
       ETLLogger.error("Delta Lake does not works well on Spark 2.4.x, " +
         "CREATE TABLE USING delta is not supported by Spark before 3.0.0 and Delta Lake before 0.7.0.")
