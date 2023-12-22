@@ -36,3 +36,4 @@ metastore_db
 ~$*.xlsx
 spark-warehouse
 **/bin
+paimon-warehouse
