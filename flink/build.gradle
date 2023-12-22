@@ -1,15 +1,365 @@
+plugins {
+    id "java-library"
+    id "application"
+    id "scala"
+    id "com.github.alisiikh.scalastyle"
+    id "com.github.johnrengelman.shadow" version "7.1.2"
+    id "com.github.maiflai.scalatest"
+    id "maven-publish"
+}
+
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
 group = 'com.github.sharpdata.sharpetl'
 sourceCompatibility = 1.8
 version = '0.2.0'
 
-dependencies {
-    implementation("org.apache.logging.log4j:log4j-core") {
-        version {
-            require '2.17.1'
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifactId = "sharp-etl-flink-${flinkVersion}_${scalaVersion}"
+            afterEvaluate {
+                //artifact(tasks.findByName("shadowJar"))
+                artifact(tasks.findByName("sourceJar"))
+                artifact(tasks.findByName("slimJar"))
+            }
+        }
+    }
+    repositories {
+//        maven {
+//            name 'maven-snapshots'
+//            url "http://repo.maven.com/repository/maven-snapshots"
+//            credentials {
+//                username project.repoUser
+//                password project.repoPassword
+//            }
+//        }
+
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/SharpData/SharpETL")
+            credentials {
+                username = System.getenv("GITHUB_ACTOR")
+                password = System.getenv("GITHUB_TOKEN")
+            }
         }
     }
 }
 
+dependencies {
+    implementation(project(":core"))
+    implementation(project(":data-modeling"))
+
+    // --------------------------------------------------------------
+    // Compile-time dependencies that should NOT be part of the
+    // shadow (uber) jar and are provided in the lib folder of Flink
+    // --------------------------------------------------------------
+    implementation "org.apache.flink:flink-streaming-java:${flinkVersion}"
+    implementation "org.apache.flink:flink-clients:${flinkVersion}"
+    implementation "org.apache.flink:flink-table-planner_${scalaVersion}:${flinkVersion}"
+
+
+    implementation "org.apache.flink:flink-table-api-java-uber:${flinkVersion}"
+    // --------------------------------------------------------------
+    // Dependencies that should be part of the shadow jar, e.g.
+    // connectors. These must be in the flinkShadowJar configuration!
+    // --------------------------------------------------------------
+    //flinkShadowJar "org.apache.flink:flink-connector-kafka:${flinkVersion}"
+    implementation "org.apache.flink:flink-connector-kafka:${flinkVersion}"
+    implementation 'org.apache.paimon:paimon-flink-1.17:0.6.0-incubating'
+    implementation 'org.apache.paimon:paimon-oss:0.6.0-incubating'
+    implementation 'org.apache.flink:flink-connector-jdbc:3.1.1-1.17'
+
+
+//    runtimeOnly 'org.apache.flink:flink-shaded-hadoop-2-uber:2.4.1-10.0'
+//    runtimeOnly 'org.apache.hadoop:hadoop-common:2.4.1'
+//    runtimeOnly 'org.apache.hadoop:hadoop-auth:2.4.1'
+
+
+    runtimeOnly "org.apache.logging.log4j:log4j-slf4j-impl:2.22.0"
+    runtimeOnly "org.apache.logging.log4j:log4j-api:2.22.0"
+    runtimeOnly "org.apache.logging.log4j:log4j-core:2.22.0"
+
+    compileOnly 'org.projectlombok:lombok:1.18.22'
+    annotationProcessor 'org.projectlombok:lombok:1.18.22'
+    implementation "com.jcraft:jsch:0.1.55"
+
+    implementation group: "org.apache.commons", name: "commons-lang3", version: "3.10"
+
+
+    //JDBC
+    implementation group: "mysql", name: "mysql-connector-java", version: "8.0.19"
+    implementation group: "com.oracle.ojdbc", name: "ojdbc8", version: "19.3.0.0"
+    implementation group: "com.microsoft.sqlserver", name: "mssql-jdbc", version: "9.4.0.jre8"
+    implementation "net.sourceforge.jtds:jtds:1.3.1"
+    implementation group: "com.ibm.informix", name: "jdbc", version: "4.10.14"
+    implementation group: "org.apache.spark", name: "spark-sql-kafka-0-10_$scalaVersion", version: "$sparkVersion"
+    implementation group: "org.postgresql", name: "postgresql", version: "42.7.1"
+
+    implementation('io.github.coolbeevip:flyway-core:9.15.2.2') {
+        exclude group: 'com.fasterxml.jackson.dataformat', module: 'jackson-dataformat-toml'
+    }
+    implementation('io.github.coolbeevip:flyway-mysql:9.15.2.2') {
+        exclude group: 'com.fasterxml.jackson.dataformat', module: 'jackson-dataformat-toml'
+    }
+    implementation group: "org.mybatis", name: "mybatis", version: "3.5.4"
+    implementation 'info.picocli:picocli:4.6.3'
+
+    implementation("org.fusesource.jansi:jansi") {
+        // old version here otherwise there will crash the JVM,
+        // taken from https://github.com/fusesource/jansi/issues/66#issuecomment-1018386584
+        version {
+            strictly '1.18'
+        }
+    }
+
+    testImplementation group: 'org.mockito', name: "mockito-scala_$scalaVersion", version: '1.16.29'
+    testImplementation group: "org.scalatest", name: "scalatest_$scalaVersion", version: "3.2.11"
+    testImplementation group: "org.scalatest", name: "scalatest-funspec_$scalaVersion", version: "3.2.11"
+    testImplementation group: "org.scalactic", name: "scalactic_$scalaVersion", version: "3.2.11"
+    testImplementation group: "org.pegdown", name: "pegdown", version: "1.4.2"
+    testImplementation("com.github.tomakehurst:wiremock-jre8:2.27.0") {
+        exclude group: "com.fasterxml.jackson.core"
+    }
+    testImplementation group: "org.junit.jupiter", name: "junit-jupiter-api", version: "5.6.2"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.6.2"
+    testRuntimeOnly "com.vladsch.flexmark:flexmark-all:0.62.2"
+
+    testImplementation "org.testcontainers:testcontainers:1.16.2"
+    testImplementation "org.testcontainers:mysql:1.16.2"
+    testImplementation "org.testcontainers:postgresql:1.17.2"
+    testImplementation "org.testcontainers:mockserver:1.16.2"
+    testImplementation "org.mock-server:mockserver-client-java:5.11.2"
+}
+
+configurations.all {
+    exclude group: "org.apache.hadoop", module: "hadoop-annotations"
+}
+
+application {
+    mainClassName = "com.github.sharpdata.sharpetl.flink.Entrypoint"
+}
+
+configurations.implementation.setCanBeResolved(true)
+configurations.api.setCanBeResolved(true)
+
+def addDeps(String dep) {
+    println("Adding $dep into flink shadow jar...")
+    shadowJar {
+        dependencies {
+            include(dependency(dep))
+        }
+    }
+    def depSpec = createDepSpec(dep)
+    Set<ResolvedDependency> resolvedDependencies = project.configurations.runtimeClasspath.getResolvedConfiguration().getFirstLevelModuleDependencies(depSpec)
+    if (resolvedDependencies.isEmpty()) {
+        println("ERROR: $dep not found in current project, please add $dep to project dependencies")
+    }
+    getResolvedArtifacts(resolvedDependencies).each { artifact ->
+        println("Adding $artifact into shadow jar...")
+        shadowJar {
+            dependencies {
+                include(dependency(artifact))
+            }
+        }
+    }
+}
+
+def getResolvedArtifacts(Set<ResolvedDependency> artifacts) {
+    Set<String> resolvedArtifacts = [] as Set
+    artifacts.each {
+        // add current artifact
+        resolvedArtifacts << "${it.moduleGroup}:${it.moduleName}:${it.moduleVersion}"
+
+        // recursion to add children
+        resolvedArtifacts += getResolvedArtifacts(it.children)
+    }
+    return resolvedArtifacts
+}
+
+def createDepSpec(String dep) {
+    return new Spec<Dependency>() {
+        @Override
+        boolean isSatisfiedBy(Dependency dependency) {
+            return dependency == project.dependencies.create(dep)
+        }
+    }
+}
+
+task slimJar(type: ShadowJar) {
+    from(
+            sourceSets.main.output,
+            sourceSets.main.resources
+    )
+    configurations = [project.configurations.compileClasspath]
+    dependencies {
+        include(project(":core"))
+        include(project(":data-modeling"))
+
+        include dependency("com.google.guava:guava:29.0-jre")
+        include dependency("commons-net:commons-net:3.1")
+    }
+    relocate("com.google", "com.github.sharpdata.sharpetl.google") {
+        include 'com/google/guava/**'
+    }
+    relocate "org.apache.commons.net", "com.github.sharpdata.sharpetl.commons.net"
+    archiveFileName = "sharp-etl-flink-${sparkVersion}_${scalaVersion}-${version}.jar"
+}
+
+shadowJar {
+    zip64 true
+    classifier null
+    dependencies {
+        include(project(":core"))
+        include(project(":data-modeling"))
+
+        include dependency("org.mvel:mvel2:2.4.13.Final")
+        include dependency('org.jasypt:jasypt:1.9.3')
+        include dependency("com.lihaoyi:fastparse_$scalaVersion:3.0.0")
+        include dependency("io.github.classgraph:classgraph:4.8.149")
+
+        include dependency("org.apache.httpcomponents:httpclient:4.5.12")
+        include dependency("org.mybatis:mybatis:3.5.9")
+        include dependency('com.zaxxer:HikariCP:2.6.1')
+        include dependency('io.github.coolbeevip:flyway-core:9.15.2.2')
+        include dependency('io.github.coolbeevip:flyway-mysql:9.15.2.2')
+        include dependency("mysql:mysql-connector-java:8.0.19")
+        include dependency("com.oracle.ojdbc:ojdbc8:19.3.0.0")
+
+        addDeps("io.circe:circe-yaml_$scalaVersion:0.15.0-RC1")
+        addDeps("io.circe:circe-generic_$scalaVersion:0.15.0-M1")
+        addDeps("io.circe:circe-generic-extras_$scalaVersion:0.14.3")
+
+        include dependency("org.postgresql:postgresql:42.2.14")
+        include dependency("com.jcraft:jsch:0.1.55")
+        include dependency("com.cloudera:ImpalaJDBC41:2.6.3")
+        include dependency("com.microsoft.sqlserver:mssql-jdbc:9.4.0.jre8")
+        include dependency('net.sourceforge.jtds:jtds:1.3.1')
+        include dependency("com.ibm.informix:jdbc:4.10.14")
+        include dependency("com.google.guava:guava:29.0-jre")
+        include dependency("com.jayway.jsonpath:json-path:2.6.0")
+        include dependency("com.google.guava:failureaccess:1.0.1")
+        include dependency("javax.mail:mail:1.4.7")
+
+        include dependency('info.picocli:picocli:4.6.3')
+        include dependency("net.liftweb:lift-json_$scalaVersion:3.4.3")
+    }
+    relocate("com.google", "com.github.sharpdata.sharpetl.google") {
+        include 'com/google/guava/**'
+    }
+    relocate "org.apache.commons.net", "com.github.sharpdata.sharpetl.commons.net"
+    relocate "com.zaxxer.hikari", "com.github.sharpdata.sharpetl.hikari"
+    //from '../hadoop'
+    archiveFileName = "sharp-etl-flink-standalone-${flinkVersion}_${scalaVersion}-${version}.jar"
+    mergeServiceFiles {
+        // https://github.com/flyway/flyway/issues/3482#issuecomment-1493367875
+        setPath("META-INF/services/org.flywaydb.core.extensibility.Plugin")
+    }
+}
+
+task clearJar(type: Delete) {
+    delete 'build/libs/lib'
+}
+
+tasks.named('processTestResources') {
+    duplicatesStrategy = 'EXCLUDE'
+}
+
+task copyDependencies(type: Copy) {
+    from(project.parent.allprojects.configurations.compileClasspath)
+    into('build/libs/lib')
+    include("scala-collection-compat_$scalaVersion-2.6.0.jar")
+    include("mvel2-2.4.13.Final.jar")
+    include("fastparse_$scalaVersion-3.0.0.jar")
+    include("classgraph-4.8.149.jar")
+    if (sparkVersion.startsWith("2.3")) {
+        include("elasticsearch-spark-20_$scalaVersion-7.7.0.jar")
+    } else if (sparkVersion.startsWith("2.4")) {
+        include("elasticsearch-spark-20_$scalaVersion-7.14.0.jar")
+    } else if (sparkVersion.startsWith("3") & scalaVersion.startsWith("2.12")) {
+        include("elasticsearch-spark-30_$scalaVersion-7.16.2.jar")
+    } else if (sparkVersion.startsWith("3") & scalaVersion.startsWith("2.13")) {
+        include("elasticsearch-spark-30_$scalaVersion-8.1.0.jar")
+    }
+    include("jasypt-1.9.3.jar")
+    include("httpclient-4.5.12.jar")
+    include("mybatis-3.5.9.jar")
+    include("HikariCP-2.6.1.jar")
+    include("flyway-core-9.15.2.2.jar")
+    include("flyway-core-9.15.2.2.jar")
+    include("mysql-connector-java-8.0.19.jar")
+    include("ojdbc8-19.3.0.0.jar")
+    include("aliyun-sdk-oss-3.16.0.jar")
+    include("spark-sql-kafka-0-10_$scalaVersion-${sparkVersion}.jar")
+    if (scalaVersion.startsWith('2.11')) {
+        include("kudu-spark2_$scalaVersion-1.9.0.jar")
+    } else if (sparkVersion.startsWith("3")) {
+        include("kudu-spark3_$scalaVersion-1.15.0.jar")
+    }
+    include("circe-yaml_$scalaVersion-0.11.0-M1.jar")
+    include("circe-core_$scalaVersion-0.12.0-M3.jar")
+    include("circe-generic_$scalaVersion-0.12.0-M3.jar")
+    include("circe-generic-extras_$scalaVersion-0.12.0-M3.jar")
+    include("cats-core_$scalaVersion-2.0.0-M4.jar")
+    include("cats-kernel_$scalaVersion-2.0.0-M4.jar")
+    include("postgresql-42.2.14.jar")
+    include("jsch-0.1.55.jar")
+    include("ImpalaJDBC41-2.6.3.jar")
+    include("mssql-jdbc-9.4.0.jre8.jar")
+    include("jtds-1.3.1.jar")
+    include("jdbc-4.10.14.jar") // informix
+    include("pmml-evaluator-extension-1.5.3.jar")
+    include("pmml-evaluator-1.5.3.jar")
+    include("pmml-model-1.5.3.jar")
+    include("pmml-agent-1.5.3.jar")
+    include("picocli-4.6.3.jar")
+    include("json-path-2.6.0.jar")
+    include("mail-1.4.7.jar")
+
+    // spark-excel start
+    include("xml-resolver-1.2.jar")
+    include("xml-apis-1.4.01.jar")
+    include("slf4j-api-1.7.25.jar")
+    include("joda-convert-2.0.1.jar")
+    include("xmlbeans-3.1.0.jar")
+    include("poi-4.1.0.jar")
+    include("poi-ooxml-4.1.0.jar")
+    include("poi-ooxml-schemas-4.1.0.jar")
+    include("commons-math3-3.6.1.jar")
+    include("commons-collections4-4.3.jar")
+    include("commons-compress-1.19.jar")
+    include("joda-time-2.9.9.jar")
+    include("java-cup-10k.jar")
+    include("commons-net-3.1.jar")
+    include("commons-codec-1.12.jar")
+    include("org.eclipse.wst.xml.xpath2.processor-2.1.100.jar")
+    include("xerces2-xsd11-2.11.1.jar")
+    include("xlsx-streamer-2.1.0.jar")
+    include("icu4j-4.6.jar")
+    include("curvesapi-1.06.jar")
+    include("spark-excel_$scalaVersion-0.13.1.jar")
+    include("picocli-4.6.3.jar")
+    // spark-excel end
+    include("lift-json_$scalaVersion-3.4.3")
+
+    if (sparkVersion.startsWith("2.3")) {
+        include("spark-bigquery-with-dependencies_$scalaVersion-0.26.0.jar")
+    } else if (sparkVersion.startsWith("2.4")) {
+        include("spark-2.4-bigquery-0.26.0-preview.jar")
+    } else if (sparkVersion.startsWith("3.1") || sparkVersion.startsWith("3.2")) {
+        include("spark-3.1-bigquery-0.26.0-preview.jar")
+    } else if (sparkVersion.startsWith("3.0")) {
+        include("spark-bigquery-with-dependencies_$scalaVersion-0.26.0.jar")
+    }
+}
+
+task buildJars(type: Copy, dependsOn: [":flink:clearJar", ":flink:shadowJar", ":flink:slimJar", ":flink:copyDependencies"])
+
+task sourceJar(type: Jar) {
+    classifier = 'sources'
+    from sourceSets.main.allSource
+}
 
 scalastyle {
     config = file("${rootDir}/scalastyle_config.xml") // path to scalastyle config xml file
@@ -18,5 +368,24 @@ scalastyle {
         test {
             skip = true
         }
+    }
+}
+
+sourceSets {
+    main {
+        resources {
+            srcDirs += [
+                    project(':core').sourceSets.main.resources
+            ]
+        }
+    }
+
+    test {
+        resources {
+            srcDirs += [
+                    project(':data-modeling').sourceSets.test.resources
+            ]
+        }
+        //runtimeClasspath -= files(sourceSets.main.output.resourcesDir)
     }
 }
