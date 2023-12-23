@@ -22,8 +22,6 @@ public class HiveTable extends Table<HiveDatabase, HiveSchema> {
     @Override
     protected boolean doExists() throws SQLException {
         return Arrays.stream(ETLFlinkSession.sparkSession().listTables(ETLConfig.getProperty("flyway.catalog"), ETLConfig.getProperty("flyway.database"))).anyMatch(it -> it.contentEquals(name));
-        //return ETLFlinkSession.sparkSession().listTables(schema.getName(), name).length > 0;
-        //return com.github.sharpdata.sharpetl.spark.utils.ETLSparkSession.getHiveSparkSession().catalog().tableExists(schema.getName(), name);
     }
 
     @Override
