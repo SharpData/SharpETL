@@ -10,14 +10,14 @@ import com.github.sharpdata.sharpetl.core.syntax.WorkflowStep
 import com.github.sharpdata.sharpetl.core.util.Constants._
 import com.github.sharpdata.sharpetl.flink.job.Types.DataFrame
 import com.github.sharpdata.sharpetl.flink.util.ETLFlinkSession
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment
+import org.apache.flink.table.api.TableEnvironment
 import org.apache.flink.table.api._
 import org.apache.flink.table.api.Expressions._
 
 
 object IO {
 
-  def read(spark: StreamTableEnvironment,
+  def read(spark: TableEnvironment,
            step: WorkflowStep,
            variables: Variables,
            jobLog: JobLog): DataFrame = {
@@ -26,7 +26,7 @@ object IO {
     val value: Class[Source[_, _]] = AnnotationScanner.sourceRegister(dataSourceConfig.dataSourceType)
     assert(value != null)
 
-    val df = value.getMethod("read", classOf[WorkflowStep], classOf[JobLog], classOf[StreamTableEnvironment], classOf[Variables])
+    val df = value.getMethod("read", classOf[WorkflowStep], classOf[JobLog], classOf[TableEnvironment], classOf[Variables])
       .invoke(value.newInstance(), step, jobLog, spark, variables)
       .asInstanceOf[DataFrame]
 
@@ -38,7 +38,7 @@ object IO {
             variables: Variables): Unit = {
     val targetConfig = step.getTargetConfig[DataSourceConfig]
     if ((step.throwExceptionIfEmpty == BooleanString.TRUE || step.skipFollowStepWhenEmpty == BooleanString.TRUE)
-      && df.executeAndCollect(1).isEmpty) {
+      && !df.execute().collect().hasNext) {
       throw EmptyDataException(s"Job aborted, because step ${step.step} 's result is empty", step.step)
     }
 
@@ -57,8 +57,7 @@ object IO {
         .map(_.split(":"))
 
       derivedColumns.foldLeft(df)((df: DataFrame, derivedColumn: Array[String]) =>
-        ETLFlinkSession.sparkSession.toDataStream(ETLFlinkSession.sparkSession.fromDataStream(df)
-          .addOrReplaceColumns(concat($(derivedColumn(1)), derivedColumn(0))))
+        df.addOrReplaceColumns(concat($(derivedColumn(1)), derivedColumn(0)))
       )
     } else {
       df

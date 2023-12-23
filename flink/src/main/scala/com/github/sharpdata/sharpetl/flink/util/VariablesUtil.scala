@@ -11,15 +11,15 @@ object VariablesUtil {
   def setVariables(
                     df: DataFrame,
                     variables: Variables): Unit = {
-    if (!df.executeAndCollect(1).isEmpty) {
-      val fieldNames = ETLFlinkSession.sparkSession.fromDataStream(df).getResolvedSchema.getColumns.map(_.getName)
-      val row = df.executeAndCollect(1)
+    if (df.execute().collect().hasNext) {
+      val fieldNames = df.getResolvedSchema.getColumns.map(_.getName)
+      val row = df.execute().collect().next()
       fieldNames.zipWithIndex.foreach {
         case (fieldName, idx) =>
-          val fieldValue = if (row.get(0).getField(idx).toString == "null") {
+          val fieldValue = if (row.getField(idx).toString == "null") {
             "null"
           } else {
-            row.get(0).getField(idx).toString
+            row.getField(idx).toString
           }
           val key = if (fieldName.matches("^#\\{.+\\}$")) {
             fieldName

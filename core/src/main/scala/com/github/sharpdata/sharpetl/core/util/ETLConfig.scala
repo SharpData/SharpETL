@@ -146,6 +146,10 @@ object ETLConfig {
     getProperties("spark", "default") ++ getProperties("spark", wfName)
   }
 
+  def getFlinkProperties(wfName: String): Map[String, String] = {
+    getProperties("flink", "default") ++ getProperties("flink", wfName)
+  }
+
   def getKafkaProperties: String = {
     properties.asScala.getOrElse("kafka.restapi", "")
   }
