@@ -14,12 +14,12 @@ import org.apache.flink.table.api.TableEnvironment
 class DDLDataSource extends Sink[DataFrame] with Source[DataFrame, TableEnvironment] {
   override def write(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = {
     println("executing DDL: \n" + step.sql)
-    ETLFlinkSession.sparkSession.executeSql(step.sql)
+    ETLFlinkSession.batchEnv.executeSql(step.sql)
   }
 
   override def read(step: WorkflowStep, jobLog: JobLog, executionContext: TableEnvironment, variables: Variables): DataFrame = {
     println("executing DDL: \n" + step.sql)
-    ETLFlinkSession.sparkSession.executeSql(step.sql)
+    ETLFlinkSession.batchEnv.executeSql(step.sql)
     executionContext.sqlQuery("SELECT 'SUCCESS' AS `result`")
   }
 }

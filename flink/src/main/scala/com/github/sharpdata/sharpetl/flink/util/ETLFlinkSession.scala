@@ -5,29 +5,13 @@ import com.github.sharpdata.sharpetl.core.repository.QualityCheckAccessor
 import com.github.sharpdata.sharpetl.core.util.Constants.ETLDatabaseType.FLINK_SHARP_ETL
 import com.github.sharpdata.sharpetl.core.util.{ETLConfig, ETLLogger}
 import com.github.sharpdata.sharpetl.flink.job.FlinkWorkflowInterpreter
-import org.apache.flink.api.common.RuntimeExecutionMode
-import org.apache.flink.api.java.ExecutionEnvironment
 import org.apache.flink.configuration.Configuration
-import org.apache.flink.streaming.api.environment.StreamExecutionEnvironment
 import org.apache.flink.table.api.{EnvironmentSettings, TableEnvironment}
-import org.apache.flink.table.api.TableEnvironment
 
 object ETLFlinkSession {
   var local = false
   var wfName = "default"
-  //  private var sparkConf: SparkConf = _
   private var autoCloseSession: Boolean = true
-
-  private val env: StreamExecutionEnvironment = {
-    val environment = StreamExecutionEnvironment.getExecutionEnvironment(getConf())
-    environment.setRuntimeMode(RuntimeExecutionMode.BATCH)
-    environment
-  }
-
-  lazy val sparkSession: TableEnvironment = {
-    //TableEnvironment.create(env)
-    batchEnv
-  }
 
   val batchSettings: EnvironmentSettings = EnvironmentSettings.newInstance
     .withConfiguration(getConf())
@@ -36,19 +20,6 @@ object ETLFlinkSession {
     .build()
 
   val batchEnv: TableEnvironment = TableEnvironment.create(batchSettings)
-
-  //  def conf(): SparkConf = {
-  //    if (sparkConf == null) {
-  //      ETLLogger.info("init tEnv conf...")
-  //      sparkConf = new SparkConf()
-  //      if (!sparkConf.contains("tEnv.master")) {
-  //        sparkConf.setMaster("local[*]")
-  //      }
-  //      sparkConf.set("tEnv.sql.legacy.timeParserPolicy", "LEGACY")
-  //      setSparkConf(sparkConf)
-  //    }
-  //    sparkConf
-  //  }
 
   private def getConf(): Configuration = {
     val conf = new Configuration
@@ -62,8 +33,6 @@ object ETLFlinkSession {
     conf
   }
 
-  //  @inline def getHiveSparkSession(): SparkSession = sparkSession
-
   def getFlinkInterpreter(local: Boolean,
                           wfName: String,
                           autoCloseSession: Boolean,
@@ -73,7 +42,7 @@ object ETLFlinkSession {
     ETLFlinkSession.local = local
     ETLFlinkSession.wfName = wfName
     ETLFlinkSession.autoCloseSession = autoCloseSession
-    val session = ETLFlinkSession.sparkSession
+    val session = ETLFlinkSession.batchEnv
     //UdfInitializer.init(session)
     createCatalogIfNeed(etlDatabaseType, session)
     new FlinkWorkflowInterpreter(session, dataQualityCheckRules, QualityCheckAccessor.getInstance(etlDatabaseType))

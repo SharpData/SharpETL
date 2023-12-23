@@ -24,7 +24,7 @@ public class HiveSchema extends Schema<HiveDatabase, Table> {
 
     @Override
     protected boolean doExists() throws SQLException {
-        final TableEnvironment session = ETLFlinkSession.sparkSession();
+        final TableEnvironment session = ETLFlinkSession.batchEnv();
         ETLFlinkSession.createCatalogIfNeed("flink_sharp_etl", session);
         final Optional<Catalog> catalog = session.getCatalog(ETLConfig.getProperty("flyway.catalog"));
         catalog.get();
@@ -56,7 +56,7 @@ public class HiveSchema extends Schema<HiveDatabase, Table> {
 
     @Override
     protected Table[] doAllTables() throws SQLException {
-        final String[] tableNames = ETLFlinkSession.sparkSession().listTables(ETLConfig.getProperty("flyway.catalog"), ETLConfig.getProperty("flyway.database"));
+        final String[] tableNames = ETLFlinkSession.batchEnv().listTables(ETLConfig.getProperty("flyway.catalog"), ETLConfig.getProperty("flyway.database"));
 
         Table[] tables = new Table[tableNames.length];
         for (int i = 0; i < tableNames.length; i++) {

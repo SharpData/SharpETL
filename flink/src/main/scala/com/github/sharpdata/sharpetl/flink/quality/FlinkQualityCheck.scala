@@ -6,8 +6,10 @@ import com.github.sharpdata.sharpetl.core.quality.{DataQualityCheckResult, Quali
 import com.github.sharpdata.sharpetl.core.repository.QualityCheckAccessor
 import com.github.sharpdata.sharpetl.core.util.ETLLogger
 import com.github.sharpdata.sharpetl.flink.job.Types.DataFrame
-import org.apache.flink.table.api.{TableEnvironment, TableResult}
+import org.apache.flink.table.api.Expressions._
 import org.apache.flink.table.api.TableEnvironment
+
+import scala.jdk.CollectionConverters.asScalaIteratorConverter
 
 @Stable(since = "1.0.0")
 class FlinkQualityCheck(val tEnv: TableEnvironment,
@@ -20,11 +22,17 @@ class FlinkQualityCheck(val tEnv: TableEnvironment,
       Seq()
     } else {
       ETLLogger.info(s"execution sql:\n $sql")
-      //      tEnv.sql(sql).as[DataQualityCheckResult](dqEncoder).collectAsList().asScala
-      //        .map(it => DataQualityCheckResult(it.column, it.dataCheckType, it.ids, it.errorType.split(DELIMITER).head, it.warnCount, it.errorCount))
-      //        .filterNot(it => it.warnCount < 1 && it.errorCount < 1)
-      //        .toSeq
-      Seq()
+      tEnv.sqlQuery(sql).execute().collect().asScala
+        .map(it => DataQualityCheckResult(
+          it.getField(0).toString, // column
+          it.getField(1).toString, // dataCheckType
+          it.getField(2).toString, // ids
+          it.getField(3).toString.split(DELIMITER).head, // errorType
+          it.getField(4).toString.toInt, // warnCount
+          it.getField(5).toString.toInt) // errorCount
+        )
+        .filterNot(it => it.warnCount < 1 && it.errorCount < 1)
+        .toSeq
     }
   }
 
@@ -44,7 +52,6 @@ class FlinkQualityCheck(val tEnv: TableEnvironment,
   }
 
   override def dropUnusedCols(df: DataFrame, cols: String): DataFrame = {
-    //df.drop(cols.split(",").map(_.trim): _*)
-    df
+    df.dropColumns(cols.split(",").map(col => $(col.trim)).toArray: _*)
   }
 }
