@@ -1,8 +1,7 @@
 package com.github.sharpdata.sharpetl.flink.job
 
 import com.github.sharpdata.sharpetl.core.api.{Variables, WorkflowInterpreter}
-import com.github.sharpdata.sharpetl.core.datasource.config.{DataSourceConfig, FileDataSourceConfig, StreamingDataSourceConfig}
-import com.github.sharpdata.sharpetl.core.exception.Exception.{EmptyDataException, FileDataSourceConfigErrorException, IncrementalDiffModeTooMuchDataException}
+import com.github.sharpdata.sharpetl.core.exception.Exception.IncrementalDiffModeTooMuchDataException
 import com.github.sharpdata.sharpetl.core.quality.QualityCheckRule
 import com.github.sharpdata.sharpetl.core.repository.QualityCheckAccessor
 import com.github.sharpdata.sharpetl.core.repository.model.JobLog
@@ -10,12 +9,11 @@ import com.github.sharpdata.sharpetl.core.syntax.WorkflowStep
 import com.github.sharpdata.sharpetl.core.util.Constants._
 import com.github.sharpdata.sharpetl.core.util.DateUtil.{BigIntToLocalDateTime, L_YYYY_MM_DD_HH_MM_SS}
 import com.github.sharpdata.sharpetl.core.util.ETLConfig.{incrementalDiffModeDataLimit, partitionColumn}
-import com.github.sharpdata.sharpetl.core.util.StringUtil.{BigIntConverter, isNullOrEmpty}
-import com.github.sharpdata.sharpetl.core.util.{ETLLogger, HDFSUtil}
+import com.github.sharpdata.sharpetl.core.util.ETLLogger
+import com.github.sharpdata.sharpetl.core.util.StringUtil.BigIntConverter
 import com.github.sharpdata.sharpetl.flink.job.Types.DataFrame
 import com.github.sharpdata.sharpetl.flink.quality.FlinkQualityCheck
 import com.github.sharpdata.sharpetl.flink.util.ETLFlinkSession
-import org.apache.flink.table.api.TableEnvironment
 import org.apache.flink.table.api.TableEnvironment
 
 import scala.collection.convert.ImplicitConversions._
@@ -30,14 +28,8 @@ class FlinkWorkflowInterpreter(override val tEnv: TableEnvironment,
 
 
   override def evalSteps(steps: List[WorkflowStep], jobLog: JobLog, variables: Variables, start: String, end: String): Unit = {
-    val batchStepNum = countBatchStepNum(steps)
-    if (batchStepNum > 0) {
-      super.evalSteps(steps, jobLog, variables, start, end)
-      cleanUpTempTableFromMemory()
-    }
-//    if (batchStepNum < steps.length) {
-//      executeMicroBatchSteps(steps.slice(batchStepNum, steps.length), jobLog, variables, start, end)
-//    }
+    super.evalSteps(steps, jobLog, variables, start, end)
+    cleanUpTempTableFromMemory()
   }
 
   private def cleanUpTempTableFromMemory(): Unit = {
@@ -46,88 +38,17 @@ class FlinkWorkflowInterpreter(override val tEnv: TableEnvironment,
     }
   }
 
-  def countBatchStepNum(steps: List[WorkflowStep]): Int = {
-    var batchStepNum = 0
-    while (steps.length > batchStepNum &&
-      !steps(batchStepNum).getSourceConfig.isInstanceOf[StreamingDataSourceConfig]) {
-      batchStepNum += 1
-    }
-    batchStepNum
-  }
+  // deprecated method
+  override def listFiles(step: WorkflowStep): List[String] = ???
 
-  override def listFiles(step: WorkflowStep): List[String] = {
-    val conf = step.source.asInstanceOf[FileDataSourceConfig]
+  // deprecated method
+  override def deleteSource(step: WorkflowStep): Unit = ???
 
-    val files: List[String] = if (!isNullOrEmpty(conf.filePaths)) {
-      conf.filePaths.split(",").toList
-    } else {
-      conf.dataSourceType match {
-        case DataSourceType.FTP => ???
-//          val sourceConfig = step.getSourceConfig[FileDataSourceConfig]
-//          val ftpConfig = new FtpConnection(sourceConfig.getConfigPrefix)
-//          if (sourceConfig.getFileDir != null && sourceConfig.getFileDir != "") {
-//            ftpConfig.dir = sourceConfig.getFileDir
-//          }
-//          listFileUrl(
-//            ftpConfig,
-//            sourceConfig.getFileNamePattern
-//          )
-//        case DataSourceType.HDFS | DataSourceType.JSON |
-//             DataSourceType.EXCEL | DataSourceType.CSV =>
-//          HdfsDataSource.listFileUrl(step)
-//        case DataSourceType.SCP =>
-//          ScpDataSource.listFilePath(step)
-        case _ =>
-          throw FileDataSourceConfigErrorException(s"Not supported data source type ${conf.dataSourceType}")
-      }
-    }
-
-    ETLLogger.info(s"Files will to be processed:\n ${files.mkString(",\n")}")
-    files
-  }
-
-  override def deleteSource(step: WorkflowStep): Unit = {
-    val sourceConfig = step.getSourceConfig[FileDataSourceConfig]
-    val configPrefix = sourceConfig.getConfigPrefix
-    if (sourceConfig.getDeleteSource.toBoolean) {
-      val sourceFilePath = sourceConfig.getFilePath
-      step.getSourceConfig[DataSourceConfig].getDataSourceType.toLowerCase match {
-        case DataSourceType.FTP =>
-//          FtpDataSource.delete(configPrefix, sourceFilePath)
-        case DataSourceType.HDFS =>
-          HDFSUtil.delete(sourceFilePath)
-        case DataSourceType.SCP =>
-//          ScpDataSource.delete(configPrefix, sourceFilePath)
-        case _ =>
-      }
-    }
-  }
-
+  // deprecated method
   override def readFile(step: WorkflowStep,
                         jobLog: JobLog,
                         variables: Variables,
-                        files: List[String]): DataFrame = {
-    val df: DataFrame = if (files.isEmpty) {
-      null // scalastyle:ignore
-    } else {
-//      val dfs = files
-//        .map(file => {
-//          step.getSourceConfig[FileDataSourceConfig].setFilePath(file)
-//          executeRead(step, jobLog, variables)
-//        }).filter(df => !df.isEmpty)
-//
-//      if (dfs.nonEmpty) {
-//        dfs.reduce(_ unionByName _)
-//      } else {
-//        null // scalastyle:ignore
-//      }
-      ???
-    }
-    if (step.skipFollowStepWhenEmpty == BooleanString.TRUE && (df == null)) {
-      throw EmptyDataException("Job skipping, because `skipFollowStepWhenEmpty` is true and file is empty!", step.step)
-    }
-    df
-  }
+                        files: List[String]): DataFrame = ???
 
   override def executeWrite(jobLog: JobLog, df: DataFrame, step: WorkflowStep, variables: Variables): Unit = {
     val stepLog = jobLog.getStepLog(step.step)
@@ -198,7 +119,6 @@ class FlinkWorkflowInterpreter(override val tEnv: TableEnvironment,
   override def applicationId(): String = ETLFlinkSession.wfName
 
   override def executeSqlToVariables(sql: String): List[Map[String, String]] = {
-
     val result = tEnv.sqlQuery(sql).execute()
     val schema = result.getResolvedSchema.getColumnNames
     val data: immutable.Seq[Map[String, String]] =

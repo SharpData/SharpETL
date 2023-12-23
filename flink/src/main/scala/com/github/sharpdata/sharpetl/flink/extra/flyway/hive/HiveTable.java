@@ -21,7 +21,7 @@ public class HiveTable extends Table<HiveDatabase, HiveSchema> {
 
     @Override
     protected boolean doExists() throws SQLException {
-        return Arrays.stream(ETLFlinkSession.sparkSession().listTables(ETLConfig.getProperty("flyway.catalog"), ETLConfig.getProperty("flyway.database"))).anyMatch(it -> it.contentEquals(name));
+        return Arrays.stream(ETLFlinkSession.batchEnv().listTables(ETLConfig.getProperty("flyway.catalog"), ETLConfig.getProperty("flyway.database"))).anyMatch(it -> it.contentEquals(name));
     }
 
     @Override

@@ -79,7 +79,7 @@ public class HiveDatabase extends Database<HiveConnection> {
 
     @Override
     public String getRawCreateScript(Table table, boolean baseline) {
-        ETLFlinkSession.sparkSession().executeSql("create database if not exists " + doGetDatabase() + ";");
+        ETLFlinkSession.batchEnv().executeSql("create database if not exists " + doGetDatabase() + ";");
         return "CREATE TABLE " + table + " (\n" +
                 "    `installed_rank` INT,\n" +
                 "    `version` STRING,\n" +

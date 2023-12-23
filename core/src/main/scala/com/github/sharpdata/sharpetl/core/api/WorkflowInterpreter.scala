@@ -146,7 +146,7 @@ trait WorkflowInterpreter[DataFrame] extends Serializable with QualityCheck[Data
     }
   }
 
-  def listFiles(step: WorkflowStep): List[String]
+  @deprecated def listFiles(step: WorkflowStep): List[String]
 
   @deprecated def cleanUpTempFiles(step: WorkflowStep,
                        files: List[String]): Unit = {
@@ -161,7 +161,7 @@ trait WorkflowInterpreter[DataFrame] extends Serializable with QualityCheck[Data
 
   @deprecated def deleteSource(step: WorkflowStep): Unit
 
-  def readFile(step: WorkflowStep,
+  @deprecated def readFile(step: WorkflowStep,
                jobLog: JobLog,
                variables: Variables,
                files: List[String]): DataFrame

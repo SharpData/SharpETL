@@ -1,13 +1,10 @@
 package com.github.sharpdata.sharpetl.flink.extra.driver
 
 import com.github.sharpdata.sharpetl.flink.util.ETLFlinkSession
-import com.github.sharpdata.sharpetl.flink.util.ETLFlinkSession.sparkSession
 import org.apache.flink.table.api.DataTypes
 import org.apache.flink.table.api.Expressions.row
 
 import java.sql.{Connection, ResultSet, SQLWarning, Statement}
-import scala.collection.convert.ImplicitConversions.`iterator asScala`
-import scala.jdk.CollectionConverters.{collectionAsScalaIterableConverter, seqAsJavaListConverter}
 
 // scalastyle:off
 class FlinkJdbcStatement extends Statement {
@@ -16,12 +13,12 @@ class FlinkJdbcStatement extends Statement {
 
   override def executeQuery(sql: String): ResultSet = {
     println(s"[DRIVER] exscuting sql $sql")
-    new FlinkJdbcResultSet(sparkSession.sqlQuery(sql), this)
+    new FlinkJdbcResultSet(ETLFlinkSession.batchEnv.sqlQuery(sql), this)
   }
 
   override def executeUpdate(sql: String): Int = {
     println(s"[DRIVER] exscuting sql $sql")
-    sparkSession.executeSql(sql)
+    ETLFlinkSession.batchEnv.executeSql(sql)
     0
   }
 
@@ -50,9 +47,9 @@ class FlinkJdbcStatement extends Statement {
   override def setCursorName(name: String): Unit = ()
 
   override def execute(sql: String): Boolean = {
-    sparkSession.executeSql(sql).print()
+    ETLFlinkSession.batchEnv.executeSql(sql).print()
 
-    val fixedResult = ETLFlinkSession.sparkSession.fromValues(
+    val fixedResult = ETLFlinkSession.batchEnv.fromValues(
       DataTypes.ROW(
         DataTypes.FIELD("result", DataTypes.STRING())
       ),

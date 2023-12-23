@@ -15,7 +15,7 @@ import org.apache.flink.table.api.TableEnvironment
 class TempDataSource extends Sink[DataFrame] with Source[DataFrame, TableEnvironment] {
 
   override def write(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = {
-    ETLFlinkSession.sparkSession.createTemporaryView(step.target.asInstanceOf[DBDataSourceConfig].getTableName, df)
+    ETLFlinkSession.batchEnv.createTemporaryView(step.target.asInstanceOf[DBDataSourceConfig].getTableName, df)
   }
 
   override def read(step: WorkflowStep, jobLog: JobLog, executionContext: TableEnvironment, variables: Variables): DataFrame = {

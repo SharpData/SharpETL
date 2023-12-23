@@ -17,7 +17,7 @@ class BuiltInDataSource extends Sink[DataFrame] with Source[DataFrame, TableEnvi
   override def write(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = {
     val sql = s"INSERT INTO ${step.target.asInstanceOf[DBDataSourceConfig].getTableName} ${step.getSql}"
     println("executing sql:\n " + sql)
-    ETLFlinkSession.sparkSession.executeSql(sql)
+    ETLFlinkSession.batchEnv.executeSql(sql)
   }
 
   override def read(step: WorkflowStep, jobLog: JobLog, executionContext: TableEnvironment, variables: Variables): DataFrame = {
