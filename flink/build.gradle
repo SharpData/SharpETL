@@ -95,7 +95,6 @@ dependencies {
     implementation group: "com.microsoft.sqlserver", name: "mssql-jdbc", version: "9.4.0.jre8"
     implementation "net.sourceforge.jtds:jtds:1.3.1"
     implementation group: "com.ibm.informix", name: "jdbc", version: "4.10.14"
-    implementation group: "org.apache.spark", name: "spark-sql-kafka-0-10_$scalaVersion", version: "$sparkVersion"
     implementation group: "org.postgresql", name: "postgresql", version: "42.7.1"
 
     implementation('io.github.coolbeevip:flyway-core:9.15.2.2') {
@@ -205,7 +204,7 @@ task slimJar(type: ShadowJar) {
         include 'com/google/guava/**'
     }
     relocate "org.apache.commons.net", "com.github.sharpdata.sharpetl.commons.net"
-    archiveFileName = "sharp-etl-flink-${sparkVersion}_${scalaVersion}-${version}.jar"
+    archiveFileName = "sharp-etl-flink-${flinkVersion}_${scalaVersion}-${version}.jar"
 }
 
 shadowJar {
@@ -274,15 +273,7 @@ task copyDependencies(type: Copy) {
     include("mvel2-2.4.13.Final.jar")
     include("fastparse_$scalaVersion-3.0.0.jar")
     include("classgraph-4.8.149.jar")
-    if (sparkVersion.startsWith("2.3")) {
-        include("elasticsearch-spark-20_$scalaVersion-7.7.0.jar")
-    } else if (sparkVersion.startsWith("2.4")) {
-        include("elasticsearch-spark-20_$scalaVersion-7.14.0.jar")
-    } else if (sparkVersion.startsWith("3") & scalaVersion.startsWith("2.12")) {
-        include("elasticsearch-spark-30_$scalaVersion-7.16.2.jar")
-    } else if (sparkVersion.startsWith("3") & scalaVersion.startsWith("2.13")) {
-        include("elasticsearch-spark-30_$scalaVersion-8.1.0.jar")
-    }
+
     include("jasypt-1.9.3.jar")
     include("httpclient-4.5.12.jar")
     include("mybatis-3.5.9.jar")
@@ -292,12 +283,8 @@ task copyDependencies(type: Copy) {
     include("mysql-connector-java-8.0.19.jar")
     include("ojdbc8-19.3.0.0.jar")
     include("aliyun-sdk-oss-3.16.0.jar")
-    include("spark-sql-kafka-0-10_$scalaVersion-${sparkVersion}.jar")
-    if (scalaVersion.startsWith('2.11')) {
-        include("kudu-spark2_$scalaVersion-1.9.0.jar")
-    } else if (sparkVersion.startsWith("3")) {
-        include("kudu-spark3_$scalaVersion-1.15.0.jar")
-    }
+
+
     include("circe-yaml_$scalaVersion-0.11.0-M1.jar")
     include("circe-core_$scalaVersion-0.12.0-M3.jar")
     include("circe-generic_$scalaVersion-0.12.0-M3.jar")
@@ -310,49 +297,12 @@ task copyDependencies(type: Copy) {
     include("mssql-jdbc-9.4.0.jre8.jar")
     include("jtds-1.3.1.jar")
     include("jdbc-4.10.14.jar") // informix
-    include("pmml-evaluator-extension-1.5.3.jar")
-    include("pmml-evaluator-1.5.3.jar")
-    include("pmml-model-1.5.3.jar")
-    include("pmml-agent-1.5.3.jar")
-    include("picocli-4.6.3.jar")
+
     include("json-path-2.6.0.jar")
     include("mail-1.4.7.jar")
 
-    // spark-excel start
-    include("xml-resolver-1.2.jar")
-    include("xml-apis-1.4.01.jar")
-    include("slf4j-api-1.7.25.jar")
-    include("joda-convert-2.0.1.jar")
-    include("xmlbeans-3.1.0.jar")
-    include("poi-4.1.0.jar")
-    include("poi-ooxml-4.1.0.jar")
-    include("poi-ooxml-schemas-4.1.0.jar")
-    include("commons-math3-3.6.1.jar")
-    include("commons-collections4-4.3.jar")
-    include("commons-compress-1.19.jar")
-    include("joda-time-2.9.9.jar")
-    include("java-cup-10k.jar")
-    include("commons-net-3.1.jar")
-    include("commons-codec-1.12.jar")
-    include("org.eclipse.wst.xml.xpath2.processor-2.1.100.jar")
-    include("xerces2-xsd11-2.11.1.jar")
-    include("xlsx-streamer-2.1.0.jar")
-    include("icu4j-4.6.jar")
-    include("curvesapi-1.06.jar")
-    include("spark-excel_$scalaVersion-0.13.1.jar")
     include("picocli-4.6.3.jar")
-    // spark-excel end
     include("lift-json_$scalaVersion-3.4.3")
-
-    if (sparkVersion.startsWith("2.3")) {
-        include("spark-bigquery-with-dependencies_$scalaVersion-0.26.0.jar")
-    } else if (sparkVersion.startsWith("2.4")) {
-        include("spark-2.4-bigquery-0.26.0-preview.jar")
-    } else if (sparkVersion.startsWith("3.1") || sparkVersion.startsWith("3.2")) {
-        include("spark-3.1-bigquery-0.26.0-preview.jar")
-    } else if (sparkVersion.startsWith("3.0")) {
-        include("spark-bigquery-with-dependencies_$scalaVersion-0.26.0.jar")
-    }
 }
 
 task buildJars(type: Copy, dependsOn: [":flink:clearJar", ":flink:shadowJar", ":flink:slimJar", ":flink:copyDependencies"])
