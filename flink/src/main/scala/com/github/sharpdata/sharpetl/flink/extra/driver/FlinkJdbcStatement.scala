@@ -2,10 +2,12 @@ package com.github.sharpdata.sharpetl.flink.extra.driver
 
 import com.github.sharpdata.sharpetl.flink.util.ETLFlinkSession
 import com.github.sharpdata.sharpetl.flink.util.ETLFlinkSession.sparkSession
+import org.apache.flink.table.api.DataTypes
+import org.apache.flink.table.api.Expressions.row
 
 import java.sql.{Connection, ResultSet, SQLWarning, Statement}
 import scala.collection.convert.ImplicitConversions.`iterator asScala`
-import scala.jdk.CollectionConverters.seqAsJavaListConverter
+import scala.jdk.CollectionConverters.{collectionAsScalaIterableConverter, seqAsJavaListConverter}
 
 // scalastyle:off
 class FlinkJdbcStatement extends Statement {
@@ -48,7 +50,16 @@ class FlinkJdbcStatement extends Statement {
   override def setCursorName(name: String): Unit = ()
 
   override def execute(sql: String): Boolean = {
-    sparkSession.executeSql(sql)
+    sparkSession.executeSql(sql).print()
+
+    val fixedResult = ETLFlinkSession.sparkSession.fromValues(
+      DataTypes.ROW(
+        DataTypes.FIELD("result", DataTypes.STRING())
+      ),
+      row("SUCCESS")
+    )
+
+    this.resultSet = new FlinkJdbcResultSet(fixedResult, this)
     false
   }
 

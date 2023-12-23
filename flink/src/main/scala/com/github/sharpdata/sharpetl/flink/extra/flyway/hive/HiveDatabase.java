@@ -81,16 +81,16 @@ public class HiveDatabase extends Database<HiveConnection> {
     public String getRawCreateScript(Table table, boolean baseline) {
         ETLFlinkSession.sparkSession().executeSql("create database if not exists " + doGetDatabase() + ";");
         return "CREATE TABLE " + table + " (\n" +
-                "    `installed_rank` INT NOT NULL,\n" +
+                "    `installed_rank` INT,\n" +
                 "    `version` STRING,\n" +
-                "    `description` STRING NOT NULL,\n" +
-                "    `type` STRING NOT NULL,\n" +
-                "    `script` STRING NOT NULL,\n" +
+                "    `description` STRING,\n" +
+                "    `type` STRING,\n" +
+                "    `script` STRING,\n" +
                 "    `checksum` INT,\n" +
-                "    `installed_by` STRING NOT NULL,\n" +
-                "    `installed_on` TIMESTAMP NOT NULL,\n" +
-                "    `execution_time` INT NOT NULL,\n" +
-                "    `success` BOOLEAN NOT NULL\n" +
+                "    `installed_by` STRING,\n" +
+                "    `installed_on` TIMESTAMP,\n" +
+                "    `execution_time` INT,\n" +
+                "    `success` BOOLEAN\n" +
                 ");\n" + baselineStatement(table) + ";\n";
     }
 
@@ -136,7 +136,7 @@ public class HiveDatabase extends Database<HiveConnection> {
                 "'" + AbbreviationUtils.abbreviateDescription(configuration.getBaselineDescription()) + "'",
                 "'" + CoreMigrationType.BASELINE + "'",
                 "'" + AbbreviationUtils.abbreviateScript(configuration.getBaselineDescription()) + "'",
-                "NULL",
+                "0",
                 "'" + getInstalledBy() + "'",
                 0,
                 getBooleanTrue()
