@@ -57,6 +57,7 @@ dependencies {
     // --------------------------------------------------------------
     implementation "org.apache.flink:flink-streaming-java:${flinkVersion}"
     implementation "org.apache.flink:flink-clients:${flinkVersion}"
+    implementation "org.apache.flink:flink-connector-files:${flinkVersion}"
     implementation "org.apache.flink:flink-table-planner_${scalaVersion}:${flinkVersion}"
 
 

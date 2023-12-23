@@ -11,11 +11,10 @@ import com.github.sharpdata.sharpetl.flink.util.ETLFlinkSession
 class ConsoleDataSource extends Sink[DataFrame] {
   override def write(df: DataFrame, step: WorkflowStep, variables: Variables): Unit = {
     println("console output schema:")
-    val table = ETLFlinkSession.sparkSession.fromDataStream(df)
-    table.printSchema()
+    df.printSchema()
     println("explain plan:")
-    println(table.explain())
+    println(df.explain())
     println("console output:")
-    df.printToErr()
+    println(df.toString)
   }
 }

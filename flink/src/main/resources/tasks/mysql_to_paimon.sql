@@ -14,15 +14,6 @@ WITH ( 'type' = 'jdbc',
     'base-url' = 'jdbc:mysql://localhost:3306'
 );
 
--- step=define paimon catalog
--- source=ddl
--- target=do_nothing
-
-CREATE CATALOG paimon WITH (
-    'type' = 'paimon',
-    'warehouse' = 'file:///Users/izhangzhihao/Downloads/sharp-etl/paimon-warehouse'
-);
-
 -- step=define paimon sink table
 -- source=ddl
 -- target=do_nothing

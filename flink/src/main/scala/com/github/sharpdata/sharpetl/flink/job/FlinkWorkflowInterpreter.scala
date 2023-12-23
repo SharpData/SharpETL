@@ -14,15 +14,16 @@ import com.github.sharpdata.sharpetl.core.util.StringUtil.{BigIntConverter, isNu
 import com.github.sharpdata.sharpetl.core.util.{ETLLogger, HDFSUtil}
 import com.github.sharpdata.sharpetl.flink.job.Types.DataFrame
 import com.github.sharpdata.sharpetl.flink.quality.FlinkQualityCheck
-import org.apache.flink.streaming.api.datastream.DataStream
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment
+import com.github.sharpdata.sharpetl.flink.util.ETLFlinkSession
+import org.apache.flink.table.api.TableEnvironment
+import org.apache.flink.table.api.TableEnvironment
 
 import scala.collection.convert.ImplicitConversions._
 import scala.collection.immutable
 import scala.jdk.CollectionConverters._
 import scala.util.control.NonFatal
 
-class FlinkWorkflowInterpreter(override val tEnv: StreamTableEnvironment,
+class FlinkWorkflowInterpreter(override val tEnv: TableEnvironment,
                                override val dataQualityCheckRules: Map[String, QualityCheckRule],
                                override val qualityCheckAccessor: QualityCheckAccessor)
   extends FlinkQualityCheck(tEnv, dataQualityCheckRules, qualityCheckAccessor) with WorkflowInterpreter[DataFrame] {
@@ -132,7 +133,7 @@ class FlinkWorkflowInterpreter(override val tEnv: StreamTableEnvironment,
     val stepLog = jobLog.getStepLog(step.step)
     val incrementalType = jobLog.logDrivenType
     ETLLogger.info(s"incremental type is ${incrementalType}")
-    val dfCount = df.executeAndCollect().asScala.size
+    val dfCount = df.execute().collect().asScala.size
     if (incrementalType == IncrementalType.DIFF && dfCount > incrementalDiffModeDataLimit.toLong) {
       throw IncrementalDiffModeTooMuchDataException(
         s"Incremental diff mode data limit is $incrementalDiffModeDataLimit, but current data count is ${dfCount}"
@@ -168,7 +169,7 @@ class FlinkWorkflowInterpreter(override val tEnv: StreamTableEnvironment,
                            variables: Variables): DataFrame = {
     val stepLog = jobLog.getStepLog(step.step)
     val df = IO.read(tEnv, step, variables, jobLog)
-    stepLog.sourceCount = if (step.target.dataSourceType == DataSourceType.VARIABLES) 0 else df.executeAndCollect().asScala.size
+    stepLog.sourceCount = if (step.target.dataSourceType == DataSourceType.VARIABLES) 0 else df.execute().collect().asScala.size
     df
   }
   // scalastyle:on
@@ -194,7 +195,7 @@ class FlinkWorkflowInterpreter(override val tEnv: StreamTableEnvironment,
     }
   }
 
-  override def applicationId(): String = "???"//tEnv.getConfig.get("pipeline.name")
+  override def applicationId(): String = ETLFlinkSession.wfName
 
   override def executeSqlToVariables(sql: String): List[Map[String, String]] = {
 

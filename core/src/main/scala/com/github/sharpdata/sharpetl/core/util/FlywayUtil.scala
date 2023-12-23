@@ -31,6 +31,20 @@ object FlywayUtil {
           ETLConfig.getProperty("flyway.username"),
           ETLConfig.getProperty("flyway.password"))
         .load()
+    } else if (ETLConfig.getProperty("flyway.url").toLowerCase().contains("jdbc:flink_sharp_etl:")) {
+      Flyway
+        .configure
+        .locations("db/flink/migration")
+//        .defaultSchema(ETLConfig.getProperty("flyway.catalog", "paimon") + "." + ETLConfig.getProperty("flyway.database", "sharp_etl"))
+                .defaultSchema(ETLConfig.getProperty("flyway.database", "sharp_etl"))
+        .createSchemas(false)
+        //.baselineVersion("0")
+        //.baselineOnMigrate(true)
+        .dataSource(
+          ETLConfig.getProperty("flyway.url"),
+          ETLConfig.getProperty(""),
+          ETLConfig.getProperty(""))
+        .load()
     } else {
       // MySQL
       Flyway

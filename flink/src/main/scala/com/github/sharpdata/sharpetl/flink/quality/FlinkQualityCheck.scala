@@ -6,11 +6,11 @@ import com.github.sharpdata.sharpetl.core.quality.{DataQualityCheckResult, Quali
 import com.github.sharpdata.sharpetl.core.repository.QualityCheckAccessor
 import com.github.sharpdata.sharpetl.core.util.ETLLogger
 import com.github.sharpdata.sharpetl.flink.job.Types.DataFrame
-import org.apache.flink.table.api.TableResult
-import org.apache.flink.table.api.bridge.java.StreamTableEnvironment
+import org.apache.flink.table.api.{TableEnvironment, TableResult}
+import org.apache.flink.table.api.TableEnvironment
 
 @Stable(since = "1.0.0")
-class FlinkQualityCheck(val tEnv: StreamTableEnvironment,
+class FlinkQualityCheck(val tEnv: TableEnvironment,
                         override val dataQualityCheckRules: Map[String, QualityCheckRule],
                         override val qualityCheckAccessor: QualityCheckAccessor)
   extends QualityCheck[DataFrame] {
@@ -20,17 +20,17 @@ class FlinkQualityCheck(val tEnv: StreamTableEnvironment,
       Seq()
     } else {
       ETLLogger.info(s"execution sql:\n $sql")
-//      tEnv.sql(sql).as[DataQualityCheckResult](dqEncoder).collectAsList().asScala
-//        .map(it => DataQualityCheckResult(it.column, it.dataCheckType, it.ids, it.errorType.split(DELIMITER).head, it.warnCount, it.errorCount))
-//        .filterNot(it => it.warnCount < 1 && it.errorCount < 1)
-//        .toSeq
+      //      tEnv.sql(sql).as[DataQualityCheckResult](dqEncoder).collectAsList().asScala
+      //        .map(it => DataQualityCheckResult(it.column, it.dataCheckType, it.ids, it.errorType.split(DELIMITER).head, it.warnCount, it.errorCount))
+      //        .filterNot(it => it.warnCount < 1 && it.errorCount < 1)
+      //        .toSeq
       Seq()
     }
   }
 
   override def execute(sql: String): DataFrame = {
     ETLLogger.info(s"Execution sql: \n $sql")
-    tEnv.toDataStream(tEnv.sqlQuery(sql))
+    tEnv.sqlQuery(sql)
   }
 
   override def createView(df: DataFrame, tempViewName: String): Unit = {

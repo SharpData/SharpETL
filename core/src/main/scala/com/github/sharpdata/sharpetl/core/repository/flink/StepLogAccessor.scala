@@ -2,7 +2,7 @@ package com.github.sharpdata.sharpetl.core.repository.flink
 
 import com.github.sharpdata.sharpetl.core.repository
 import com.github.sharpdata.sharpetl.core.repository.MyBatisSession.execute
-import com.github.sharpdata.sharpetl.core.repository.mapper.spark.StepLogMapper
+import com.github.sharpdata.sharpetl.core.repository.mapper.flink.StepLogMapper
 import com.github.sharpdata.sharpetl.core.repository.model.StepLog
 import com.github.sharpdata.sharpetl.core.util.DateUtil.L_YYYY_MM_DD_HH_MM_SS
 
