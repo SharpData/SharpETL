@@ -5,6 +5,7 @@ import com.github.sharpdata.sharpetl.core.repository.QualityCheckAccessor
 import com.github.sharpdata.sharpetl.core.util.Constants.ETLDatabaseType.FLINK_SHARP_ETL
 import com.github.sharpdata.sharpetl.core.util.{ETLConfig, ETLLogger}
 import com.github.sharpdata.sharpetl.flink.job.FlinkWorkflowInterpreter
+import com.github.sharpdata.sharpetl.flink.udf.CollectWsUDF
 import org.apache.flink.configuration.Configuration
 import org.apache.flink.table.api.{EnvironmentSettings, TableEnvironment}
 
@@ -33,6 +34,10 @@ object ETLFlinkSession {
     conf
   }
 
+  def initUdf(session: TableEnvironment): Unit = {
+    session.createTemporarySystemFunction("collect_ws", classOf[CollectWsUDF])
+  }
+
   def getFlinkInterpreter(local: Boolean,
                           wfName: String,
                           autoCloseSession: Boolean,
@@ -43,7 +48,7 @@ object ETLFlinkSession {
     ETLFlinkSession.wfName = wfName
     ETLFlinkSession.autoCloseSession = autoCloseSession
     val session = ETLFlinkSession.batchEnv
-    //UdfInitializer.init(session)
+    initUdf(session)
     createCatalogIfNeed(etlDatabaseType, session)
     new FlinkWorkflowInterpreter(session, dataQualityCheckRules, QualityCheckAccessor.getInstance(etlDatabaseType))
   }

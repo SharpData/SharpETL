@@ -1,7 +1,8 @@
 package com.github.sharpdata.sharpetl.flink.extra.driver
 
+import com.github.sharpdata.sharpetl.flink.extra.driver.FlinkJdbcStatement.fixedResult
 import com.github.sharpdata.sharpetl.flink.util.ETLFlinkSession
-import org.apache.flink.table.api.DataTypes
+import org.apache.flink.table.api.{DataTypes, Table}
 import org.apache.flink.table.api.Expressions.row
 
 import java.sql.{Connection, ResultSet, SQLWarning, Statement}
@@ -48,13 +49,6 @@ class FlinkJdbcStatement extends Statement {
 
   override def execute(sql: String): Boolean = {
     ETLFlinkSession.batchEnv.executeSql(sql).print()
-
-    val fixedResult = ETLFlinkSession.batchEnv.fromValues(
-      DataTypes.ROW(
-        DataTypes.FIELD("result", DataTypes.STRING())
-      ),
-      row("SUCCESS")
-    )
 
     this.resultSet = new FlinkJdbcResultSet(fixedResult, this)
     false
@@ -117,6 +111,15 @@ class FlinkJdbcStatement extends Statement {
   override def unwrap[T](iface: Class[T]): T = ???
 
   override def isWrapperFor(iface: Class[_]): Boolean = false
+}
+
+object FlinkJdbcStatement {
+  val fixedResult: Table = ETLFlinkSession.batchEnv.fromValues(
+    DataTypes.ROW(
+      DataTypes.FIELD("result", DataTypes.STRING())
+    ),
+    row("SUCCESS")
+  )
 }
 
 // scalastyle:on

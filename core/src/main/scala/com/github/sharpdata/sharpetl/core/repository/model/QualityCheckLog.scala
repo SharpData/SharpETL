@@ -1,8 +1,11 @@
 package com.github.sharpdata.sharpetl.core.repository.model
 
+import com.github.sharpdata.sharpetl.core.util.StringUtil.uuid
+
 import java.time.LocalDateTime
 import scala.beans.BeanProperty
 
+//noinspection ScalaStyle
 case class QualityCheckLog(
                             @BeanProperty
                             var jobId: String,
@@ -23,5 +26,7 @@ case class QualityCheckLog(
                             @BeanProperty
                             var createTime: LocalDateTime = LocalDateTime.now(),
                             @BeanProperty
-                            var lastUpdateTime: LocalDateTime = LocalDateTime.now()
+                            var lastUpdateTime: LocalDateTime = LocalDateTime.now(),
+                            @BeanProperty
+                            var id: String = uuid
                           )
