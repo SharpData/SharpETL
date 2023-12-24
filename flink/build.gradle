@@ -51,26 +51,28 @@ dependencies {
     implementation(project(":core"))
     implementation(project(":data-modeling"))
 
-    // --------------------------------------------------------------
-    // Compile-time dependencies that should NOT be part of the
-    // shadow (uber) jar and are provided in the lib folder of Flink
-    // --------------------------------------------------------------
-    implementation "org.apache.flink:flink-streaming-java:${flinkVersion}"
-    implementation "org.apache.flink:flink-clients:${flinkVersion}"
-    implementation "org.apache.flink:flink-connector-files:${flinkVersion}"
-    implementation "org.apache.flink:flink-table-planner_${scalaVersion}:${flinkVersion}"
+    if (scalaVersion == "2.12") {
+        // --------------------------------------------------------------
+        // Compile-time dependencies that should NOT be part of the
+        // shadow (uber) jar and are provided in the lib folder of Flink
+        // --------------------------------------------------------------
+        implementation "org.apache.flink:flink-streaming-java:${flinkVersion}"
+        implementation "org.apache.flink:flink-clients:${flinkVersion}"
+        implementation "org.apache.flink:flink-connector-files:${flinkVersion}"
+        implementation "org.apache.flink:flink-table-planner_${scalaVersion}:${flinkVersion}"
 
 
-    implementation "org.apache.flink:flink-table-api-java-uber:${flinkVersion}"
-    // --------------------------------------------------------------
-    // Dependencies that should be part of the shadow jar, e.g.
-    // connectors. These must be in the flinkShadowJar configuration!
-    // --------------------------------------------------------------
-    //flinkShadowJar "org.apache.flink:flink-connector-kafka:${flinkVersion}"
-    implementation "org.apache.flink:flink-connector-kafka:${flinkVersion}"
-    implementation 'org.apache.paimon:paimon-flink-1.17:0.6.0-incubating'
-    implementation 'org.apache.paimon:paimon-oss:0.6.0-incubating'
-    implementation 'org.apache.flink:flink-connector-jdbc:3.1.1-1.17'
+        implementation "org.apache.flink:flink-table-api-java-uber:${flinkVersion}"
+        // --------------------------------------------------------------
+        // Dependencies that should be part of the shadow jar, e.g.
+        // connectors. These must be in the flinkShadowJar configuration!
+        // --------------------------------------------------------------
+        //flinkShadowJar "org.apache.flink:flink-connector-kafka:${flinkVersion}"
+        implementation "org.apache.flink:flink-connector-kafka:${flinkVersion}"
+        implementation 'org.apache.paimon:paimon-flink-1.17:0.6.0-incubating'
+        implementation 'org.apache.paimon:paimon-oss:0.6.0-incubating'
+        implementation 'org.apache.flink:flink-connector-jdbc:3.1.1-1.17'
+    }
 
     runtimeOnly 'org.apache.hadoop:hadoop-hdfs:2.7.2'
 

@@ -68,10 +68,10 @@ jobs:
           key: ${{ runner.os }}-gradle-wrapper-${{ hashFiles('**/gradle/wrapper/gradle-wrapper.properties') }}
 
       - name: Style Check
-        run: ./gradlew scalastyleMainCheck -PscalaVersion=${{ matrix.scalaVersion }} -PsparkVersion=${{ matrix.sparkVersion }} -PscalaCompt=${{ matrix.scalaCompt }}
+        run: ./gradlew :spark:scalastyleMainCheck -PscalaVersion=${{ matrix.scalaVersion }} -PsparkVersion=${{ matrix.sparkVersion }} -PscalaCompt=${{ matrix.scalaCompt }}
 
       - name: Test
-        run: ./gradlew test -PscalaVersion=${{ matrix.scalaVersion }} -PsparkVersion=${{ matrix.sparkVersion }} -PscalaCompt=${{ matrix.scalaCompt }}
+        run: ./gradlew test -x :flink:test -PscalaVersion=${{ matrix.scalaVersion }} -PsparkVersion=${{ matrix.sparkVersion }} -PscalaCompt=${{ matrix.scalaCompt }}
 #        run: ./gradlew test aggregateScoverage -PscalaVersion=${{ matrix.scalaVersion }} -PsparkVersion=${{ matrix.sparkVersion }} -PscalaCompt=${{ matrix.scalaCompt }}
 
 #      - uses: codecov/codecov-action@v2

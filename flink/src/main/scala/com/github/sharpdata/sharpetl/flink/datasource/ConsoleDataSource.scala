@@ -15,6 +15,6 @@ class ConsoleDataSource extends Sink[DataFrame] {
     println(df.explain())
     println("console output:")
 
-    df.fetch(10000).execute().print()
+    df.execute().print()
   }
 }
