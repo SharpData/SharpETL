@@ -1,5 +1,5 @@
 - dataCheckType: power null check
-  rule: powerNullCheck($column)
+  rule: $column is NULL or $column = 'NULL' or $column = 'null' or $column = ''
   errorType: error
 - dataCheckType: null check
   rule: $column IS NULL
@@ -7,6 +7,6 @@
 - dataCheckType: duplicated check
   rule: UDR.com.github.sharpdata.sharpetl.core.quality.udr.DuplicatedCheck
   errorType: warn
-- dataCheckType: mismatch dim check
+- dataCheckType: negative check
   rule: $column = '-1'
   errorType: warn

@@ -23,6 +23,7 @@ class FlinkJdbcPreparedStatement(val sql: String) extends PreparedStatement {
       .foldLeft(sql) {
         case (accSql, (_, value)) =>
           value match {
+            case _ if !accSql.contains("?") => accSql
             case _: Int | _: Boolean => accSql.replaceFirst("\\?", value.toString)
             case _: String => accSql.replaceFirst("\\?", s"\'${escape(value.toString)}\'")
             case time: LocalDateTime => accSql.replaceFirst("\\?", s"\'${time.format(L_YYYY_MM_DD_HH_MM_SS)}\'")

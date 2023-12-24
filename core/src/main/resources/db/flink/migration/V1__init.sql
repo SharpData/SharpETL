@@ -22,7 +22,7 @@ create table if not exists `sharp_etl`.job_log
 
 create table if not exists `sharp_etl`.quality_check_log
 (
-    id               bigint,
+    id               string,
     job_id           string      not null,
     job_name         string      not null comment 'job name(workflow_name + period)',
     `column`         string      not null comment 'issue column name',

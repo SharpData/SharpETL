@@ -29,13 +29,6 @@ class FlinkWorkflowInterpreter(override val tEnv: TableEnvironment,
 
   override def evalSteps(steps: List[WorkflowStep], jobLog: JobLog, variables: Variables, start: String, end: String): Unit = {
     super.evalSteps(steps, jobLog, variables, start, end)
-    cleanUpTempTableFromMemory()
-  }
-
-  private def cleanUpTempTableFromMemory(): Unit = {
-    if (Environment.CURRENT != "test") {
-      tEnv.listTemporaryTables().foreach(it => tEnv.dropTemporaryTable(it))
-    }
   }
 
   // deprecated method
