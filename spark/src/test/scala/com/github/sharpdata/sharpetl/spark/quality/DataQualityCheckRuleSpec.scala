@@ -22,7 +22,7 @@ class DataQualityCheckRuleSpec extends AnyFlatSpec with should.Matchers with Spa
 
   it should "make no effects with custom filter" in {
     BUILT_IN_QUALITY_CHECK_RULES.tail.head.withColumn("name") should be(
-      DataQualityConfig("name", "custom check for name and address", "powerNullCheck(`name`) AND powerNullCheck(address)", ErrorType.error)
+      DataQualityConfig("name", "custom check for name and address", "powerNullCheck(name) AND powerNullCheck(address)", ErrorType.error)
     )
   }
 }

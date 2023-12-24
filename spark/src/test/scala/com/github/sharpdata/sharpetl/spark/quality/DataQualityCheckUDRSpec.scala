@@ -6,7 +6,6 @@ import com.github.sharpdata.sharpetl.core.datasource.config.DBDataSourceConfig
 import com.github.sharpdata.sharpetl.core.quality.{DataQualityCheckResult, ErrorType, QualityCheckRule}
 import com.github.sharpdata.sharpetl.core.repository.mysql.QualityCheckAccessor
 import com.github.sharpdata.sharpetl.core.syntax.WorkflowStep
-import com.github.sharpdata.sharpetl.spark.job.{SparkSessionTestWrapper, SparkWorkflowInterpreter}
 import org.apache.spark.sql.{Row, SparkSession}
 import org.apache.spark.sql.types._
 import org.scalatest.flatspec.AnyFlatSpec

@@ -59,7 +59,7 @@ object ETLFlinkSession {
   //    }
   //  }
 
-  def createCatalogIfNeed(etlDatabaseType: String, session: TableEnvironment) = {
+  def createCatalogIfNeed(etlDatabaseType: String, session: TableEnvironment): Unit = {
     if (etlDatabaseType == FLINK_SHARP_ETL) {
       val catalogName = ETLConfig.getProperty("flyway.catalog")
       val catalog = session.getCatalog(catalogName)

@@ -2,7 +2,7 @@ package com.github.sharpdata.sharpetl.flink.quality
 
 import com.github.sharpdata.sharpetl.core.annotation.Annotations.Stable
 import com.github.sharpdata.sharpetl.core.quality.QualityCheck._
-import com.github.sharpdata.sharpetl.core.quality.{DataQualityCheckResult, DataQualityConfig, ErrorType, QualityCheck, QualityCheckRule}
+import com.github.sharpdata.sharpetl.core.quality._
 import com.github.sharpdata.sharpetl.core.repository.QualityCheckAccessor
 import com.github.sharpdata.sharpetl.core.util.{ETLLogger, StringUtil}
 import com.github.sharpdata.sharpetl.flink.extra.driver.FlinkJdbcStatement.fixedResult
@@ -13,7 +13,6 @@ import org.apache.flink.table.api.{TableEnvironment, ValidationException}
 import org.apache.flink.table.operations.{ModifyOperation, Operation, QueryOperation}
 
 import java.util
-import java.util.List
 import scala.jdk.CollectionConverters.asScalaIteratorConverter
 
 @Stable(since = "1.0.0")
@@ -29,12 +28,14 @@ class FlinkQualityCheck(val tEnv: TableEnvironment,
       ETLLogger.info(s"execution sql:\n $sql")
       tEnv.sqlQuery(sql).execute().collect().asScala
         .map(it => DataQualityCheckResult(
+          // scalastyle:off
           it.getField(0).toString, // column
           it.getField(1).toString, // dataCheckType
           it.getField(2).toString, // ids
           it.getField(3).toString.split(DELIMITER).head, // errorType
           it.getField(4).toString.toInt, // warnCount
           it.getField(5).toString.toInt) // errorCount
+          // scalastyle:on
         )
         .filterNot(it => it.warnCount < 1 && it.errorCount < 1)
         .toSeq
