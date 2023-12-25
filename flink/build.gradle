@@ -60,9 +60,8 @@ dependencies {
         implementation "org.apache.flink:flink-clients:${flinkVersion}"
         implementation "org.apache.flink:flink-connector-files:${flinkVersion}"
         implementation "org.apache.flink:flink-table-planner_${scalaVersion}:${flinkVersion}"
-
-
         implementation "org.apache.flink:flink-table-api-java-uber:${flinkVersion}"
+
         // --------------------------------------------------------------
         // Dependencies that should be part of the shadow jar, e.g.
         // connectors. These must be in the flinkShadowJar configuration!
@@ -72,6 +71,12 @@ dependencies {
         implementation 'org.apache.paimon:paimon-flink-1.17:0.6.0-incubating'
         implementation 'org.apache.paimon:paimon-oss:0.6.0-incubating'
         implementation 'org.apache.flink:flink-connector-jdbc:3.1.1-1.17'
+
+        implementation "io.circe:circe-yaml_$scalaVersion:0.15.0-RC1"
+        implementation "io.circe:circe-generic_$scalaVersion:0.15.0-M1"
+        implementation "io.circe:circe-generic-extras_$scalaVersion:0.14.3"
+
+        implementation "com.google.guava:guava:29.0-jre"
     }
 
     runtimeOnly 'org.apache.hadoop:hadoop-hdfs:2.7.2'
@@ -200,11 +205,7 @@ task slimJar(type: ShadowJar) {
         include(project(":core"))
         include(project(":data-modeling"))
 
-        include dependency("com.google.guava:guava:29.0-jre")
         include dependency("commons-net:commons-net:3.1")
-    }
-    relocate("com.google", "com.github.sharpdata.sharpetl.google") {
-        include 'com/google/guava/**'
     }
     relocate "org.apache.commons.net", "com.github.sharpdata.sharpetl.commons.net"
     archiveFileName = "sharp-etl-flink-${flinkVersion}_${scalaVersion}-${version}.jar"
@@ -217,6 +218,7 @@ shadowJar {
         include(project(":core"))
         include(project(":data-modeling"))
 
+        include dependency("org.scala-lang.modules:scala-collection-compat_$scalaVersion:2.6.0")
         include dependency("org.mvel:mvel2:2.4.13.Final")
         include dependency('org.jasypt:jasypt:1.9.3')
         include dependency("com.lihaoyi:fastparse_$scalaVersion:3.0.0")
@@ -234,23 +236,22 @@ shadowJar {
         addDeps("io.circe:circe-generic_$scalaVersion:0.15.0-M1")
         addDeps("io.circe:circe-generic-extras_$scalaVersion:0.14.3")
 
+        addDeps("com.google.guava:guava:29.0-jre")
+        addDeps("com.google.guava:failureaccess:1.0.1")
+        addDeps("org.apache.paimon:paimon-flink-1.17:0.6.0-incubating")
+        addDeps("org.apache.paimon:paimon-oss:0.6.0-incubating")
+
         include dependency("org.postgresql:postgresql:42.2.14")
         include dependency("com.jcraft:jsch:0.1.55")
         include dependency("com.cloudera:ImpalaJDBC41:2.6.3")
         include dependency("com.microsoft.sqlserver:mssql-jdbc:9.4.0.jre8")
         include dependency('net.sourceforge.jtds:jtds:1.3.1')
         include dependency("com.ibm.informix:jdbc:4.10.14")
-        include dependency("com.google.guava:guava:29.0-jre")
-        include dependency("com.jayway.jsonpath:json-path:2.6.0")
-        include dependency("com.google.guava:failureaccess:1.0.1")
         include dependency("javax.mail:mail:1.4.7")
 
-        include dependency('info.picocli:picocli:4.6.3')
-        include dependency("net.liftweb:lift-json_$scalaVersion:3.4.3")
+        addDeps('info.picocli:picocli:4.6.3')
     }
-    relocate("com.google", "com.github.sharpdata.sharpetl.google") {
-        include 'com/google/guava/**'
-    }
+    relocate "com.google", "com.github.sharpdata.sharpetl.google"
     relocate "org.apache.commons.net", "com.github.sharpdata.sharpetl.commons.net"
     relocate "com.zaxxer.hikari", "com.github.sharpdata.sharpetl.hikari"
     //from '../hadoop'

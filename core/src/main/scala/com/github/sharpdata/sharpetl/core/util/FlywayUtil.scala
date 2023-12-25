@@ -42,8 +42,8 @@ object FlywayUtil {
         //.baselineOnMigrate(true)
         .dataSource(
           ETLConfig.getProperty("flyway.url"),
-          ETLConfig.getProperty(""),
-          ETLConfig.getProperty(""))
+          "none",
+          "none")
         .load()
     } else {
       // MySQL

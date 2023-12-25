@@ -120,6 +120,16 @@ dependencies {
     implementation group: "org.apache.hadoop", name: "hadoop-client", version: "2.7.2"
     implementation "org.apache.httpcomponents:httpclient:4.5.12"
 
+    if (sparkVersion.startsWith("3.5")) {
+        implementation "io.circe:circe-yaml_$scalaVersion:0.15.0-RC1"
+        implementation "io.circe:circe-generic_$scalaVersion:0.15.0-M1"
+        implementation "io.circe:circe-generic-extras_$scalaVersion:0.14.3"
+    } else {
+        implementation "io.circe:circe-yaml_$scalaVersion:0.11.0-M1"
+        implementation "io.circe:circe-generic_$scalaVersion:0.12.0-M3"
+        implementation "io.circe:circe-generic-extras_$scalaVersion:0.12.0-M3"
+    }
+
     if (profiles.contains("aliyun")) {
         implementation "com.aliyun.oss:aliyun-sdk-oss:3.16.0"
         implementation "com.aliyun.datalake:metastore-client-hive2:0.2.14"

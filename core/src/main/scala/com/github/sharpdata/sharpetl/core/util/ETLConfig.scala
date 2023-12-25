@@ -175,6 +175,7 @@ object ETLConfig {
     val value = this.properties.getProperty(key)
     if (isNullOrEmpty(value)) {
       ETLLogger.error(s"[Config] property key $key was not found in properties file!")
+      throw new RuntimeException(s"[Config] property key $key was not found in properties file!")
     }
     value
   }
