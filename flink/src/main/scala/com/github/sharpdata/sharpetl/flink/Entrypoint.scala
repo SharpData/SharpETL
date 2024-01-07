@@ -8,6 +8,7 @@ object Entrypoint {
   val errorHandler: CommandLine.IExecutionExceptionHandler =
     new CommandLine.IExecutionExceptionHandler() {
       def handleExecutionException(ex: Exception, commandLine: CommandLine, parseResult: CommandLine.ParseResult): Int = {
+        println("Failed to execute job, exiting with error: " + ex.getMessage)
         ex.printStackTrace()
         commandLine.getCommandSpec.exitCodeOnExecutionException
       }
@@ -18,6 +19,7 @@ object Entrypoint {
       args: _*
     )
     if (!succeed(code)) {
+      println("Failed to execute job, exiting with code " + code)
       System.exit(code)
     }
   }

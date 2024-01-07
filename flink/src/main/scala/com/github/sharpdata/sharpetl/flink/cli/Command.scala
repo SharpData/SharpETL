@@ -21,9 +21,9 @@ class SingleFlinkJobCommand extends SingleJobCommand {
     ETLConfig.setPropertyPath(propertyPath, env)
     val etlDatabaseType = JDBCUtil.dbType
     val interpreter = getFlinkInterpreter(local, wfName, releaseResource, etlDatabaseType, readQualityCheckRules())
-    migrate()
     //JavaVersionChecker.checkJavaVersion()
     try {
+      migrate()
       val wfInterpretingResult: WfEvalResult = LogDrivenInterpreter(
         WorkflowReader.readWorkflow(wfName),
         interpreter,
@@ -32,6 +32,10 @@ class SingleFlinkJobCommand extends SingleJobCommand {
       ).eval()
       new NotificationUtil(jobLogAccessor).notify(Seq(wfInterpretingResult))
       throwFirstException(Seq(wfInterpretingResult))
+    } catch {
+      case e: Exception =>
+        ETLLogger.error("Failed to execute job", e)
+        throw e
     } finally {
       interpreter.close()
     }

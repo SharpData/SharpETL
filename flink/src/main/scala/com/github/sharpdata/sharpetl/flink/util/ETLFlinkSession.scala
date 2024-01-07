@@ -66,7 +66,16 @@ object ETLFlinkSession {
       if (!catalog.isPresent) {
         if (local) {
           ETLLogger.info(s"catalog $catalogName not found, create it")
-          session.executeSql(s"CREATE CATALOG $catalogName WITH ('type' = 'paimon', 'warehouse' = '${ETLConfig.getProperty("flyway.warehouse")}')")
+          session.executeSql(
+            s"""
+               |CREATE CATALOG $catalogName
+               |WITH (
+               |  'type' = 'paimon',
+               |  'warehouse' = '${ETLConfig.getProperty("flyway.warehouse")}',
+               |  'fs.oss.endpoint' = '${ETLConfig.getProperty("flyway.endpoint")}',
+               |  'fs.oss.accessKeyId' = '${ETLConfig.getProperty("flyway.ak")}',
+               |  'fs.oss.accessKeySecret' = '${ETLConfig.getProperty("flyway.sk")}'
+               |)""".stripMargin)
           ETLFlinkSession.batchEnv.useCatalog(catalogName)
           session.executeSql(s"CREATE DATABASE IF NOT EXISTS ${ETLConfig.getProperty("flyway.database")}")
         } else {

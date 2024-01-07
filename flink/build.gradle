@@ -60,7 +60,7 @@ dependencies {
         implementation "org.apache.flink:flink-clients:${flinkVersion}"
         implementation "org.apache.flink:flink-connector-files:${flinkVersion}"
         implementation "org.apache.flink:flink-table-planner_${scalaVersion}:${flinkVersion}"
-        implementation "org.apache.flink:flink-table-api-java-uber:${flinkVersion}"
+        implementation "org.apache.flink:flink-table-api-java:${flinkVersion}"
 
         // --------------------------------------------------------------
         // Dependencies that should be part of the shadow jar, e.g.
@@ -254,7 +254,6 @@ shadowJar {
     relocate "com.google", "com.github.sharpdata.sharpetl.google"
     relocate "org.apache.commons.net", "com.github.sharpdata.sharpetl.commons.net"
     relocate "com.zaxxer.hikari", "com.github.sharpdata.sharpetl.hikari"
-    //from '../hadoop'
     archiveFileName = "sharp-etl-flink-standalone-${flinkVersion}_${scalaVersion}-${version}.jar"
     mergeServiceFiles {
         // https://github.com/flyway/flyway/issues/3482#issuecomment-1493367875
